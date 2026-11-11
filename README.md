@@ -71,7 +71,7 @@ The project is built in three parts, each split into small commits.
 ### Progress
 
 - [x] 1.1 Project setup (Laravel 13, Tailwind v4, Vite)
-- [ ] 1.2 Design system and tokens
+- [x] 1.2 Design system and tokens (preview at `/styleguide` in local development)
 - [ ] 1.3 Base layouts
 - [ ] 1.4 Shared UI components
 

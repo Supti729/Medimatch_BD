@@ -3,7 +3,166 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+/*
+|--------------------------------------------------------------------------
+| Medimatch BD design tokens
+|--------------------------------------------------------------------------
+| Every page uses these tokens so the whole application shares one look.
+| Each token becomes a Tailwind utility, for example:
+|   --color-brand-600  ->  bg-brand-600, text-brand-600, border-brand-600
+|   --shadow-card      ->  shadow-card
+|   --radius-card      ->  rounded-card
+| Preview them all at /styleguide (local development only).
+*/
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Fonts: Inter for English, Hind Siliguri for Bangla */
+    --font-sans: 'Inter', 'Hind Siliguri', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-bangla: 'Hind Siliguri', 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+    /* Brand: healthcare teal. brand-600 is the main action colour. */
+    --color-brand-50: #effaf7;
+    --color-brand-100: #d7f3ec;
+    --color-brand-200: #b0e6da;
+    --color-brand-300: #7dd3c2;
+    --color-brand-400: #46b8a4;
+    --color-brand-500: #249c89;
+    --color-brand-600: #167d6f;
+    --color-brand-700: #13645a;
+    --color-brand-800: #125049;
+    --color-brand-900: #11423d;
+    --color-brand-950: #062725;
+
+    /* Accent: warm coral for donation and community highlights. Use sparingly. */
+    --color-accent-50: #fff4ef;
+    --color-accent-100: #ffe5d9;
+    --color-accent-200: #ffc8b0;
+    --color-accent-400: #f8875c;
+    --color-accent-500: #ee6a3a;
+    --color-accent-600: #c94f22;
+    --color-accent-700: #a43f1b;
+
+    /* Surfaces and text */
+    --color-canvas: #f6f9f8; /* page background */
+    --color-surface: #ffffff; /* cards, panels, inputs */
+    --color-line: #dfe7e5; /* borders and dividers */
+    --color-ink: #10231f; /* main text */
+    --color-ink-soft: #40534f; /* secondary text */
+    --color-ink-muted: #5d706c; /* hints, captions, placeholders */
+
+    /* Status colours: success, warning, danger, info */
+    --color-success-50: #ecfdf3;
+    --color-success-100: #d1fadf;
+    --color-success-600: #0f8a4b;
+    --color-success-700: #0b6b3a;
+
+    --color-warning-50: #fffaeb;
+    --color-warning-100: #fef0c7;
+    --color-warning-600: #b25e09;
+    --color-warning-700: #8a4706;
+
+    --color-danger-50: #fef3f2;
+    --color-danger-100: #fee4e2;
+    --color-danger-600: #d12d20;
+    --color-danger-700: #a82318;
+
+    --color-info-50: #eff8ff;
+    --color-info-100: #d1e9ff;
+    --color-info-600: #1570cd;
+    --color-info-700: #175cab;
+
+    /* Corner radius */
+    --radius-control: 0.625rem; /* buttons, inputs */
+    --radius-card: 1rem; /* cards, panels, modals */
+
+    /* Shadows: soft and subtle */
+    --shadow-card: 0 1px 2px rgb(16 35 31 / 0.05), 0 1px 3px rgb(16 35 31 / 0.06);
+    --shadow-raised: 0 4px 6px -2px rgb(16 35 31 / 0.05), 0 12px 20px -4px rgb(16 35 31 / 0.09);
+    --shadow-overlay: 0 20px 40px -8px rgb(16 35 31 / 0.2);
+
+    /* Page width */
+    --container-page: 76rem;
+}
+
+/*
+| Base styles applied to plain HTML elements.
+*/
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        background-color: var(--color-canvas);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        color: var(--color-ink);
+        font-weight: 600;
+        letter-spacing: -0.015em;
+        text-wrap: balance;
+    }
+
+    /* Bangla text reads better with its own font and more line height */
+    :lang(bn) {
+        font-family: var(--font-bangla);
+        line-height: 1.7;
+        letter-spacing: 0;
+    }
+
+    /* One visible keyboard focus style everywhere */
+    :focus-visible {
+        outline: 2px solid var(--color-brand-600);
+        outline-offset: 2px;
+    }
+
+    ::selection {
+        background-color: var(--color-brand-200);
+        color: var(--color-brand-950);
+    }
+
+    /* Tailwind v4 removes the pointer cursor from buttons; bring it back */
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']) {
+        cursor: pointer;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+
+        *,
+        ::before,
+        ::after {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+/*
+| Small shared helpers.
+*/
+@utility page-container {
+    width: 100%;
+    max-width: var(--container-page);
+    margin-inline: auto;
+    padding-inline: 1rem;
+
+    @media (width >= 40rem) {
+        padding-inline: 1.5rem;
+    }
+
+    @media (width >= 64rem) {
+        padding-inline: 2rem;
+    }
 }
