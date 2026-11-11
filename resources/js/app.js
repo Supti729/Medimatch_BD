@@ -12,6 +12,8 @@
 |   data-modal-close           closes the dialog it is inside
 |   data-dismiss               removes the closest [data-dismissible] element
 |   <form data-loading>        disables the submit button while the form is sent
+|   data-district-of="id"      district <select> that follows a division <select>
+|   data-autosubmit            submits the form when the field changes
 */
 
 // ----- Show / hide -----
@@ -110,4 +112,32 @@ window.addEventListener('pageshow', (event) => {
         button.removeAttribute('aria-busy');
         button.querySelector('[data-spinner]')?.classList.add('hidden');
     });
+});
+
+// ----- Division -> district dropdowns -----
+// <select data-district-of="division"> only offers districts of the chosen division.
+function syncDistricts(districtSelect) {
+    const divisionSelect = document.getElementById(districtSelect.dataset.districtOf);
+    if (!divisionSelect) return;
+
+    const division = divisionSelect.value;
+    districtSelect.querySelectorAll('option[data-division]').forEach((option) => {
+        const match = !division || option.dataset.division === division;
+        option.hidden = !match;
+        option.disabled = !match;
+        if (!match && option.selected) districtSelect.value = '';
+    });
+}
+
+document.querySelectorAll('select[data-district-of]').forEach((districtSelect) => {
+    syncDistricts(districtSelect);
+    document
+        .getElementById(districtSelect.dataset.districtOf)
+        ?.addEventListener('change', () => syncDistricts(districtSelect));
+});
+
+// ----- Auto-submit -----
+// <select data-autosubmit> sends its form as soon as the value changes (sort order).
+document.addEventListener('change', (event) => {
+    if (event.target.matches('[data-autosubmit]')) event.target.form?.requestSubmit();
 });
