@@ -42,7 +42,9 @@
     </head>
     <body>
         <main class="page-container py-10 sm:py-14">
-            <header class="max-w-2xl">
+            @include('dev._nav')
+
+            <header class="mt-8 max-w-2xl">
                 <p class="text-sm font-semibold text-brand-700">Development only</p>
                 <h1 class="mt-2 text-3xl sm:text-4xl">Medimatch BD style guide</h1>
                 <p class="mt-3 text-ink-soft">
@@ -161,7 +163,7 @@
             <section class="mt-14" aria-labelledby="sg-sample">
                 <h2 id="sg-sample" class="text-xl">Tokens in use</h2>
                 <p class="mt-1 text-sm text-ink-muted">
-                    A preview only. Reusable button, input and card components arrive in step 1.4.
+                    Raw token classes. For real pages use the reusable components shown on the Components page.
                 </p>
                 <div class="mt-4 grid gap-5 lg:grid-cols-2">
                     <div class="rounded-card border border-line bg-surface p-6 shadow-card">

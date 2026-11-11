@@ -72,8 +72,23 @@ The project is built in three parts, each split into small commits.
 
 - [x] 1.1 Project setup (Laravel 13, Tailwind v4, Vite)
 - [x] 1.2 Design system and tokens (preview at `/styleguide` in local development)
-- [ ] 1.3 Base layouts
-- [ ] 1.4 Shared UI components
+- [x] F1 Layouts (public, auth, user, admin) and shared UI components
+- [ ] F2 Public pages and login/registration screens
+- [ ] F3 Signed-in user pages
+- [ ] F4 Admin pages and responsive pass
+
+### Frontend building blocks
+
+| What | Where |
+|---|---|
+| Design tokens (colours, fonts, shadows) | `resources/css/app.css` |
+| Layouts | `resources/views/components/layouts/` — use as `<x-layouts.public>`, `<x-layouts.app>`, `<x-layouts.admin>`, `<x-layouts.auth>` |
+| Components (buttons, forms, cards, badges, modal…) | `resources/views/components/` — each file starts with a usage example |
+| Menu links | `config/navigation.php` — a link shows as "Soon" until its route exists |
+| Interface behaviour (menus, dropdowns, modals) | `resources/js/app.js` |
+| Icons | [Heroicons](https://heroicons.com) through `<x-icon name="bell" />` |
+
+Live previews (local development only): `/styleguide`, `/styleguide/components`, and the layout previews linked from there.
 
 ## Contributing (team workflow)
 
