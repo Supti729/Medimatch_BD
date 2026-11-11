@@ -2,15 +2,18 @@
     Layout for signed-in users: sidebar on desktop, drawer + bottom bar on phones.
     <x-layouts.app title="My listings"> ...page content... </x-layouts.app>
 --}}
-@props(['title' => null, 'unread' => 0])
+@props(['title' => null, 'unread' => 0, 'preview' => false])
 
 @php
-    // "unread" is the unread notification count. It stays 0 until the
-    // notification system is built in the backend part (push B4).
+    // preview = true: the page shows the invented sample account (front-end part).
+    // The backend part removes "preview" and passes the real unread count (push B4).
     $user = auth()->user();
-    $displayName = $user?->name ?? 'Guest';
+    $sample = $preview && ! $user ? \App\Support\SampleAccount::class : null;
+
+    $displayName = $user?->name ?? ($sample ? $sample::user()['name'] : 'Guest');
     $initial = mb_strtoupper(mb_substr($displayName, 0, 1));
-    $unread = (int) $unread;
+    $recent = $sample ? $sample::notifications()->take(4) : collect();
+    $unread = $sample ? $sample::notifications()->where('read', false)->count() : (int) $unread;
 @endphp
 
 <x-layouts.base :title="$title" noindex>
@@ -88,11 +91,18 @@
                                 <a href="{{ route('notifications.index') }}" class="text-sm font-medium text-brand-700 hover:underline">View all</a>
                             @endif
                         </div>
-                        @isset($notifications)
-                            {{ $notifications }}
+                        @if ($recent->isNotEmpty())
+                            <ul class="max-h-96 divide-y divide-line overflow-y-auto">
+                                @foreach ($recent as $notification)
+                                    <li><x-notification-item :notification="$notification" compact /></li>
+                                @endforeach
+                            </ul>
+                            @if ($sample)
+                                <p class="border-t border-line px-4 py-2.5 text-xs text-ink-muted">Sample notifications for the design preview.</p>
+                            @endif
                         @else
                             <x-empty-state icon="bell" title="No notifications yet" description="Updates about your listings, requests and messages will appear here." class="py-8" />
-                        @endisset
+                        @endif
                     </x-dropdown>
 
                     {{-- Account menu --}}
@@ -109,7 +119,7 @@
 
                         <div class="border-b border-line px-4 pt-1 pb-3">
                             <p class="truncate text-sm font-semibold">{{ $displayName }}</p>
-                            <p class="text-xs text-ink-muted">{{ $user ? 'Signed in' : 'Not signed in' }}</p>
+                            <p class="text-xs text-ink-muted">{{ $user ? 'Signed in' : ($sample ? 'Sample account (not signed in)' : 'Not signed in') }}</p>
                         </div>
                         <div class="px-1.5 pt-1.5">
                             <x-nav.link route="profile.show" variant="sidebar" icon="user-circle">Profile</x-nav.link>
@@ -131,6 +141,12 @@
 
         <main id="main" class="page-container flex-1 py-6 pb-24 sm:py-8 lg:pb-10">
             <x-flash class="mb-6" />
+            @if ($sample)
+                <x-alert tone="info" title="Design preview" class="mb-6">
+                    You are not signed in. This page shows an invented sample account, and nothing you do here is saved.
+                    Accounts start working in the backend part of the project.
+                </x-alert>
+            @endif
             {{ $slot }}
         </main>
 

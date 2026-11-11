@@ -2,7 +2,7 @@
 @props(['href' => null, 'icon' => null, 'type' => 'button'])
 
 @php
-    $classes = 'flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-ink-soft hover:bg-brand-50 hover:text-brand-800';
+    $classes = 'flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-ink-soft hover:bg-brand-50 hover:text-brand-800 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-ink-soft';
 @endphp
 
 @if ($href)

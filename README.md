@@ -74,7 +74,7 @@ The project is built in three parts, each split into small commits.
 - [x] 1.2 Design system and tokens (preview at `/styleguide` in local development)
 - [x] F1 Layouts (public, auth, user, admin) and shared UI components
 - [x] F2 Public pages (home, browse, details, information, legal) and login/registration screens — browse runs on labelled sample data; forms are not connected until Part 2
-- [ ] F3 Signed-in user pages
+- [x] F3 Signed-in user pages (dashboard, profile, listings, requests, saved, messages, notifications, history, verification, settings) — design previews on a labelled sample account, open at `/dashboard`
 - [ ] F4 Admin pages and responsive pass
 
 ### Frontend building blocks
@@ -85,7 +85,8 @@ The project is built in three parts, each split into small commits.
 | Layouts | `resources/views/components/layouts/` — use as `<x-layouts.public>`, `<x-layouts.app>`, `<x-layouts.admin>`, `<x-layouts.auth>` |
 | Components (buttons, forms, cards, badges, modal…) | `resources/views/components/` — each file starts with a usage example |
 | Public pages | `resources/views/pages/`, `resources/views/medicines/`, `resources/views/auth/` |
-| Sample listings (temporary, replaced in Part 2) | `app/Support/SampleListings.php` |
+| Signed-in pages | `resources/views/account/`, controllers in `app/Http/Controllers/Account/` |
+| Sample data (temporary, replaced in Part 2) | `app/Support/SampleListings.php`, `app/Support/SampleAccount.php` |
 | Divisions, districts and option lists | `config/bangladesh.php`, `config/medimatch.php` |
 | Menu links | `config/navigation.php` — a link shows as "Soon" until its route exists |
 | Interface behaviour (menus, dropdowns, modals) | `resources/js/app.js` |
