@@ -1,10 +1,10 @@
-<x-layouts.admin title="Medicines" preview>
+<x-layouts.admin title="Medicines">
     <x-page-header title="Medicine catalogue" description="The verified list of medicines that can be listed, their brand names, and the medicines that are restricted.">
         <x-button icon="plus" :disabled="! Route::has('admin.medicines.store')" title="{{ Route::has('admin.medicines.store') ? '' : 'Not connected yet' }}">Add medicine</x-button>
     </x-page-header>
 
     <x-alert tone="warning" title="Sample catalogue" class="mt-6">
-        A real catalogue must be based on the DGDA registered medicine list and reviewed by a pharmacist. These entries only demonstrate the design.
+        This starter catalogue is demonstration data (database/seeders/MedicineCatalogueSeeder.php). A real catalogue must be based on the DGDA registered medicine list and reviewed by a pharmacist. Adding and editing medicines here comes in push B5.
     </x-alert>
 
     <x-card class="mt-6">
@@ -18,7 +18,7 @@
         @if ($medicines->isEmpty())
             <x-empty-state icon="beaker" title="No medicine matches" description="Try the generic name." />
         @else
-            <x-table :headers="['Generic name', 'Brand names (aliases)', 'Forms', 'Prescription', 'Eligibility']" caption="Medicine catalogue">
+            <x-table :headers="['Medicine', 'Brand names (aliases)', 'Form', 'Prescription', 'Eligibility']" caption="Medicine catalogue">
                 @foreach ($medicines as $medicine)
                     <tr>
                         <th scope="row" class="px-5 py-3.5 font-medium">{{ $medicine['generic_name'] }}</th>

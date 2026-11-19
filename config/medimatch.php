@@ -27,6 +27,26 @@ return [
     'verification_code_attempts' => 5,
 
 
+    // Listing rules checked by the server when a listing is saved
+    'listing_rules' => [
+        'min_shelf_life_months' => 3,   // expiry must be at least this far away
+        'max_quantity' => 1000,
+        'max_photos' => 4,
+        'max_photo_kb' => 2048,
+    ],
+
+    // Affordable-access listings by verified partners. Off until partner licensing and the legal basis are confirmed.
+    'allow_affordable_access' => false,
+
+    // Units offered on the listing form
+    'units' => ['tablets', 'capsules', 'bottles', 'sachets', 'strips', 'tubes', 'inhalers', 'drops bottles'],
+
+    // Packaging conditions that may be listed. Opened or loose medicines are not allowed.
+    'packaging' => [
+        'sealed_box' => 'Sealed, in the original box',
+        'sealed_strip' => 'Sealed strip or bottle, without the outer box',
+    ],
+
     // key => label shown to users
     'listing_types' => [
         'donation' => 'Donation',

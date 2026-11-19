@@ -124,10 +124,10 @@ The project is built in three parts, each split into small commits.
 
 **Part 1 (frontend) is complete.** Every page exists and is checked at 390px (phone) and 768px (tablet) with no sideways overflow, and every internal link resolves.
 - [x] B1 MySQL, Bangladesh locations (8 divisions, 64 districts, 495 upazilas), registration and login with email or phone, development-mode verification codes, password reset and change, roles (user, partner, reviewer, admin) and protected routes
-- [ ] B2 Profiles and privacy settings, medicine catalogue, listings
+- [x] B2 Profiles (picture, area), privacy settings, public profiles, contact-detail changes with re-verification; medicine catalogue (generic + strength + form, brand names, restricted medicines); real listings with eligibility rules, photos and a controlled status flow
 - [ ] B3 Requests, search, real dashboard numbers, saved medicines, reservations
 
-Signed-in and admin pages now require login (admin pages require the administrator role; reviewers may open the verification pages). Most records shown on them are still labelled sample data until B2–B5.
+Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Listings, profiles and settings use real data. Requests, messages, notifications, history, the dashboard numbers and most admin pages still show labelled sample data until B3–B5. New listings wait in "Pending review" until moderation is added in B5.
 
 ### Backend building blocks
 
@@ -139,6 +139,10 @@ Signed-in and admin pages now require login (admin pages require the administrat
 | Verification codes (hashed, expiring, limited attempts) | `app/Services/VerificationCodeService.php` |
 | Route protection (`role:admin`, `active`, `verified.account`) | `app/Http/Middleware/`, `routes/web.php` |
 | Bangladesh locations | `database/data/bangladesh-locations.json`, `database/seeders/LocationSeeder.php` |
+| Medicine catalogue (demo data, must be checked against the DGDA list) | `app/Models/Medicine.php`, `database/seeders/MedicineCatalogueSeeder.php` |
+| Listing status rules (allowed transitions) | `app/Enums/ListingStatus.php`, `app/Enums/ListingAction.php` |
+| Listing eligibility rules (shelf life, restricted medicines, photo limit) | `app/Http/Requests/Account/ListingRequest.php`, `config/medimatch.php` (`listing_rules`) |
+| Who may edit or change a listing | `app/Policies/MedicineListingPolicy.php` |
 
 ### Frontend building blocks
 

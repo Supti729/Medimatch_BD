@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(LocationSeeder::class);
+        $this->call(MedicineCatalogueSeeder::class);
 
         // Demo accounts with a known password: never in production.
         if (! app()->environment('production')) {

@@ -38,11 +38,6 @@ class AccountPagesTest extends TestCase
     {
         return [
             'dashboard' => ['/dashboard', 'Welcome, Rahim Uddin'],
-            'profile' => ['/profile', 'Public profile'],
-            'edit profile' => ['/profile/edit', 'Edit profile'],
-            'my listings' => ['/listings', 'My listings'],
-            'create listing' => ['/listings/create', 'Donate a medicine'],
-            'edit listing' => ['/listings/101/edit', 'Napa'],
             'my requests' => ['/requests', 'My requests'],
             'create request' => ['/requests/create', 'Request a medicine'],
             'request details' => ['/requests/201', 'Potential matches'],
@@ -52,22 +47,19 @@ class AccountPagesTest extends TestCase
             'notifications' => ['/notifications', 'Notifications'],
             'history' => ['/history', 'Interaction history'],
             'verification' => ['/verification', 'Verification Center'],
-            'privacy settings' => ['/settings/privacy', 'Privacy settings'],
-            'security settings' => ['/settings/security', 'Change password'],
         ];
+    }
+
+    public function test_unknown_sample_records_return_not_found(): void
+    {
+        $this->get('/requests/99999')->assertNotFound();
+        $this->get('/messages/99999')->assertNotFound();
+        $this->get('/requests/abc')->assertNotFound();
     }
 
     public function test_every_sidebar_link_now_leads_to_a_real_page(): void
     {
         $this->get('/dashboard')->assertDontSee('This page is not built yet');
-    }
-
-    public function test_unknown_records_return_not_found(): void
-    {
-        $this->get('/listings/99999/edit')->assertNotFound();
-        $this->get('/requests/99999')->assertNotFound();
-        $this->get('/messages/99999')->assertNotFound();
-        $this->get('/requests/abc')->assertNotFound();
     }
 
     // ----- Dashboard -----
@@ -93,32 +85,7 @@ class AccountPagesTest extends TestCase
             ->assertSee('They are not medical advice');
     }
 
-    // ----- Listings -----
-
-    public function test_listing_tabs_filter_by_status(): void
-    {
-        $this->get('/listings?tab=closed')->assertSee('Ace')->assertDontSee('Alatrol');
-        $this->get('/listings?tab=review')->assertSee('Alatrol')->assertSee('Reviewer note');
-        $this->get('/listings?tab=nonsense')->assertOk()->assertSee('Alatrol')->assertSee('Ace');
-    }
-
-    public function test_editable_listing_shows_a_prefilled_form(): void
-    {
-        $this->get('/listings/101/edit')
-            ->assertSee('value="Napa"', false)
-            ->assertSee('value="Paracetamol"', false)
-            ->assertSee('Submit for review')
-            ->assertDontSee('This listing cannot be edited');
-    }
-
-    public function test_reserved_and_completed_listings_are_locked(): void
-    {
-        foreach ([103, 105] as $id) {
-            $this->get("/listings/{$id}/edit")
-                ->assertSee('This listing cannot be edited')
-                ->assertDontSee('Submit for review');
-        }
-    }
+    // ----- Listings (real data: see ListingTest) -----
 
     public function test_listing_form_offers_donation_only_to_individuals_and_requires_safety_confirmations(): void
     {
@@ -261,7 +228,7 @@ class AccountPagesTest extends TestCase
 
     public function test_forms_without_a_backend_say_so(): void
     {
-        foreach (['/listings/create', '/requests/create', '/profile/edit', '/settings/privacy', '/settings/security', '/verification'] as $url) {
+        foreach (['/requests/create', '/verification'] as $url) {
             $this->get($url)->assertSee('Not connected yet');
         }
     }

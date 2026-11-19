@@ -40,7 +40,6 @@ class AdminPagesTest extends TestCase
             'dashboard' => ['/admin', 'Overview'],
             'users' => ['/admin/users', 'User management'],
             'user details' => ['/admin/users/5', 'Sabbir Hossain'],
-            'medicines' => ['/admin/medicines', 'Medicine catalogue'],
             'listings' => ['/admin/listings', 'Listing management'],
             'listing review' => ['/admin/listings/18', 'Moderation decision'],
             'requests' => ['/admin/requests', 'Request management'],
@@ -54,6 +53,19 @@ class AdminPagesTest extends TestCase
             'audit logs' => ['/admin/audit-logs', 'Audit log'],
             'settings' => ['/admin/settings', 'Admin settings'],
         ];
+    }
+
+    public function test_medicine_catalogue_page_shows_the_real_catalogue(): void
+    {
+        $this->seed(\Database\Seeders\MedicineCatalogueSeeder::class);
+
+        $this->get('/admin/medicines')
+            ->assertOk()
+            ->assertSee('Napa')
+            ->assertSee('Needs refrigeration (cold chain)')
+            ->assertDontSee('Design preview');
+
+        $this->get('/admin/medicines?q=seclo')->assertSee('Omeprazole')->assertDontSee('Fexo');
     }
 
     public function test_admin_login_page_loads(): void

@@ -43,7 +43,7 @@
         'escalated' => ['Escalated', 'danger'],
     ];
 
-    $key = strtolower((string) $status);
+    $key = strtolower($status instanceof \BackedEnum ? $status->value : (string) $status);
     [$label, $tone] = $map[$key] ?? [ucfirst(str_replace('_', ' ', $key)), 'neutral'];
 @endphp
 

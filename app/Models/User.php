@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -19,7 +21,8 @@ use Illuminate\Notifications\Notifiable;
  * changed with an explicit assignment ($user->role = ...) in trusted server code,
  * never from form input.
  */
-#[Fillable(['name', 'email', 'phone', 'password', 'division_id', 'district_id', 'upazila_id', 'avatar_path'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'division_id', 'district_id', 'upazila_id', 'avatar_path',
+    'show_avatar', 'show_contributions', 'show_verified_badge', 'matched_messages_only'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -40,6 +43,10 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => Role::class,
             'status' => AccountStatus::class,
+            'show_avatar' => 'boolean',
+            'show_contributions' => 'boolean',
+            'show_verified_badge' => 'boolean',
+            'matched_messages_only' => 'boolean',
         ];
     }
 
@@ -60,7 +67,24 @@ class User extends Authenticatable
         return $this->belongsTo(Upazila::class);
     }
 
+    public function listings(): HasMany
+    {
+        return $this->hasMany(MedicineListing::class);
+    }
+
     // ----- Helpers -----
+
+    /** Public URL of the profile picture, or null if there is none. */
+    public function avatarUrl(): ?string
+    {
+        return $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null;
+    }
+
+    /** Handovers this user completed as a donor (shown on the public profile if they allow it). */
+    public function completedContributions(): int
+    {
+        return $this->listings()->where('status', 'completed')->count();
+    }
 
     public function hasRole(Role ...$roles): bool
     {

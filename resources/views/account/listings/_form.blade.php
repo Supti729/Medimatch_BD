@@ -1,96 +1,138 @@
 {{--
-    Shared by the create and edit listing pages.
-    $listing: existing values (edit) or null (create)
-    $location: ['division' => ..., 'district' => ..., 'upazila' => ...] used to pre-fill the area
-    $storeRoute: route name that will save the form once the backend exists
+    Create / edit listing form.
+    $listing:   MedicineListing being edited, or null when creating
+    $catalogue: listable catalogue medicines with their brand names
+    $location:  ['division_id' => …, 'district_id' => …, 'upazila_id' => …] to pre-fill the area
 --}}
 @php
-    $ready = Route::has($storeRoute);
-    $value = fn (string $key, $default = null) => $listing[$key] ?? $default;
-    $forms = config('medimatch.dosage_forms');
-    $locked = $locked ?? false;
+    $editing = $listing !== null;
+    $rules = config('medimatch.listing_rules');
+    $minExpiry = now()->addMonths($rules['min_shelf_life_months'])->format('Y-m');
+    $wasApproved = $editing && in_array($listing->status->value, ['available', 'paused', 'unavailable'], true);
+    $currentMedicine = (string) old('medicine_id', $listing?->medicine_id);
+    $imageCount = $editing ? $listing->images->count() : 0;
 @endphp
 
-<form class="space-y-6" enctype="multipart/form-data"
-    @if ($ready) method="POST" action="{{ $listing ? route($storeRoute, $listing['id']) : route($storeRoute) }}" data-loading @else onsubmit="event.preventDefault()" @endif>
+<form method="POST" action="{{ $editing ? route('listings.update', $listing) : route('listings.store') }}" enctype="multipart/form-data" class="space-y-6" data-loading>
     @csrf
-    @if ($listing && $ready)
-        @method('PUT')
+    @if ($editing) @method('PUT') @endif
+
+    @if ($errors->any())
+        <x-alert tone="danger" title="Please check the form">Some details need your attention. They are marked below.</x-alert>
     @endif
 
-    <fieldset @disabled($locked) class="space-y-6">
-        <x-card title="Medicine" description="Copy these details exactly from the pack.">
-            <div class="grid gap-5 sm:grid-cols-2">
-                <x-form.input name="name" label="Medicine (brand) name" :value="$value('name')" required maxlength="100" placeholder="e.g. Napa" />
-                <x-form.input name="generic_name" label="Generic name" :value="$value('generic_name')" required maxlength="150" placeholder="e.g. Paracetamol" hint="Printed in smaller text under the brand name." />
-                <x-form.input name="strength" label="Strength" :value="$value('strength')" required maxlength="50" placeholder="e.g. 500 mg" />
-                <x-form.select name="dosage_form" label="Dosage form" :selected="$value('dosage_form')" required placeholder="Select form" :options="array_combine($forms, $forms)" />
-                <x-form.input name="quantity" label="Quantity" type="number" :value="$value('quantity')" required min="1" max="1000" inputmode="numeric" />
-                <x-form.input name="unit" label="Unit" :value="$value('unit')" required maxlength="30" placeholder="tablets, capsules, bottle…" />
-                <x-form.input name="expiry" label="Expiry date" type="month" :value="$value('expiry')" required :min="now()->format('Y-m')" hint="Month and year printed on the pack." />
-                <x-form.input name="batch_number" label="Batch number" :value="$value('batch_number')" optional maxlength="50" />
-                <div class="sm:col-span-2">
-                    <x-form.select name="packaging" label="Packaging condition" :selected="$value('packaging')" required placeholder="Select condition"
-                        :options="['sealed_box' => 'Sealed, in the original box', 'sealed_strip' => 'Sealed strip or bottle, without the outer box']"
-                        hint="Opened or loose medicines cannot be listed." />
-                </div>
+    <x-card title="Medicine" description="Choose the medicine from the catalogue, then copy the brand name and other details from the pack.">
+        <div class="grid gap-5 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+                <x-form.select name="medicine_id" label="Medicine (generic name, strength and form)" required placeholder="Select from the catalogue"
+                    data-brand-list="brand-suggestions"
+                    hint="Not in the list? It may not be in the catalogue yet, or it may be a medicine that cannot be listed, such as controlled or refrigerated medicines.">
+                    @foreach ($catalogue->groupBy('generic_name') as $generic => $medicines)
+                        <optgroup label="{{ $generic }}">
+                            @foreach ($medicines as $medicine)
+                                <option value="{{ $medicine->id }}" data-brands="{{ $medicine->aliases->pluck('brand_name')->implode('|') }}" @selected($currentMedicine === (string) $medicine->id)>
+                                    {{ $medicine->generic_name }} {{ $medicine->strength }} · {{ $medicine->dosage_form }}{{ $medicine->requires_prescription ? ' (prescription medicine)' : '' }}
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </x-form.select>
             </div>
-        </x-card>
 
-        <x-card title="Listing type">
-            <div class="space-y-3">
-                <label class="flex items-start gap-3 rounded-control border border-brand-300 bg-brand-50 p-4">
-                    <input type="radio" name="type" value="donation" checked class="mt-0.5 size-4 accent-brand-600">
-                    <span class="text-sm"><span class="block font-semibold">Donation</span><span class="text-ink-soft">Free of charge. You must not ask for money.</span></span>
-                </label>
-                <label class="flex items-start gap-3 rounded-control border border-line bg-canvas p-4 opacity-70">
-                    <input type="radio" name="type" value="affordable_access" disabled class="mt-0.5 size-4">
-                    <span class="text-sm"><span class="block font-semibold">Affordable access <x-badge class="ml-1">Partners only</x-badge></span><span class="text-ink-soft">Only for authorized partner organizations, where the law allows it.</span></span>
-                </label>
-            </div>
-        </x-card>
+            <x-form.input name="brand_name" label="Brand name on the pack" :value="$listing?->brand_name" required maxlength="100"
+                list="brand-suggestions" autocomplete="off" placeholder="e.g. Napa" />
+            <datalist id="brand-suggestions"></datalist>
 
-        <x-card title="Photos" description="Clear photos of the front of the pack and the expiry date help reviewers approve your listing.">
-            @php $errors ??= new \Illuminate\Support\ViewErrorBag; @endphp
-            <input type="file" name="images[]" id="images" multiple accept="image/jpeg,image/png,image/webp" aria-label="Medicine photos" aria-describedby="images-hint"
-                class="block w-full rounded-control border border-line bg-surface text-sm text-ink-soft file:mr-4 file:min-h-11 file:cursor-pointer file:border-0 file:bg-brand-50 file:px-4 file:text-sm file:font-semibold file:text-brand-800 hover:file:bg-brand-100">
-            @error('images')
-                <p class="mt-1.5 text-sm text-danger-700">{{ $message }}</p>
-            @else
-                <p id="images-hint" class="mt-1.5 text-sm text-ink-muted">Up to 4 photos, JPG, PNG or WebP, 2 MB each. Do not photograph prescriptions or anything with a patient name.</p>
-            @enderror
-        </x-card>
+            <x-form.input name="batch_number" label="Batch number" :value="$listing?->batch_number" optional maxlength="50" hint="Printed near the expiry date." />
 
-        <x-card title="Pick-up area" description="Only the upazila and district are shown publicly, never an address.">
-            <div class="grid gap-5 sm:grid-cols-3">
-                <x-form.location required with-upazila :division="$location['division'] ?? null" :district="$location['district'] ?? null" :upazila="$location['upazila'] ?? null" />
-            </div>
-        </x-card>
+            <x-form.input name="quantity" label="Quantity" type="number" :value="$listing?->quantity" required min="1" :max="$rules['max_quantity']" inputmode="numeric" />
+            <x-form.select name="unit" label="Unit" required placeholder="Select unit" :selected="$listing?->unit"
+                :options="array_combine(config('medimatch.units'), array_map('ucfirst', config('medimatch.units')))" />
 
-        <x-card title="Safety confirmation">
-            <div class="space-y-4">
-                @foreach ([
-                    'confirm_sealed' => 'The medicine is unopened and in its original packaging.',
-                    'confirm_expiry' => 'The expiry date I entered matches the pack, and it has not expired.',
-                    'confirm_storage' => 'It has been stored in a cool, dry place as the pack instructs.',
-                    'confirm_allowed' => 'It is not a controlled medicine, an injection, or a medicine that needs refrigeration.',
-                ] as $name => $label)
-                    <x-form.checkbox :name="$name" :label="$label" required :checked="(bool) $listing" />
-                @endforeach
-            </div>
-            <x-slot:footer>
-                <a href="{{ route('safety') }}" target="_blank" class="text-sm font-semibold text-brand-700 hover:underline">Read the safety guidelines</a>
-            </x-slot:footer>
-        </x-card>
-    </fieldset>
-
-    @unless ($locked)
-        <x-not-connected :route="$storeRoute" feature="Saving a listing" />
-
-        <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <x-button :href="route('listings.index')" variant="ghost">Cancel</x-button>
-            <x-button type="submit" name="action" value="draft" variant="secondary" :disabled="! $ready">Save as draft</x-button>
-            <x-button type="submit" name="action" value="submit" :disabled="! $ready">Submit for review</x-button>
+            <x-form.input name="expiry" label="Expiry month" type="month" :value="$listing?->expiry_date?->format('Y-m')" required :min="$minExpiry"
+                :hint="'At least '.$rules['min_shelf_life_months'].' months must be left before it expires.'" />
+            <x-form.select name="packaging" label="Packaging condition" required placeholder="Select condition" :selected="$listing?->packaging"
+                :options="config('medimatch.packaging')" hint="Opened or loose medicines cannot be listed." />
         </div>
-    @endunless
+    </x-card>
+
+    <x-card title="Listing type">
+        <div class="space-y-3">
+            <label class="flex items-start gap-3 rounded-control border border-brand-300 bg-brand-50 p-4">
+                <input type="radio" name="type" value="donation" @checked(old('type', $listing?->type ?? 'donation') === 'donation') class="mt-0.5 size-4 accent-brand-600">
+                <span class="text-sm"><span class="block font-semibold">Donation</span><span class="text-ink-soft">Free of charge. You must not ask for money.</span></span>
+            </label>
+            <label class="flex items-start gap-3 rounded-control border border-line bg-canvas p-4 opacity-70">
+                <input type="radio" name="type" value="affordable_access" disabled class="mt-0.5 size-4">
+                <span class="text-sm"><span class="block font-semibold">Affordable access <x-badge class="ml-1">Partners only</x-badge></span><span class="text-ink-soft">Only for authorized partner organizations, where the law allows it. Not available in the prototype.</span></span>
+            </label>
+        </div>
+        <x-form.field name="type" id="type" />
+    </x-card>
+
+    <x-card title="Photos" :description="'Up to '.$rules['max_photos'].' clear photos of the pack, including the expiry date. They help moderators approve your listing.'">
+        @if ($editing && $imageCount)
+            <fieldset>
+                <legend class="text-sm font-medium">Current photos</legend>
+                <ul class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    @foreach ($listing->images as $image)
+                        <li class="overflow-hidden rounded-control border border-line">
+                            <img src="{{ $image->url() }}" alt="Photo {{ $loop->iteration }} of {{ $listing->brand_name }}" class="aspect-square w-full object-cover">
+                            <label class="flex items-center gap-2 px-3 py-2 text-xs text-ink-soft">
+                                <input type="checkbox" name="remove_images[]" value="{{ $image->id }}" class="size-4 accent-danger-600" @checked(in_array((string) $image->id, (array) old('remove_images', []), true))>
+                                Remove
+                            </label>
+                        </li>
+                    @endforeach
+                </ul>
+            </fieldset>
+        @endif
+
+        <div @class(['mt-5' => $editing && $imageCount])>
+            <label for="images" class="block text-sm font-medium">{{ $editing && $imageCount ? 'Add photos' : 'Photos' }} <span class="font-normal text-ink-muted">(optional)</span></label>
+            <input type="file" name="images[]" id="images" multiple accept="image/jpeg,image/png,image/webp" aria-describedby="images-hint"
+                @error('images') aria-invalid="true" @enderror
+                class="mt-1.5 block w-full rounded-control border border-line bg-surface text-sm text-ink-soft file:mr-4 file:min-h-11 file:cursor-pointer file:border-0 file:bg-brand-50 file:px-4 file:text-sm file:font-semibold file:text-brand-800 hover:file:bg-brand-100">
+            @if ($errors->has('images') || $errors->has('images.*'))
+                <p class="mt-1.5 text-sm text-danger-700">{{ $errors->first('images') ?: $errors->first('images.*') }}</p>
+            @else
+                <p id="images-hint" class="mt-1.5 text-sm text-ink-muted">JPG, PNG or WebP, up to 2 MB each. Do not photograph prescriptions or anything with a patient's name.</p>
+            @endif
+        </div>
+    </x-card>
+
+    <x-card title="Pick-up area" description="Only the upazila and district are shown publicly, never an address.">
+        <div class="grid gap-5 sm:grid-cols-3">
+            <x-form.location by="id" required with-upazila :division="$location['division_id'] ?? null" :district="$location['district_id'] ?? null" :upazila="$location['upazila_id'] ?? null" />
+        </div>
+    </x-card>
+
+    <x-card title="Safety confirmation" description="Please confirm each point every time you save.">
+        <div class="space-y-4">
+            @foreach ([
+                'confirm_sealed' => 'The medicine is unopened and in its original packaging.',
+                'confirm_expiry' => 'The expiry date I entered matches the pack, and it has not expired.',
+                'confirm_storage' => 'It has been stored in a cool, dry place as the pack instructs.',
+                'confirm_allowed' => 'It is not a controlled medicine, an injection, or a medicine that needs refrigeration.',
+            ] as $name => $label)
+                <x-form.checkbox :name="$name" :label="$label" required />
+            @endforeach
+        </div>
+        <x-slot:footer>
+            <a href="{{ route('safety') }}" target="_blank" class="text-sm font-semibold text-brand-700 hover:underline">Read the safety guidelines</a>
+        </x-slot:footer>
+    </x-card>
+
+    <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <x-button :href="route('listings.index')" variant="ghost">Cancel</x-button>
+        @if ($wasApproved)
+            <x-button type="submit" name="action" value="submit">Save and send for review</x-button>
+        @else
+            <x-button type="submit" name="action" value="draft" variant="secondary">Save as draft</x-button>
+            <x-button type="submit" name="action" value="submit">Submit for review</x-button>
+        @endif
+    </div>
+    @if ($wasApproved)
+        <p class="text-right text-sm text-ink-muted">This listing is already approved. Saving changes hides it until a moderator reviews it again.</p>
+    @endif
 </form>

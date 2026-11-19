@@ -1,27 +1,26 @@
-@php $ready = Route::has('settings.privacy.update'); @endphp
-
-<x-layouts.app title="Privacy settings" :preview="$usingSampleData">
+<x-layouts.app title="Privacy settings">
     <div class="mx-auto max-w-3xl">
         <x-page-header title="Privacy settings" description="Choose what appears on your public profile. Your contact details are always private." />
 
-        <form class="mt-6 space-y-6" @if ($ready) method="POST" action="{{ route('settings.privacy.update') }}" data-loading @else onsubmit="event.preventDefault()" @endif>
+        <form method="POST" action="{{ route('settings.privacy.update') }}" class="mt-6 space-y-6" data-loading>
             @csrf
-            @if ($ready) @method('PUT') @endif
+            @method('PUT')
 
             <x-card title="Public profile">
                 <div class="space-y-5">
-                    <x-form.checkbox name="show_avatar" label="Show my profile picture" hint="If off, others see a plain icon." :checked="$user['privacy']['show_avatar']" />
-                    <x-form.checkbox name="show_contributions" label="Show how many handovers I have completed" hint="Only the number is shown, never the details." :checked="$user['privacy']['show_contributions']" />
-                    <x-form.checkbox name="show_verified_badge" label="Show my verified badge" :checked="$user['privacy']['show_verified_badge']" />
+                    <x-form.checkbox name="show_avatar" label="Show my profile picture" hint="If off, others see the first letter of your name." :checked="$user->show_avatar" />
+                    <x-form.checkbox name="show_contributions" label="Show how many donations I have completed" hint="Only the number is shown, never the details." :checked="$user->show_contributions" />
+                    <x-form.checkbox name="show_verified_badge" label="Show my verified badge" :checked="$user->show_verified_badge" />
                 </div>
                 <x-slot:footer>
-                    <a href="{{ route('profile.show') }}" class="text-sm font-semibold text-brand-700 hover:underline">Preview my public profile</a>
+                    <a href="{{ route('people.show', $user) }}" class="text-sm font-semibold text-brand-700 hover:underline">See my public profile</a>
                 </x-slot:footer>
             </x-card>
 
             <x-card title="Messages">
                 <x-form.checkbox name="matched_messages_only" label="Only people I am matched with can message me"
-                    hint="Recommended. A match means their listing or request is linked to yours." :checked="$user['privacy']['matched_messages_only']" />
+                    hint="Recommended. Messaging is added in a later part of the project; this choice is saved now and applied then."
+                    :checked="$user->matched_messages_only" />
             </x-card>
 
             <x-card title="Always private" description="These cannot be made public.">
@@ -32,10 +31,8 @@
                 </ul>
             </x-card>
 
-            <x-not-connected route="settings.privacy.update" feature="Saving privacy settings" />
-
             <div class="flex justify-end">
-                <x-button type="submit" :disabled="! $ready">Save settings</x-button>
+                <x-button type="submit">Save settings</x-button>
             </div>
         </form>
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\ListingController;
 use App\Http\Controllers\Account\MedicineRequestController;
 use App\Http\Controllers\Account\MessageController;
+use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Admin\AdminPageController;
 use App\Http\Controllers\Auth\AccountVerificationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MedicineController;
+use App\Http\Controllers\PublicProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +33,9 @@ Route::view('/about', 'pages.about')->name('about');
 Route::view('/contact', 'pages.contact')->name('contact');
 Route::view('/privacy', 'pages.privacy')->name('privacy');
 Route::view('/terms', 'pages.terms')->name('terms');
+
+// Public profile: only what the user allows others to see
+Route::get('/people/{user}', [PublicProfileController::class, 'show'])->whereNumber('user')->name('people.show');
 
 /*
 |--------------------------------------------------------------------------
@@ -75,7 +80,11 @@ Route::middleware(['auth', 'auth.session', 'active', 'verified.account'])->group
 
     Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
     Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create');
+    Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
     Route::get('/listings/{listing}/edit', [ListingController::class, 'edit'])->whereNumber('listing')->name('listings.edit');
+    Route::put('/listings/{listing}', [ListingController::class, 'update'])->whereNumber('listing')->name('listings.update');
+    Route::patch('/listings/{listing}/status', [ListingController::class, 'changeStatus'])->whereNumber('listing')->name('listings.status');
+    Route::delete('/listings/{listing}', [ListingController::class, 'destroy'])->whereNumber('listing')->name('listings.destroy');
 
     Route::get('/requests', [MedicineRequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/create', [MedicineRequestController::class, 'create'])->name('requests.create');
@@ -88,10 +97,13 @@ Route::middleware(['auth', 'auth.session', 'active', 'verified.account'])->group
     Route::get('/notifications', [AccountPageController::class, 'notifications'])->name('notifications.index');
     Route::get('/history', [AccountPageController::class, 'history'])->name('history.index');
     Route::get('/verification', [AccountPageController::class, 'verification'])->name('verification.index');
-    Route::get('/profile', [AccountPageController::class, 'profile'])->name('profile.show');
-    Route::get('/profile/edit', [AccountPageController::class, 'editProfile'])->name('profile.edit');
-    Route::get('/settings/privacy', [AccountPageController::class, 'privacy'])->name('settings.privacy');
-    Route::get('/settings/security', [AccountPageController::class, 'security'])->name('settings.security');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/settings/privacy', [ProfileController::class, 'privacy'])->name('settings.privacy');
+    Route::put('/settings/privacy', [ProfileController::class, 'updatePrivacy'])->name('settings.privacy.update');
+    Route::get('/settings/security', [ProfileController::class, 'security'])->name('settings.security');
+    Route::put('/settings/contact', [ProfileController::class, 'updateContact'])->name('settings.contact.update');
     Route::put('/settings/password', [PasswordController::class, 'update'])->name('settings.password.update');
 });
 

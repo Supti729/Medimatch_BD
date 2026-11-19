@@ -15,6 +15,7 @@
 |   data-depends-on="id"       <select> whose options follow another <select> (division > district > upazila)
 |   data-autosubmit            submits the form when the field changes
 |   data-tip="text"            tooltip on hover and keyboard focus (charts)
+|   data-brand-list="id"       medicine <select> that suggests brand names in a <datalist>
 */
 
 // ----- Show / hide -----
@@ -185,3 +186,19 @@ document.addEventListener('focusin', (event) => {
 });
 document.addEventListener('focusout', hideTip);
 window.addEventListener('scroll', hideTip, { passive: true });
+
+// ----- Brand name suggestions -----
+// <select data-brand-list="datalistId"> with <option data-brands="Napa|Ace"> fills the datalist
+// for the brand name field with the brands of the chosen catalogue medicine.
+document.querySelectorAll('select[data-brand-list]').forEach((select) => {
+    const list = document.getElementById(select.dataset.brandList);
+    if (!list) return;
+
+    const fill = () => {
+        const brands = select.selectedOptions[0]?.dataset.brands?.split('|').filter(Boolean) ?? [];
+        list.replaceChildren(...brands.map((brand) => Object.assign(document.createElement('option'), { value: brand })));
+    };
+
+    fill();
+    select.addEventListener('change', fill);
+});

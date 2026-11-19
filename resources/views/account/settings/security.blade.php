@@ -3,7 +3,7 @@
     $contactReady = Route::has('settings.contact.update');
 @endphp
 
-<x-layouts.app title="Security settings" :preview="$usingSampleData">
+<x-layouts.app title="Security settings">
     <div class="mx-auto max-w-3xl">
         <x-page-header title="Security settings" description="Keep your account safe." />
 
@@ -28,10 +28,10 @@
                     @csrf
                     @if ($contactReady) @method('PUT') @endif
                     <div class="grid gap-5 sm:grid-cols-2">
-                        <x-form.input name="email" label="Email" type="email" :value="$user['email']" maxlength="150" autocomplete="email" />
-                        <x-form.input name="phone" label="Phone number" type="tel" :value="$user['phone']" maxlength="14" autocomplete="tel" inputmode="tel" hint="Bangladeshi mobile number." />
+                        <x-form.input name="email" label="Email" type="email" :value="$user->email" maxlength="150" autocomplete="email" />
+                        <x-form.input name="phone" label="Phone number" type="tel" :value="$user->phone" maxlength="14" autocomplete="tel" inputmode="tel" hint="Bangladeshi mobile number." />
                     </div>
-                    <x-form.input name="confirm_password" id="contact-confirm-password" label="Your password" type="password" required autocomplete="current-password" hint="Needed to confirm this change." />
+                    <x-form.input name="confirm_password" id="contact-confirm-password" label="Your password" type="password" required autocomplete="current-password" hint="Needed to confirm this change. A changed email or phone number must be verified again." />
                     <x-button type="submit" :disabled="! $contactReady">Save contact details</x-button>
                 </form>
             </x-card>

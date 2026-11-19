@@ -7,8 +7,10 @@
         method="PATCH" confirm="Yes, cancel listing" tone="danger">
         People will no longer be able to request this medicine.
     </x-confirm-modal>
+
+    :fields="['action' => 'cancel']" adds hidden inputs to the form.
 --}}
-@props(['id', 'title', 'action', 'method' => 'POST', 'confirm' => 'Confirm', 'cancel' => 'Go back', 'tone' => 'primary'])
+@props(['id', 'title', 'action', 'method' => 'POST', 'confirm' => 'Confirm', 'cancel' => 'Go back', 'tone' => 'primary', 'fields' => []])
 
 <x-modal :id="$id" :title="$title" size="sm">
     {{ $slot }}
@@ -20,6 +22,9 @@
             @if (strtoupper($method) !== 'POST')
                 @method($method)
             @endif
+            @foreach ($fields as $fieldName => $fieldValue)
+                <input type="hidden" name="{{ $fieldName }}" value="{{ $fieldValue }}">
+            @endforeach
             <x-button type="submit" :variant="$tone === 'danger' ? 'danger' : 'primary'" class="w-full sm:w-auto">{{ $confirm }}</x-button>
         </form>
     </x-slot:footer>

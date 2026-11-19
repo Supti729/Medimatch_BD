@@ -110,7 +110,11 @@
                         <x-slot:trigger>
                             <button type="button" data-dropdown-trigger aria-haspopup="true" aria-expanded="false"
                                 class="inline-flex min-h-11 items-center gap-2 rounded-control py-1 pr-2 pl-1 hover:bg-brand-50">
-                                <span class="flex size-9 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white" aria-hidden="true">{{ $initial }}</span>
+                                @if ($user)
+                                    <x-avatar :user="$user" size="sm" />
+                                @else
+                                    <span class="flex size-9 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white" aria-hidden="true">{{ $initial }}</span>
+                                @endif
                                 <span class="hidden max-w-32 truncate text-sm font-medium sm:block">{{ $displayName }}</span>
                                 <x-icon name="chevron-down" class="hidden size-4 text-ink-muted sm:block" />
                                 <span class="sr-only">Open account menu</span>

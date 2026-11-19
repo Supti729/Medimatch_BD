@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Medicine;
 use App\Support\SampleAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -69,11 +70,21 @@ class AdminPageController extends Controller
     {
         $q = $this->text($request, 'q');
 
-        $medicines = SampleAdmin::medicines()
-            ->when($q !== '', fn (Collection $list) => $list->filter(
-                fn (array $m) => Str::contains(Str::lower($m['generic_name'].' '.implode(' ', $m['brands'])), Str::lower($q))
-            ))
-            ->values();
+        // The real catalogue (push B2). Searches generic and brand names.
+        $medicines = Medicine::with('aliases')
+            ->when($q !== '', fn ($query) => $query->where(fn ($w) => $w
+                ->where('generic_name', 'like', '%'.$q.'%')
+                ->orWhereHas('aliases', fn ($a) => $a->where('brand_name', 'like', '%'.$q.'%'))))
+            ->orderBy('eligibility')->orderBy('generic_name')->orderBy('strength')
+            ->get()
+            ->map(fn (Medicine $m) => [
+                'generic_name' => $m->generic_name.' '.$m->strength,
+                'brands' => $m->aliases->pluck('brand_name')->all(),
+                'forms' => [$m->dosage_form],
+                'requires_prescription' => $m->requires_prescription,
+                'eligibility' => $m->eligibility,
+                'reason' => $m->restriction_reason,
+            ]);
 
         return view('admin.medicines', compact('medicines', 'q'));
     }
