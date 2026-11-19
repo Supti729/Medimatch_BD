@@ -1,7 +1,6 @@
 @php $ready = Route::has('login.store'); @endphp
 
 <x-layouts.auth title="Admin log in" heading="Administrator log in" subheading="For platform administrators and authorized reviewers only.">
-    <x-not-connected route="login.store" feature="Administrator log in" class="mb-5" />
 
     <form class="space-y-5" @if ($ready) method="POST" action="{{ route('login.store') }}" data-loading @else onsubmit="event.preventDefault()" @endif>
         @csrf

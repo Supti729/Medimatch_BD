@@ -95,7 +95,9 @@ class ReservationService
                 ->get()->each(fn (Reservation $other) => $this->close($other, ReservationStatus::Declined));
 
             if ($request = $reservation->request) {
-                $request->moveTo($listing->medicine->requires_prescription ? RequestStatus::VerificationPending : RequestStatus::Reserved);
+                // A prescription medicine waits for the prescription check, unless it already passed.
+                $needsCheck = $listing->medicine->requires_prescription && ! $request->isPrescriptionVerified();
+                $request->moveTo($needsCheck ? RequestStatus::VerificationPending : RequestStatus::Reserved);
 
                 // The requester only needs one medicine: withdraw their other pending reservations for this request.
                 $request->reservations()->where('status', ReservationStatus::Pending->value)->where('id', '!=', $reservation->id)

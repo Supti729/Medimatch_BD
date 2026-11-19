@@ -9,7 +9,6 @@
 
         <div class="mt-6 space-y-6">
             <x-card title="Change password">
-                <x-not-connected route="settings.password.update" feature="Changing your password" class="mb-5" />
                 <form class="space-y-5" @if ($passwordReady) method="POST" action="{{ route('settings.password.update') }}" data-loading @else onsubmit="event.preventDefault()" @endif>
                     @csrf
                     @if ($passwordReady) @method('PUT') @endif
@@ -23,7 +22,6 @@
             </x-card>
 
             <x-card title="Email and phone number" description="You can log in with either one. Both stay private.">
-                <x-not-connected route="settings.contact.update" feature="Changing your email or phone number" class="mb-5" />
                 <form class="space-y-5" @if ($contactReady) method="POST" action="{{ route('settings.contact.update') }}" data-loading @else onsubmit="event.preventDefault()" @endif>
                     @csrf
                     @if ($contactReady) @method('PUT') @endif

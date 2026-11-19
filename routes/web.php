@@ -9,7 +9,17 @@ use App\Http\Controllers\Account\NotificationController;
 use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\ReservationController;
 use App\Http\Controllers\Account\SavedListingController;
-use App\Http\Controllers\Admin\AdminPageController;
+use App\Http\Controllers\Account\ReportController as UserReportController;
+use App\Http\Controllers\Account\VerificationController;
+use App\Http\Controllers\Admin\AnnouncementController;
+use App\Http\Controllers\Admin\CatalogueController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\ListingModerationController;
+use App\Http\Controllers\Admin\OverviewController;
+use App\Http\Controllers\Admin\ReportController as AdminReportController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VerificationReviewController;
 use App\Http\Controllers\Auth\AccountVerificationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\PasswordController;
@@ -116,7 +126,9 @@ Route::middleware(['auth', 'auth.session', 'active', 'verified.account'])->group
     Route::get('/notifications/{id}/open', [NotificationController::class, 'open'])->whereUuid('id')->name('notifications.open');
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::get('/history', [AccountPageController::class, 'history'])->name('history.index');
-    Route::get('/verification', [AccountPageController::class, 'verification'])->name('verification.index');
+    Route::get('/verification', [VerificationController::class, 'index'])->name('verification.index');
+    Route::post('/verification', [VerificationController::class, 'store'])->middleware('throttle:10,1')->name('verification.store');
+    Route::post('/reports', [UserReportController::class, 'store'])->middleware('throttle:10,1')->name('reports.store');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -132,32 +144,50 @@ Route::middleware(['auth', 'auth.session', 'active', 'verified.account'])->group
 | Administration panel
 |--------------------------------------------------------------------------
 | Administrators only, except the verification pages, which authorized
-| reviewers may also open. The pages still show sample data and cannot
-| change anything until push B5.
+| reviewers may also open. Every decision is written to the audit log.
 */
-Route::prefix('admin')->name('admin.')->controller(AdminPageController::class)
+Route::prefix('admin')->name('admin.')
     ->middleware(['auth', 'auth.session', 'active', 'verified.account'])
     ->group(function () {
-        Route::middleware('role:admin,reviewer')->group(function () {
-            Route::get('/verifications', 'verifications')->name('verifications.index');
-            Route::get('/verifications/{verification}', 'verification')->whereNumber('verification')->name('verifications.show');
+        // Prescription review: administrators and authorized reviewers
+        Route::middleware('role:admin,reviewer')->controller(VerificationReviewController::class)->group(function () {
+            Route::get('/verifications', 'index')->name('verifications.index');
+            Route::get('/verifications/{verification}', 'show')->whereNumber('verification')->name('verifications.show');
+            Route::get('/verifications/{verification}/document', 'document')->whereNumber('verification')->name('verifications.document');
+            Route::post('/verifications/{verification}/decision', 'decide')->whereNumber('verification')->name('verifications.decide');
         });
 
+        // Everything else: administrators only
         Route::middleware('role:admin')->group(function () {
-            Route::get('/', 'dashboard')->name('dashboard');
-            Route::get('/users', 'users')->name('users.index');
-            Route::get('/users/{user}', 'user')->whereNumber('user')->name('users.show');
-            Route::get('/medicines', 'medicines')->name('medicines.index');
-            Route::get('/listings', 'listings')->name('listings.index');
-            Route::get('/listings/{listing}', 'listing')->whereNumber('listing')->name('listings.show');
-            Route::get('/requests', 'requests')->name('requests.index');
-            Route::get('/reports', 'reports')->name('reports.index');
-            Route::get('/reports/{report}', 'report')->whereNumber('report')->name('reports.show');
-            Route::get('/transactions', 'transactions')->name('transactions.index');
-            Route::get('/partners', 'partners')->name('partners.index');
-            Route::get('/notifications', 'notifications')->name('notifications.index');
-            Route::get('/audit-logs', 'auditLogs')->name('audit-logs.index');
-            Route::get('/settings', 'settings')->name('settings');
+            Route::get('/', AdminDashboardController::class)->name('dashboard');
+
+            Route::get('/users', [UserController::class, 'index'])->name('users.index');
+            Route::get('/users/{user}', [UserController::class, 'show'])->whereNumber('user')->name('users.show');
+            Route::post('/users/{user}/status', [UserController::class, 'status'])->whereNumber('user')->name('users.status');
+            Route::post('/users/{user}/role', [UserController::class, 'role'])->whereNumber('user')->name('users.role');
+
+            Route::get('/medicines', [CatalogueController::class, 'index'])->name('medicines.index');
+            Route::post('/medicines', [CatalogueController::class, 'store'])->name('medicines.store');
+            Route::put('/medicines/{medicine}', [CatalogueController::class, 'update'])->whereNumber('medicine')->name('medicines.update');
+
+            Route::get('/listings', [ListingModerationController::class, 'index'])->name('listings.index');
+            Route::get('/listings/{listing}', [ListingModerationController::class, 'show'])->whereNumber('listing')->name('listings.show');
+            Route::post('/listings/{listing}/decision', [ListingModerationController::class, 'decide'])->whereNumber('listing')->name('listings.decide');
+
+            Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
+            Route::get('/reports/{report}', [AdminReportController::class, 'show'])->whereNumber('report')->name('reports.show');
+            Route::post('/reports/{report}/decision', [AdminReportController::class, 'decide'])->whereNumber('report')->name('reports.decide');
+
+            Route::get('/requests', [OverviewController::class, 'requests'])->name('requests.index');
+            Route::get('/transactions', [OverviewController::class, 'transactions'])->name('transactions.index');
+            Route::get('/partners', [OverviewController::class, 'partners'])->name('partners.index');
+            Route::get('/audit-logs', [OverviewController::class, 'auditLogs'])->name('audit-logs.index');
+
+            Route::get('/notifications', [AnnouncementController::class, 'index'])->name('notifications.index');
+            Route::post('/notifications', [AnnouncementController::class, 'store'])->middleware('throttle:5,1')->name('notifications.store');
+
+            Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
+            Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
         });
     });
 

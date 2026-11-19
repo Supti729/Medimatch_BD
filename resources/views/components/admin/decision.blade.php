@@ -10,7 +10,7 @@
 @php $ready = Route::has($route); @endphp
 
 <x-card :title="$title">
-    <x-not-connected :route="$route" :feature="$feature" class="mb-5" />
+    @error('decision') <x-alert tone="danger" class="mb-5">{{ $message }}</x-alert> @enderror
 
     <form class="space-y-5" @if ($ready) method="POST" action="{{ route($route, $param) }}" data-loading @else onsubmit="event.preventDefault()" @endif>
         @csrf

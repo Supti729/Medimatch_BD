@@ -18,9 +18,6 @@
             </ol>
         </nav>
 
-        @if ($usingSampleData)
-            <x-sample-notice class="mt-5" />
-        @endif
 
         <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_22rem]">
             <div class="space-y-6">
@@ -182,18 +179,22 @@
     </div>
 
     <x-modal id="report-listing" title="Report this listing">
-        <p>Reports help moderators remove unsafe or misleading listings.</p>
-        <x-not-connected route="reports.store" feature="Reporting" class="mt-4" />
-        <form id="report-form" class="mt-4 space-y-4" @if (Route::has('reports.store')) method="POST" action="{{ route('reports.store') }}" data-loading @else onsubmit="event.preventDefault()" @endif>
-            @csrf
-            <input type="hidden" name="listing_id" value="{{ $listing['id'] }}">
-            <x-form.select name="reason" id="report-reason" label="Reason" placeholder="Choose a reason" required
-                :options="['unsafe' => 'Unsafe or damaged medicine', 'expired' => 'Expired medicine', 'misleading' => 'Wrong or misleading details', 'selling' => 'Asking for money for a donation', 'other' => 'Something else']" />
-            <x-form.textarea name="details" id="report-details" label="Details" rows="3" optional maxlength="500" placeholder="Do not include personal or medical information." />
-        </form>
+        <p>Reports help moderators remove unsafe or misleading listings. The donor is not told who reported.</p>
+        @auth
+            <form id="report-form" method="POST" action="{{ route('reports.store') }}" class="mt-4 space-y-4" data-loading>
+                @csrf
+                <input type="hidden" name="target_type" value="listing">
+                <input type="hidden" name="target_id" value="{{ $listing['id'] }}">
+                <x-form.select name="reason" id="report-reason" label="Reason" placeholder="Choose a reason" required
+                    :options="collect(\App\Models\Report::REASONS)->only(['unsafe', 'expired', 'misleading', 'selling', 'other'])->all()" />
+                <x-form.textarea name="details" id="report-details" label="Details" rows="3" optional maxlength="1000" placeholder="Do not include personal or medical information." />
+            </form>
+        @else
+            <x-alert tone="info" class="mt-4">Please <a href="{{ route('login') }}" class="font-semibold underline">log in</a> to report a listing.</x-alert>
+        @endauth
         <x-slot:footer>
             <x-button variant="secondary" data-modal-close>Cancel</x-button>
-            <x-button type="submit" form="report-form" :disabled="! Route::has('reports.store')">Send report</x-button>
+            @auth <x-button type="submit" form="report-form">Send report</x-button> @endauth
         </x-slot:footer>
     </x-modal>
 </x-layouts.public>

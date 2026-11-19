@@ -1,7 +1,6 @@
 @php $ready = Route::has('password.update'); @endphp
 
 <x-layouts.auth title="Choose a new password" heading="Choose a new password" subheading="Pick a password you do not use anywhere else.">
-    <x-not-connected route="password.update" feature="Saving a new password" class="mb-5" />
 
     <form class="space-y-5" @if ($ready) method="POST" action="{{ route('password.update') }}" data-loading @else onsubmit="event.preventDefault()" @endif>
         @csrf

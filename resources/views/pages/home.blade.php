@@ -217,9 +217,6 @@
             <x-button :href="route('medicines.index')" variant="secondary" icon-right="arrow-right">Browse all</x-button>
         </div>
 
-        @if ($usingSampleData)
-            <x-sample-notice class="mt-6" />
-        @endif
 
         @if ($latestListings->isEmpty())
             <x-card class="mt-6" :padded="false">

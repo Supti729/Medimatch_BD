@@ -15,9 +15,6 @@
     </div>
 
     <div class="page-container py-8">
-        @if ($usingSampleData)
-            <x-sample-notice class="mb-6" />
-        @endif
 
         <form method="GET" action="{{ route('medicines.index') }}" role="search" class="grid gap-6 lg:grid-cols-[17rem_1fr]">
             @if ($view === 'list')

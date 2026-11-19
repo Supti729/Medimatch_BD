@@ -84,6 +84,11 @@ class User extends Authenticatable
         return $this->hasMany(Reservation::class, 'requester_id');
     }
 
+    public function verificationSubmissions(): HasMany
+    {
+        return $this->hasMany(VerificationSubmission::class);
+    }
+
     public function savedListings(): BelongsToMany
     {
         return $this->belongsToMany(MedicineListing::class, 'saved_listings')->withTimestamps();

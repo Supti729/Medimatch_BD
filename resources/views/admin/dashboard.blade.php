@@ -1,4 +1,4 @@
-<x-layouts.admin title="Dashboard" preview>
+<x-layouts.admin title="Dashboard">
     <x-page-header title="Overview" description="Platform activity and the work waiting for moderators." />
 
     {{-- Numbers --}}
@@ -8,7 +8,7 @@
         <x-stat-card label="Total requests" :value="$stats['total_requests']" icon="clipboard-document-list" tone="info" :href="route('admin.requests.index')" />
         <x-stat-card label="Pending verification" :value="$stats['pending_verification']" hint="Documents waiting for a reviewer" icon="document-check" tone="warning" :href="route('admin.verifications.index')" />
         <x-stat-card label="Open reports" :value="$stats['open_reports']" hint="Including escalated" icon="flag" tone="danger" :href="route('admin.reports.index')" />
-        <x-stat-card label="Completed interactions" :value="$stats['completed']" icon="check-circle" tone="success" :href="route('admin.transactions.index', ['status' => 'completed'])" />
+        <x-stat-card label="Completed handovers" :value="$stats['completed']" icon="check-circle" tone="success" :href="route('admin.transactions.index', ['status' => 'completed'])" />
     </section>
     <p class="mt-3 text-sm text-ink-muted">
         Partner accounts: <a href="{{ route('admin.partners.index') }}" class="font-semibold text-brand-700 hover:underline">{{ $stats['partners'] }}</a>
@@ -19,8 +19,8 @@
         <x-card title="Listings to review" :padded="false">
             <x-slot:actions><x-button :href="route('admin.listings.index', ['tab' => 'pending'])" size="sm" variant="secondary">All</x-button></x-slot:actions>
             @forelse ($pendingListings as $listing)
-                <a href="{{ route('admin.listings.show', $listing['id']) }}" class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5 text-sm last:border-0 hover:bg-brand-50/60 sm:px-6">
-                    <span class="min-w-0"><span class="block truncate font-medium">{{ $listing['name'] }} {{ $listing['strength'] }}</span><span class="text-xs text-ink-muted">{{ $listing['owner']['name'] }} · {{ $listing['district'] }}</span></span>
+                <a href="{{ route('admin.listings.show', $listing) }}" class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5 text-sm last:border-0 hover:bg-brand-50/60 sm:px-6">
+                    <span class="min-w-0"><span class="block truncate font-medium">{{ $listing->brand_name }} {{ $listing->medicine->strength }}</span><span class="text-xs text-ink-muted">{{ $listing->owner->name }} · {{ $listing->district->name }}</span></span>
                     <x-icon name="chevron-right" class="size-4 text-ink-muted" />
                 </a>
             @empty
@@ -31,9 +31,9 @@
         <x-card title="Documents to review" :padded="false">
             <x-slot:actions><x-button :href="route('admin.verifications.index')" size="sm" variant="secondary">All</x-button></x-slot:actions>
             @forelse ($pendingVerifications as $submission)
-                <a href="{{ route('admin.verifications.show', $submission['id']) }}" class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5 text-sm last:border-0 hover:bg-brand-50/60 sm:px-6">
-                    <span class="min-w-0"><span class="block truncate font-medium">{{ $submission['request'] }}</span><span class="text-xs text-ink-muted">Submitted {{ $submission['submitted_at']->diffForHumans() }}</span></span>
-                    <x-status-badge :status="$submission['status']" />
+                <a href="{{ route('admin.verifications.show', $submission) }}" class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5 text-sm last:border-0 hover:bg-brand-50/60 sm:px-6">
+                    <span class="min-w-0"><span class="block truncate font-medium">{{ $submission->request->medicine->label() }}</span><span class="text-xs text-ink-muted">Submitted {{ $submission->created_at->diffForHumans() }}</span></span>
+                    <x-status-badge :status="$submission->status" />
                 </a>
             @empty
                 <p class="p-5 text-sm text-ink-muted sm:p-6">No documents are waiting for review.</p>
@@ -43,9 +43,9 @@
         <x-card title="Open reports" :padded="false">
             <x-slot:actions><x-button :href="route('admin.reports.index')" size="sm" variant="secondary">All</x-button></x-slot:actions>
             @forelse ($openReports as $report)
-                <a href="{{ route('admin.reports.show', $report['id']) }}" class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5 text-sm last:border-0 hover:bg-brand-50/60 sm:px-6">
-                    <span class="min-w-0"><span class="block truncate font-medium">{{ $report['reason'] }}</span><span class="block truncate text-xs text-ink-muted">{{ $report['target'] }}</span></span>
-                    <x-status-badge :status="$report['status']" />
+                <a href="{{ route('admin.reports.show', $report) }}" class="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5 text-sm last:border-0 hover:bg-brand-50/60 sm:px-6">
+                    <span class="min-w-0"><span class="block truncate font-medium">{{ $report->reasonLabel() }}</span><span class="block truncate text-xs text-ink-muted">About a {{ $report->target_type }} · {{ $report->created_at->diffForHumans() }}</span></span>
+                    <x-status-badge :status="$report->status" />
                 </a>
             @empty
                 <p class="p-5 text-sm text-ink-muted sm:p-6">There are no open reports.</p>
@@ -56,14 +56,14 @@
     {{-- Charts --}}
     <section class="mt-8" aria-labelledby="charts-heading">
         <h2 id="charts-heading" class="text-xl">Trends</h2>
-        <p class="mt-1 text-sm text-ink-muted">Counted from the sample records for this preview. Hover or focus a bar for its value.</p>
+        <p class="mt-1 text-sm text-ink-muted">Counted live from the database. Hover or focus a bar for its value.</p>
 
         <div class="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <x-card title="New users per month" description="Accounts created in the last six months">
                 <x-chart.columns :data="$charts['registrations']" colour="bg-chart-1" unit="users" />
             </x-card>
 
-            <x-card title="Completed interactions per month" description="Handovers confirmed by both sides">
+            <x-card title="Completed handovers per month" description="Handovers marked as completed">
                 <x-chart.columns :data="$charts['completed']" colour="bg-chart-1" unit="handovers" />
             </x-card>
 
@@ -81,14 +81,18 @@
 
             <x-card title="Latest admin actions" :padded="false">
                 <x-slot:actions><x-button :href="route('admin.audit-logs.index')" size="sm" variant="secondary">Audit log</x-button></x-slot:actions>
-                <ul class="divide-y divide-line">
-                    @foreach ($recentAudit as $entry)
-                        <li class="flex items-center justify-between gap-3 px-5 py-3 text-sm sm:px-6">
-                            <span class="min-w-0"><code class="rounded bg-canvas px-1.5 py-0.5 text-xs">{{ $entry['action'] }}</code> <span class="mt-0.5 block truncate text-xs text-ink-muted">{{ $entry['target'] }} · {{ $entry['actor'] }}</span></span>
-                            <span class="shrink-0 text-xs text-ink-muted">{{ $entry['at']->diffForHumans(short: true) }}</span>
-                        </li>
-                    @endforeach
-                </ul>
+                @if ($recentAudit->isEmpty())
+                    <p class="p-5 text-sm text-ink-muted sm:p-6">No actions recorded yet.</p>
+                @else
+                    <ul class="divide-y divide-line">
+                        @foreach ($recentAudit as $entry)
+                            <li class="flex items-center justify-between gap-3 px-5 py-3 text-sm sm:px-6">
+                                <span class="min-w-0"><code class="rounded bg-canvas px-1.5 py-0.5 text-xs">{{ $entry->action }}</code> <span class="mt-0.5 block truncate text-xs text-ink-muted">{{ $entry->description }} · {{ $entry->actor?->name ?? 'System' }}</span></span>
+                                <span class="shrink-0 text-xs text-ink-muted">{{ $entry->created_at->diffForHumans(short: true) }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
             </x-card>
         </div>
     </section>

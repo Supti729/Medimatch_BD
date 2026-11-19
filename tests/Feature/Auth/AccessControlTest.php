@@ -26,7 +26,7 @@ class AccessControlTest extends TestCase
 
     public static function accountPages(): array
     {
-        return [['/dashboard'], ['/listings'], ['/requests/201'], ['/messages'], ['/profile'], ['/settings/security'], ['/verification']];
+        return [['/dashboard'], ['/listings'], ['/requests'], ['/messages'], ['/profile'], ['/settings/security'], ['/verification']];
     }
 
     #[DataProvider('adminPages')]
@@ -43,7 +43,7 @@ class AccessControlTest extends TestCase
 
     public static function adminPages(): array
     {
-        return [['/admin'], ['/admin/users'], ['/admin/users/5'], ['/admin/listings/18'], ['/admin/verifications'], ['/admin/verifications/601'], ['/admin/reports'], ['/admin/audit-logs'], ['/admin/settings']];
+        return [['/admin'], ['/admin/users'], ['/admin/listings'], ['/admin/medicines'], ['/admin/verifications'], ['/admin/reports'], ['/admin/transactions'], ['/admin/audit-logs'], ['/admin/settings']];
     }
 
     public function test_administrators_can_open_every_admin_page(): void
@@ -60,7 +60,6 @@ class AccessControlTest extends TestCase
         $this->actingAs(User::factory()->reviewer()->create());
 
         $this->get('/admin/verifications')->assertOk()->assertDontSee('Audit logs');
-        $this->get('/admin/verifications/601')->assertOk();
         $this->get('/admin')->assertForbidden();
         $this->get('/admin/users')->assertForbidden();
         $this->get('/admin/settings')->assertForbidden();
@@ -94,6 +93,30 @@ class AccessControlTest extends TestCase
         foreach (['/', '/medicines', '/about', '/safety'] as $url) {
             $this->get($url)->assertOk();
         }
+    }
+
+    public function test_regular_users_cannot_open_record_pages_or_post_admin_decisions(): void
+    {
+        $user = User::factory()->create();
+        $target = User::factory()->create();
+        $this->actingAs($user);
+
+        $this->get("/admin/users/{$target->id}")->assertForbidden();
+        $this->post("/admin/users/{$target->id}/status", ['decision' => 'suspend', 'note' => 'Not allowed.'])->assertForbidden();
+        $this->post("/admin/users/{$user->id}/role", ['role' => 'reviewer', 'note' => 'Promote myself.'])->assertForbidden();
+        $this->put('/admin/settings', ['min_shelf_life_months' => 1])->assertForbidden();
+
+        $this->assertFalse($target->fresh()->isSuspended());
+        $this->assertFalse($user->fresh()->role->isStaff());
+    }
+
+    public function test_reviewers_cannot_post_admin_decisions(): void
+    {
+        $reviewer = User::factory()->reviewer()->create();
+        $target = User::factory()->create();
+
+        $this->actingAs($reviewer)->post("/admin/users/{$target->id}/status", ['decision' => 'suspend', 'note' => 'Not my job.'])->assertForbidden();
+        $this->assertFalse($target->fresh()->isSuspended());
     }
 
     public function test_error_pages_use_the_site_design(): void

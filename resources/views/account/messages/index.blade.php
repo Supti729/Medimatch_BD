@@ -88,6 +88,7 @@
                         </a>
                     </div>
                     <span class="hidden shrink-0 sm:block"><x-badge :tone="$current->reservation->status->value === 'accepted' ? 'success' : ($open ? 'warning' : 'neutral')">{{ $current->reservation->status->label() }}</x-badge></span>
+                    <x-button variant="ghost" size="sm" icon="flag" data-modal-open="report-conversation" title="Report this conversation"><span class="sr-only sm:not-sr-only">Report</span></x-button>
                 </div>
 
                 <ol id="message-list" class="max-h-[32rem] flex-1 space-y-3 overflow-y-auto bg-canvas/50 p-4 sm:p-5" aria-label="Messages" aria-live="polite"
@@ -129,6 +130,21 @@
                     @endif
                 </div>
             </x-card>
+            <x-modal id="report-conversation" title="Report this conversation">
+                <p>A moderator will read this conversation to check the report. {{ $other->name }} is not told who reported.</p>
+                <form id="report-conversation-form" method="POST" action="{{ route('reports.store') }}" class="mt-4 space-y-4" data-loading>
+                    @csrf
+                    <input type="hidden" name="target_type" value="conversation">
+                    <input type="hidden" name="target_id" value="{{ $current->id }}">
+                    <x-form.select name="reason" id="conversation-report-reason" label="Reason" placeholder="Choose a reason" required
+                        :options="collect(\App\Models\Report::REASONS)->only(['contact_details', 'selling', 'harassment', 'other'])->all()" />
+                    <x-form.textarea name="details" id="conversation-report-details" label="Details" rows="3" optional maxlength="1000" />
+                </form>
+                <x-slot:footer>
+                    <x-button variant="secondary" data-modal-close>Cancel</x-button>
+                    <x-button type="submit" form="report-conversation-form">Send report</x-button>
+                </x-slot:footer>
+            </x-modal>
         @else
             <x-card :padded="false" class="hidden lg:block">
                 <x-empty-state icon="chat-bubble-left-right" title="Select a conversation" description="Choose a conversation on the left to read and reply." class="py-24" />

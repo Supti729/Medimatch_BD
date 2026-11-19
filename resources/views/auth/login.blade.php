@@ -1,7 +1,6 @@
 @php $ready = Route::has('login.store'); @endphp
 
 <x-layouts.auth title="Log in" heading="Welcome back" subheading="Log in with your email address or phone number.">
-    <x-not-connected route="login.store" feature="Logging in" class="mb-5" />
 
     <form class="space-y-5" @if ($ready) method="POST" action="{{ route('login.store') }}" data-loading @else onsubmit="event.preventDefault()" @endif>
         @csrf

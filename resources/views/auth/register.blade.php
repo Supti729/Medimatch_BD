@@ -2,7 +2,6 @@
 
 <x-layouts.auth title="Create account" heading="Create your account" wide
     subheading="One free account lets you both request medicines and donate them.">
-    <x-not-connected route="register.store" feature="Creating an account" class="mb-5" />
 
     <form class="space-y-8" enctype="multipart/form-data"
         @if ($ready) method="POST" action="{{ route('register.store') }}" data-loading @else onsubmit="event.preventDefault()" @endif>

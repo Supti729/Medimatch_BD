@@ -1,25 +1,37 @@
-<x-layouts.admin title="Partners" preview>
-    <x-page-header title="Partner management" description="NGOs, hospitals and licensed pharmacies that apply to work with the platform.">
-        <x-button icon="plus" :disabled="! Route::has('admin.partners.store')" title="{{ Route::has('admin.partners.store') ? '' : 'Not connected yet' }}">Add partner</x-button>
-    </x-page-header>
+@php
+    // Organization plans for the revenue-model demonstration. No payments are implemented.
+    $plans = [
+        ['name' => 'Community', 'price' => 'Free', 'for' => 'NGOs and charities', 'features' => ['Organization profile', 'Donation listings', 'Basic impact report']],
+        ['name' => 'Institution', 'price' => 'Mock: BDT 5,000 / month', 'for' => 'Hospitals and clinics', 'features' => ['Everything in Community', 'Several staff accounts', 'Detailed impact reports']],
+        ['name' => 'Pharmacy', 'price' => 'Mock: BDT 3,000 / month', 'for' => 'Licensed pharmacies', 'features' => ['Affordable-access listings', 'Stock availability alerts', 'Verification badge']],
+    ];
+@endphp
 
-    <x-alert tone="warning" title="Prototype" class="mt-6">
-        The organizations below are fictional. A real partner would need its licence and registration checked before it could offer affordable-access listings.
+<x-layouts.admin title="Partners">
+    <x-page-header title="Partner management" description="Accounts with the Partner role: NGOs, hospitals and licensed pharmacies." />
+
+    <x-alert tone="info" title="How to add a partner" class="mt-6">
+        Open the organization's user account and change its role to “Partner organization”. Check its licence and registration first.
+        Affordable-access listings stay switched off in Settings until the legal basis is confirmed.
     </x-alert>
 
     <x-card class="mt-6" :padded="false">
-        <x-table :headers="['Organization', 'Type', 'District', 'Plan', 'Applied', 'Status']" caption="Partner organizations">
-            @foreach ($partners as $partner)
-                <tr>
-                    <th scope="row" class="px-5 py-3.5 font-medium whitespace-nowrap">{{ $partner['name'] }}</th>
-                    <td class="px-5 py-3.5 text-ink-soft">{{ $partner['type'] }}</td>
-                    <td class="px-5 py-3.5 text-ink-soft">{{ $partner['district'] }}</td>
-                    <td class="px-5 py-3.5 whitespace-nowrap text-ink-soft">{{ $partner['plan'] }}</td>
-                    <td class="px-5 py-3.5 whitespace-nowrap text-ink-soft">{{ $partner['joined']->format('j M Y') }}</td>
-                    <td class="px-5 py-3.5"><x-status-badge :status="$partner['status']" /></td>
-                </tr>
-            @endforeach
-        </x-table>
+        @if ($partners->isEmpty())
+            <x-empty-state icon="building-office-2" title="No partner accounts yet" description="Partners are ordinary accounts given the Partner role by an administrator." />
+        @else
+            <x-table :headers="['Organization', 'District', 'Listings', 'Status', 'Joined', '']" caption="Partner organizations">
+                @foreach ($partners as $partner)
+                    <tr>
+                        <th scope="row" class="px-5 py-3.5 font-medium whitespace-nowrap">{{ $partner->name }}</th>
+                        <td class="px-5 py-3.5 text-ink-soft">{{ $partner->district?->name ?? '—' }}</td>
+                        <td class="px-5 py-3.5 tabular-nums">{{ $partner->listings_count }}</td>
+                        <td class="px-5 py-3.5"><x-status-badge :status="$partner->status" /></td>
+                        <td class="px-5 py-3.5 whitespace-nowrap text-ink-soft">{{ $partner->created_at->format('j M Y') }}</td>
+                        <td class="px-5 py-3.5 text-right"><x-button :href="route('admin.users.show', $partner)" size="sm" variant="secondary">View</x-button></td>
+                    </tr>
+                @endforeach
+            </x-table>
+        @endif
     </x-card>
 
     <section class="mt-10" aria-labelledby="plans-heading">
@@ -30,7 +42,6 @@
         <p class="mt-1 max-w-3xl text-sm text-ink-muted">
             A demonstration of the social-enterprise revenue model. Help for individuals stays free, personal and prescription data is never sold, and sponsors cannot bypass safety rules.
         </p>
-
         <div class="mt-5 grid gap-5 md:grid-cols-3">
             @foreach ($plans as $plan)
                 <x-card>

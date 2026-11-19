@@ -84,10 +84,12 @@ class MedicineListing extends Model
 
     // ----- Scopes -----
 
-    /** Listings anyone may see. Blocked, rejected, draft and unreviewed listings are never included. */
+    /** Listings anyone may see. Blocked, rejected, draft and unreviewed listings, and listings of suspended users, are never included. */
     public function scopePubliclyVisible(Builder $query): void
     {
-        $query->whereIn('status', array_map(fn (ListingStatus $s) => $s->value, ListingStatus::publicStatuses()));
+        $query->whereIn('status', array_map(fn (ListingStatus $s) => $s->value, ListingStatus::publicStatuses()))
+            // A suspended donor's listings disappear until the account is restored.
+            ->whereHas('owner', fn (Builder $owner) => $owner->where('status', 'active'));
     }
 
     // ----- Status -----

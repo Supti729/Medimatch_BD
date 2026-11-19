@@ -47,6 +47,17 @@ class MedicineRequest extends Model
         return $this->hasMany(Reservation::class);
     }
 
+    public function verifications(): HasMany
+    {
+        return $this->hasMany(VerificationSubmission::class)->latest('id');
+    }
+
+    /** True once a reviewer has accepted a prescription for this request. */
+    public function isPrescriptionVerified(): bool
+    {
+        return $this->verifications()->where('status', 'verified')->exists();
+    }
+
     public function division(): BelongsTo
     {
         return $this->belongsTo(Division::class);

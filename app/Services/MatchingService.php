@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
  * Fixed safety rules come first and are never relaxed:
  *   - the SAME catalogue medicine (generic name + strength + dosage form)
  *   - the listing is public and can still be requested (available or requested)
- *   - not the requester's own listing
+ *   - not the requester's own listing, and not from a suspended account
  *   - "donation only" requests only see donation listings
  * Results are then ordered by distance: same district, then same division, then the rest.
  *
@@ -28,6 +28,7 @@ class MatchingService
             ->where('medicine_id', $request->medicine_id)
             ->whereIn('status', [ListingStatus::Available->value, ListingStatus::Requested->value])
             ->where('user_id', '!=', $request->user_id)
+            ->whereHas('owner', fn ($q) => $q->where('status', 'active'))
             ->when($request->preference === 'donation', fn ($q) => $q->where('type', 'donation'))
             ->orderByRaw('CASE WHEN district_id = ? THEN 0 WHEN division_id = ? THEN 1 ELSE 2 END', [$request->district_id, $request->division_id])
             ->orderByDesc('expiry_date')

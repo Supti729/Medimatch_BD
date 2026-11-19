@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
 use App\Models\Reservation;
-use App\Support\SampleAccount;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -50,15 +49,4 @@ class AccountPageController extends Controller
             'roles' => $roles,
         ]);
     }
-
-    public function verification(): View
-    {
-        return view('account.verification', [
-            'submissions' => SampleAccount::verifications(),
-            'requests' => SampleAccount::requests()->where('requires_prescription', true)
-                ->whereIn('status', ['active', 'matching', 'match_found', 'verification_pending'])->values(),
-            'usingSampleData' => true,
-        ]);
-    }
-
 }

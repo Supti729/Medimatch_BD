@@ -128,8 +128,9 @@ The project is built in three parts, each split into small commits.
 - [x] B2 Profiles (picture, area), privacy settings, public profiles, contact-detail changes with re-verification; medicine catalogue (generic + strength + form, brand names, restricted medicines); real listings with eligibility rules, photos and a controlled status flow
 - [x] B3 Medicine requests (create, edit, cancel, automatic expiry), rule-based matching, real browse and search, reservations (request → accept/decline → handover), saved medicines, real dashboard, history and home-page counts
 - [x] B4 Private messaging between donor and requester (opened by a reservation, participants only, read-only after the handover, no phone numbers or emails, 15-second auto-refresh) and in-app notifications for requests, answers, cancellations, completed handovers, new messages and new matches
+- [x] B5 Prescription verification (private storage, reviewers only, every document view logged), reports and moderation, append-only audit log, and a fully working admin panel: listing approval/rejection/blocking, user suspension and roles, medicine catalogue editing, announcements, settings and live charts
 
-Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Browse, search, listings, requests, reservations, saved medicines, history, the dashboard and profiles use real data. Messages and notifications are real. The prescription upload and most admin pages (B5) still show labelled sample data. New listings wait in "Pending review" until moderation is added in B5; for demos, `php artisan migrate --seed` creates approved demo listings from three "Demo donor" accounts.
+Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Browse, search, listings, requests, reservations, saved medicines, history, the dashboard and profiles use real data. Every page now uses real data; the temporary sample-data classes were removed in B5. New listings wait in "Pending review" until moderation is added in B5; for demos, `php artisan migrate --seed` creates approved demo listings from three "Demo donor" accounts.
 
 ### Backend building blocks
 
@@ -150,6 +151,10 @@ Signed-in and admin pages require login (admin pages require the administrator r
 | Request expiry (daily) | `app/Console/Commands/ExpireRequests.php`, scheduled in `routes/console.php` |
 | Messaging rules (who can write, what is blocked) | `app/Services/MessagingService.php`, `app/Support/ContactDetails.php` |
 | Notifications (database only, no email or SMS) | `app/Notifications/`, sent from `ReservationService`, `MessagingService` and `app/Listeners/NotifyMatchingRequesters.php` |
+| Prescription checks (private files, reviewer decisions) | `app/Services/VerificationService.php` |
+| Moderation (listings, users, reports) | `app/Services/ModerationService.php`, `app/Http/Controllers/Admin/` |
+| Audit log (append-only) | `app/Models/AuditLog.php` (`AuditLog::record(...)`) |
+| Admin-editable settings | `app/Models/Setting.php` (overrides `config/medimatch.php` at start-up) |
 
 ### Frontend building blocks
 
@@ -162,7 +167,6 @@ Signed-in and admin pages require login (admin pages require the administrator r
 | Signed-in pages | `resources/views/account/`, controllers in `app/Http/Controllers/Account/` |
 | Admin pages | `resources/views/admin/`, controller in `app/Http/Controllers/Admin/` |
 | Charts (plain HTML/CSS, each with a table view) | `resources/views/components/chart/` |
-| Sample data (temporary, replaced in Part 2) | `app/Support/SampleListings.php`, `app/Support/SampleAccount.php`, `app/Support/SampleAdmin.php` |
 | Divisions and districts used by the browse filters (until B3), option lists | `config/bangladesh.php`, `config/medimatch.php` |
 | Menu links | `config/navigation.php` — a link shows as "Soon" until its route exists |
 | Interface behaviour (menus, dropdowns, modals) | `resources/js/app.js` |

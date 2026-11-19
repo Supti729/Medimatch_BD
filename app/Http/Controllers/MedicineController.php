@@ -35,7 +35,6 @@ class MedicineController extends Controller
             'filters' => $filters,
             'view' => $request->query('view') === 'list' ? 'list' : 'grid',
             'activeFilterCount' => count(array_filter(array_diff_key($filters, ['q' => 1, 'sort' => 1]))),
-            'usingSampleData' => false,
         ]);
     }
 
@@ -62,7 +61,6 @@ class MedicineController extends Controller
             'isOwner' => $user?->id === $found->user_id,
             'myReservation' => $user ? $found->reservations()->active()->where('requester_id', $user->id)->first() : null,
             'isSaved' => $user ? $user->savedListings()->whereKey($found->id)->exists() : false,
-            'usingSampleData' => false,
         ]);
     }
 

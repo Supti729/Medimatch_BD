@@ -27,7 +27,6 @@ class HomeController extends Controller
                 ->limit(3)
                 ->get()
                 ->map->toCard(),
-            'usingSampleData' => false,
         ]);
     }
 }
