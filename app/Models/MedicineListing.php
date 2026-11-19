@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ListingStatus;
+use App\Events\ListingPublished;
 use App\Exceptions\InvalidStatusTransition;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -107,7 +108,8 @@ class MedicineListing extends Model
             $this->review_note = null;
         }
 
-        if ($target === ListingStatus::Available && $this->published_at === null) {
+        $firstPublication = $target === ListingStatus::Available && $this->published_at === null;
+        if ($firstPublication) {
             $this->published_at = now();
         }
 
@@ -116,6 +118,10 @@ class MedicineListing extends Model
         }
 
         $this->save();
+
+        if ($firstPublication) {
+            ListingPublished::dispatch($this);
+        }
     }
 
     // ----- Display helpers -----

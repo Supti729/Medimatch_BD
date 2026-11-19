@@ -89,7 +89,7 @@ class ListingController extends Controller
         Gate::authorize('view', $listing);
 
         return view('account.listings.edit', [
-            'listing' => $listing->load(['medicine', 'images', 'reservations' => fn ($q) => $q->with(['requester', 'request'])->latest()]),
+            'listing' => $listing->load(['medicine', 'images', 'reservations' => fn ($q) => $q->with(['requester', 'request', 'conversation'])->latest()]),
             'catalogue' => $this->catalogue(),
             'location' => $listing->only(['division_id', 'district_id', 'upazila_id']),
             'locked' => ! request()->user()->can('update', $listing),

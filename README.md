@@ -127,8 +127,9 @@ The project is built in three parts, each split into small commits.
 - [x] B1 MySQL, Bangladesh locations (8 divisions, 64 districts, 495 upazilas), registration and login with email or phone, development-mode verification codes, password reset and change, roles (user, partner, reviewer, admin) and protected routes
 - [x] B2 Profiles (picture, area), privacy settings, public profiles, contact-detail changes with re-verification; medicine catalogue (generic + strength + form, brand names, restricted medicines); real listings with eligibility rules, photos and a controlled status flow
 - [x] B3 Medicine requests (create, edit, cancel, automatic expiry), rule-based matching, real browse and search, reservations (request → accept/decline → handover), saved medicines, real dashboard, history and home-page counts
+- [x] B4 Private messaging between donor and requester (opened by a reservation, participants only, read-only after the handover, no phone numbers or emails, 15-second auto-refresh) and in-app notifications for requests, answers, cancellations, completed handovers, new messages and new matches
 
-Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Browse, search, listings, requests, reservations, saved medicines, history, the dashboard and profiles use real data. Messages and notifications (B4), the prescription upload and most admin pages (B5) still show labelled sample data. New listings wait in "Pending review" until moderation is added in B5; for demos, `php artisan migrate --seed` creates approved demo listings from three "Demo donor" accounts.
+Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Browse, search, listings, requests, reservations, saved medicines, history, the dashboard and profiles use real data. Messages and notifications are real. The prescription upload and most admin pages (B5) still show labelled sample data. New listings wait in "Pending review" until moderation is added in B5; for demos, `php artisan migrate --seed` creates approved demo listings from three "Demo donor" accounts.
 
 ### Backend building blocks
 
@@ -147,6 +148,8 @@ Signed-in and admin pages require login (admin pages require the administrator r
 | Matching (same medicine, public, nearest first) | `app/Services/MatchingService.php` |
 | Reservation rules (request, accept, decline, cancel, complete) | `app/Services/ReservationService.php` |
 | Request expiry (daily) | `app/Console/Commands/ExpireRequests.php`, scheduled in `routes/console.php` |
+| Messaging rules (who can write, what is blocked) | `app/Services/MessagingService.php`, `app/Support/ContactDetails.php` |
+| Notifications (database only, no email or SMS) | `app/Notifications/`, sent from `ReservationService`, `MessagingService` and `app/Listeners/NotifyMatchingRequesters.php` |
 
 ### Frontend building blocks
 

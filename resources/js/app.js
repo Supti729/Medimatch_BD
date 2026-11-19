@@ -16,6 +16,7 @@
 |   data-autosubmit            submits the form when the field changes
 |   data-tip="text"            tooltip on hover and keyboard focus (charts)
 |   data-brand-list="id"       medicine <select> that suggests brand names in a <datalist>
+|   data-poll-url="url"        message list that fetches new messages every 15 seconds
 */
 
 // ----- Show / hide -----
@@ -202,3 +203,56 @@ document.querySelectorAll('select[data-brand-list]').forEach((select) => {
     fill();
     select.addEventListener('change', fill);
 });
+
+// ----- Conversation auto-refresh -----
+// <ol data-poll-url="…" data-last-id="…"> checks for new messages every 15 seconds while the tab is visible.
+// Message text is inserted with textContent, so it can never be interpreted as HTML.
+const messageList = document.querySelector('[data-poll-url]');
+if (messageList) {
+    messageList.scrollTop = messageList.scrollHeight;
+
+    const bubble = (message) => {
+        const item = document.createElement('li');
+        item.className = 'flex' + (message.mine ? ' justify-end' : '');
+        item.dataset.messageId = message.id;
+
+        const box = document.createElement('div');
+        box.className = 'max-w-[85%] rounded-card px-4 py-2.5 text-sm sm:max-w-[70%] ' +
+            (message.mine ? 'rounded-br-sm bg-brand-600 text-white' : 'rounded-bl-sm border border-line bg-surface text-ink');
+
+        const who = Object.assign(document.createElement('span'), { className: 'sr-only', textContent: (message.mine ? 'You' : messageList.dataset.otherName) + ':' });
+        const body = Object.assign(document.createElement('p'), { className: 'break-words whitespace-pre-line', textContent: message.body });
+        const time = Object.assign(document.createElement('p'), {
+            className: 'mt-1 text-right text-[0.6875rem] ' + (message.mine ? 'text-brand-100' : 'text-ink-muted'),
+            textContent: message.time,
+        });
+
+        box.append(who, body, time);
+        item.append(box);
+        return item;
+    };
+
+    const poll = async () => {
+        if (document.hidden) return;
+        try {
+            const response = await fetch(`${messageList.dataset.pollUrl}?after=${messageList.dataset.lastId}`, {
+                headers: { Accept: 'application/json' },
+                credentials: 'same-origin',
+            });
+            if (!response.ok) return;
+            const { messages } = await response.json();
+            if (!messages.length) return;
+
+            messageList.querySelector('[data-empty]')?.remove();
+            messages.forEach((message) => {
+                if (!messageList.querySelector(`[data-message-id="${message.id}"]`)) messageList.append(bubble(message));
+            });
+            messageList.dataset.lastId = messages[messages.length - 1].id;
+            messageList.scrollTop = messageList.scrollHeight;
+        } catch {
+            // Network hiccup: try again on the next tick.
+        }
+    };
+
+    setInterval(poll, 15000);
+}

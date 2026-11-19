@@ -77,6 +77,9 @@
                             <p class="text-sm text-ink-muted">{{ $activeReservation->status->label() }} · requested {{ $activeReservation->created_at->diffForHumans() }}</p>
                         </div>
                         <div class="flex flex-wrap gap-2">
+                            @if ($activeReservation->conversation)
+                                <x-button :href="route('messages.show', $activeReservation->conversation)" size="sm" icon="chat-bubble-left-right">Message donor</x-button>
+                            @endif
                             <x-button :href="route('medicines.show', $activeReservation->medicine_listing_id)" variant="secondary" size="sm">View listing</x-button>
                             @if ($activeReservation->status->value === 'accepted' && $r->status->value === 'reserved')
                                 <form method="POST" action="{{ route('reservations.complete', $activeReservation) }}" data-loading>@csrf @method('PATCH')

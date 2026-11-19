@@ -75,7 +75,7 @@ class MedicineRequestController extends Controller
     public function show(MedicineRequest $medicineRequest, MatchingService $matching): View
     {
         Gate::authorize('view', $medicineRequest);
-        $medicineRequest->load(['medicine', 'upazila', 'district', 'reservations.listing.medicine']);
+        $medicineRequest->load(['medicine', 'upazila', 'district', 'reservations.listing.medicine', 'reservations.conversation']);
 
         $matches = $medicineRequest->status === RequestStatus::Active ? $matching->forRequest($medicineRequest) : collect();
 

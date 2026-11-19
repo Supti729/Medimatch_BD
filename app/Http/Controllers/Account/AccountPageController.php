@@ -14,19 +14,6 @@ use Illuminate\View\View;
  */
 class AccountPageController extends Controller
 {
-    public function notifications(Request $request): View
-    {
-        $all = SampleAccount::notifications();
-        $filter = $request->query('filter') === 'unread' ? 'unread' : 'all';
-
-        return view('account.notifications', [
-            'notifications' => $filter === 'unread' ? $all->where('read', false)->values() : $all,
-            'filter' => $filter,
-            'unreadCount' => $all->where('read', false)->count(),
-            'usingSampleData' => true,
-        ]);
-    }
-
     /**
      * Finished and closed interactions, as donor or requester.
      */

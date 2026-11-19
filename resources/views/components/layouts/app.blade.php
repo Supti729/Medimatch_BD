@@ -5,15 +5,16 @@
 @props(['title' => null, 'unread' => 0, 'preview' => false])
 
 @php
-    // preview = true: the page shows the invented sample account (front-end part).
-    // The backend part removes "preview" and passes the real unread count (push B4).
+    // preview = true: the page still shows labelled sample records (only the Verification Center until push B5).
     $user = auth()->user();
-    $sample = $preview ? \App\Support\SampleAccount::class : null;
+    $sample = $preview;
 
-    $displayName = $user?->name ?? ($sample ? $sample::user()['name'] : 'Guest');
+    $displayName = $user?->name ?? 'Guest';
     $initial = mb_strtoupper(mb_substr($displayName, 0, 1));
-    $recent = $sample ? $sample::notifications()->take(4) : collect();
-    $unread = $sample ? $sample::notifications()->where('read', false)->count() : (int) $unread;
+
+    // The bell: real notifications from the database
+    $recent = $user ? $user->notifications()->limit(5)->get() : collect();
+    $unread = $user ? $user->unreadNotifications()->count() : (int) $unread;
 @endphp
 
 <x-layouts.base :title="$title" noindex>
@@ -97,9 +98,6 @@
                                     <li><x-notification-item :notification="$notification" compact /></li>
                                 @endforeach
                             </ul>
-                            @if ($sample)
-                                <p class="border-t border-line px-4 py-2.5 text-xs text-ink-muted">Sample notifications. Real notifications are added in push B4.</p>
-                            @endif
                         @else
                             <x-empty-state icon="bell" title="No notifications yet" description="Updates about your listings, requests and messages will appear here." class="py-8" />
                         @endif
@@ -147,12 +145,8 @@
             <x-flash class="mb-6" />
             @if ($sample)
                 <x-alert tone="info" title="Sample data" class="mb-6">
-                    @if ($user)
-                        Your account is real, but the listings, requests, messages and other records on this page are invented samples.
-                        They are replaced with your own data as the next backend parts are built, and nothing here can be saved yet.
-                    @else
-                        This page shows an invented sample account, and nothing here can be saved.
-                    @endif
+                    The records on this page are invented samples and nothing here can be saved yet.
+                    This part of Medimatch BD is connected in a later push.
                 </x-alert>
             @endif
             {{ $slot }}

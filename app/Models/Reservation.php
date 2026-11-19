@@ -6,6 +6,7 @@ use App\Enums\ReservationStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * One requester asking for one listing. Created and changed only through App\Services\ReservationService.
@@ -38,6 +39,11 @@ class Reservation extends Model
     public function request(): BelongsTo
     {
         return $this->belongsTo(MedicineRequest::class, 'medicine_request_id');
+    }
+
+    public function conversation(): HasOne
+    {
+        return $this->hasOne(Conversation::class);
     }
 
     public function scopeActive(Builder $query): void

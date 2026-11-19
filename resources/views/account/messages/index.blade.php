@@ -4,12 +4,12 @@
     - /messages/{id}     the conversation (on phones the list is hidden)
 --}}
 @php
-    $ready = Route::has('messages.store');
-    $totalUnread = $conversations->sum('unread');
+    $me = auth()->user();
+    $totalUnread = $conversations->sum('unread_count');
 @endphp
 
-<x-layouts.app :title="$current ? 'Conversation with '.$current['with'] : 'Messages'" :preview="$usingSampleData">
-    <x-page-header title="Messages" description="Private conversations about your listings and requests. Phone numbers and email addresses are never shared." @class(['hidden lg:flex' => $current]) />
+<x-layouts.app :title="$current ? 'Conversation with '.$current->otherParticipant($me)->name : 'Messages'">
+    <x-page-header title="Messages" description="Private conversations about your requests and listings. Phone numbers and email addresses are never shared." @class(['hidden lg:flex' => $current]) />
 
     <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[22rem_1fr]">
         {{-- Conversation list --}}
@@ -23,29 +23,40 @@
 
             @if ($conversations->isEmpty())
                 <x-empty-state icon="chat-bubble-left-right" title="No conversations yet"
-                    description="A conversation starts when a request and a listing are matched." />
+                    description="A conversation starts when you ask for a listing, or when someone asks for yours." />
             @else
                 <ul class="divide-y divide-line">
                     @foreach ($conversations as $conversation)
-                        @php $active = $current && $current['id'] === $conversation['id']; @endphp
+                        @php
+                            $other = $conversation->otherParticipant($me);
+                            $listing = $conversation->reservation->listing;
+                            $active = $current && $current->id === $conversation->id;
+                            $last = $conversation->latestMessage;
+                        @endphp
                         <li>
-                            <a href="{{ route('messages.show', $conversation['id']) }}" @if ($active) aria-current="page" @endif
+                            <a href="{{ route('messages.show', $conversation) }}" @if ($active) aria-current="page" @endif
                                 @class(['flex items-start gap-3 px-5 py-4 hover:bg-brand-50/60', 'bg-brand-50' => $active])>
-                                <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white" aria-hidden="true">{{ mb_substr(Str::afterLast($conversation['with'], ' '), 0, 1) }}</span>
+                                <x-avatar :user="$other" size="sm" public />
                                 <span class="min-w-0 flex-1">
                                     <span class="flex items-baseline justify-between gap-2">
-                                        <span @class(['truncate text-sm', 'font-semibold' => $conversation['unread'], 'font-medium' => ! $conversation['unread']])>{{ $conversation['with'] }}</span>
-                                        <span class="shrink-0 text-xs text-ink-muted">{{ $conversation['last']['sent_at']->shortAbsoluteDiffForHumans() }}</span>
+                                        <span @class(['truncate text-sm', 'font-semibold' => $conversation->unread_count, 'font-medium' => ! $conversation->unread_count])>{{ $other->name }}</span>
+                                        @if ($last)
+                                            <span class="shrink-0 text-xs text-ink-muted">{{ $last->created_at->shortAbsoluteDiffForHumans() }}</span>
+                                        @endif
                                     </span>
-                                    <span class="block truncate text-xs text-brand-700">{{ $conversation['about']['label'] }}</span>
-                                    <span @class(['mt-0.5 block truncate text-sm', 'font-medium text-ink' => $conversation['unread'], 'text-ink-muted' => ! $conversation['unread']])>
-                                        @if ($conversation['last']['mine']) <span class="text-ink-muted">You:</span> @endif
-                                        {{ $conversation['last']['body'] }}
+                                    <span class="block truncate text-xs text-brand-700">{{ $listing->brand_name }} {{ $listing->medicine->strength }} · {{ $conversation->donor_id === $me->id ? 'your listing' : 'your request' }}</span>
+                                    <span @class(['mt-0.5 block truncate text-sm', 'font-medium text-ink' => $conversation->unread_count, 'text-ink-muted' => ! $conversation->unread_count])>
+                                        @if ($last)
+                                            @if ($last->sender_id === $me->id) <span class="text-ink-muted">You:</span> @endif
+                                            {{ $last->body }}
+                                        @else
+                                            <span class="italic">No messages yet</span>
+                                        @endif
                                     </span>
                                 </span>
-                                @if ($conversation['unread'])
+                                @if ($conversation->unread_count)
                                     <span class="mt-1 flex min-w-5 items-center justify-center rounded-full bg-accent-600 px-1.5 text-xs font-semibold text-white">
-                                        {{ $conversation['unread'] }}<span class="sr-only"> unread</span>
+                                        {{ $conversation->unread_count }}<span class="sr-only"> unread</span>
                                     </span>
                                 @endif
                             </a>
@@ -57,71 +68,64 @@
 
         {{-- Conversation --}}
         @if ($current)
+            @php
+                $other = $current->otherParticipant($me);
+                $listing = $current->reservation->listing;
+                $open = $current->isOpen();
+                $lastId = $current->messages->last()?->id ?? 0;
+            @endphp
             <x-card :padded="false" class="flex min-h-[28rem] min-w-0 flex-col" aria-label="Conversation">
                 <div class="flex items-center gap-3 border-b border-line px-4 py-3 sm:px-5">
                     <a href="{{ route('messages.index') }}" class="-ml-1.5 inline-flex size-10 items-center justify-center rounded-control text-ink-soft hover:bg-brand-50 lg:hidden">
                         <span class="sr-only">Back to conversations</span>
                         <x-icon name="arrow-left" class="size-5" />
                     </a>
-                    <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white" aria-hidden="true">{{ mb_substr(Str::afterLast($current['with'], ' '), 0, 1) }}</span>
+                    <x-avatar :user="$other" size="sm" public />
                     <div class="min-w-0 flex-1">
-                        <h2 class="truncate text-base font-semibold">{{ $current['with'] }}</h2>
-                        <p class="flex flex-wrap items-center gap-x-2 text-xs text-ink-muted">
-                            @if (Route::has($current['about']['route'][0]))
-                                <a href="{{ route(...$current['about']['route']) }}" class="truncate font-medium text-brand-700 hover:underline">{{ $current['about']['label'] }}</a>
-                            @else
-                                <span class="truncate">{{ $current['about']['label'] }}</span>
-                            @endif
-                        </p>
+                        <h2 class="truncate text-base font-semibold">{{ $other->name }}</h2>
+                        <a href="{{ $current->donor_id === $me->id ? route('listings.edit', $listing) : route('medicines.show', $listing->id) }}" class="block truncate text-xs font-medium text-brand-700 hover:underline">
+                            {{ $listing->brand_name }} {{ $listing->medicine->strength }} · {{ $current->donor_id === $me->id ? 'your listing' : 'your request' }}
+                        </a>
                     </div>
-                    <span class="hidden shrink-0 sm:block"><x-status-badge :status="$current['status']" /></span>
-                    <x-dropdown>
-                        <x-slot:trigger>
-                            <button type="button" data-dropdown-trigger aria-haspopup="true" aria-expanded="false" class="inline-flex size-10 items-center justify-center rounded-control text-ink-soft hover:bg-brand-50">
-                                <span class="sr-only">Conversation options</span>
-                                <x-icon name="ellipsis-vertical" class="size-5" />
-                            </button>
-                        </x-slot:trigger>
-                        <x-dropdown.item icon="flag" :disabled="! Route::has('reports.store')">Report conversation</x-dropdown.item>
-                        @unless (Route::has('reports.store'))
-                            <p class="border-t border-line px-4 pt-2 pb-1 text-xs text-ink-muted">Reporting is not connected yet.</p>
-                        @endunless
-                    </x-dropdown>
+                    <span class="hidden shrink-0 sm:block"><x-badge :tone="$current->reservation->status->value === 'accepted' ? 'success' : ($open ? 'warning' : 'neutral')">{{ $current->reservation->status->label() }}</x-badge></span>
                 </div>
 
-                <ol class="flex-1 space-y-3 overflow-y-auto bg-canvas/50 p-4 sm:p-5" aria-label="Messages">
-                    @foreach ($current['messages'] as $message)
-                        <li @class(['flex', 'justify-end' => $message['mine']])>
+                <ol id="message-list" class="max-h-[32rem] flex-1 space-y-3 overflow-y-auto bg-canvas/50 p-4 sm:p-5" aria-label="Messages" aria-live="polite"
+                    data-poll-url="{{ route('messages.poll', $current) }}" data-last-id="{{ $lastId }}" data-other-name="{{ $other->name }}">
+                    @forelse ($current->messages as $message)
+                        @php $mine = $message->sender_id === $me->id; @endphp
+                        <li @class(['flex', 'justify-end' => $mine]) data-message-id="{{ $message->id }}">
                             <div @class([
                                 'max-w-[85%] rounded-card px-4 py-2.5 text-sm sm:max-w-[70%]',
-                                'rounded-br-sm bg-brand-600 text-white' => $message['mine'],
-                                'rounded-bl-sm border border-line bg-surface text-ink' => ! $message['mine'],
+                                'rounded-br-sm bg-brand-600 text-white' => $mine,
+                                'rounded-bl-sm border border-line bg-surface text-ink' => ! $mine,
                             ])>
-                                <span class="sr-only">{{ $message['mine'] ? 'You' : $current['with'] }}:</span>
-                                <p class="break-words whitespace-pre-line">{{ $message['body'] }}</p>
-                                <p @class(['mt-1 text-right text-[0.6875rem]', 'text-brand-100' => $message['mine'], 'text-ink-muted' => ! $message['mine']])>
-                                    <time datetime="{{ $message['sent_at']->toIso8601String() }}">{{ $message['sent_at']->format('j M, g:i a') }}</time>
+                                <span class="sr-only">{{ $mine ? 'You' : $other->name }}:</span>
+                                <p class="break-words whitespace-pre-line">{{ $message->body }}</p>
+                                <p @class(['mt-1 text-right text-[0.6875rem]', 'text-brand-100' => $mine, 'text-ink-muted' => ! $mine])>
+                                    <time datetime="{{ $message->created_at->toIso8601String() }}">{{ $message->created_at->format('j M, g:i a') }}</time>
+                                    @if ($mine && $message->read_at) · Seen @endif
                                 </p>
                             </div>
                         </li>
-                    @endforeach
+                    @empty
+                        <li class="py-8 text-center text-sm text-ink-muted" data-empty>No messages yet. Say hello and agree a safe time and public place to meet.</li>
+                    @endforelse
                 </ol>
+                <span id="latest"></span>
 
                 <div class="border-t border-line p-4 sm:p-5">
-                    @if ($current['status'] === 'completed')
-                        <p class="text-center text-sm text-ink-muted">This handover is completed, so the conversation is closed.</p>
-                    @else
-                        <form class="flex items-end gap-2" @if ($ready) method="POST" action="{{ route('messages.store', $current['id']) }}" data-loading @else onsubmit="event.preventDefault()" @endif>
+                    @if ($open)
+                        <form method="POST" action="{{ route('messages.store', $current) }}" class="flex items-end gap-2" data-loading>
                             @csrf
                             <div class="flex-1">
-                                <x-form.textarea name="body" aria-label="Your message" rows="2" maxlength="1000" required placeholder="Write a message…" />
+                                <x-form.textarea name="body" aria-label="Your message" rows="2" :maxlength="\App\Services\MessagingService::MAX_LENGTH" required placeholder="Write a message…" />
                             </div>
-                            <x-button type="submit" icon="paper-airplane" :disabled="! $ready">Send</x-button>
+                            <x-button type="submit" icon="paper-airplane">Send</x-button>
                         </form>
-                        <p class="mt-2 text-xs text-ink-muted">
-                            @unless ($ready) Sending is not connected yet. @endunless
-                            Never share your phone number, address or payment details in messages.
-                        </p>
+                        <p class="mt-2 text-xs text-ink-muted">Text only. For your safety, phone numbers, email addresses and payment details cannot be shared. Meet in a public place.</p>
+                    @else
+                        <p class="text-center text-sm text-ink-muted">This conversation is closed because the handover has ended. You can still read it.</p>
                     @endif
                 </div>
             </x-card>

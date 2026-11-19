@@ -5,6 +5,7 @@ use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\ListingController;
 use App\Http\Controllers\Account\MedicineRequestController;
 use App\Http\Controllers\Account\MessageController;
+use App\Http\Controllers\Account\NotificationController;
 use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\ReservationController;
 use App\Http\Controllers\Account\SavedListingController;
@@ -105,11 +106,15 @@ Route::middleware(['auth', 'auth.session', 'active', 'verified.account'])->group
 
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{conversation}', [MessageController::class, 'show'])->whereNumber('conversation')->name('messages.show');
+    Route::post('/messages/{conversation}', [MessageController::class, 'store'])->whereNumber('conversation')->middleware('throttle:30,1')->name('messages.store');
+    Route::get('/messages/{conversation}/poll', [MessageController::class, 'poll'])->whereNumber('conversation')->middleware('throttle:20,1')->name('messages.poll');
 
     Route::get('/saved', [SavedListingController::class, 'index'])->name('saved.index');
     Route::post('/saved/{listing}', [SavedListingController::class, 'store'])->whereNumber('listing')->name('saved.store');
     Route::delete('/saved/{listing}', [SavedListingController::class, 'destroy'])->whereNumber('listing')->name('saved.destroy');
-    Route::get('/notifications', [AccountPageController::class, 'notifications'])->name('notifications.index');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}/open', [NotificationController::class, 'open'])->whereUuid('id')->name('notifications.open');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::get('/history', [AccountPageController::class, 'history'])->name('history.index');
     Route::get('/verification', [AccountPageController::class, 'verification'])->name('verification.index');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');

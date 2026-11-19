@@ -9,6 +9,7 @@ use App\Models\MedicineListing;
 use App\Models\MedicineRequest;
 use App\Models\Reservation;
 use App\Models\User;
+use App\Notifications\ReservationNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -27,6 +28,8 @@ use Illuminate\Validation\ValidationException;
  */
 class ReservationService
 {
+    public function __construct(private readonly MessagingService $messaging) {}
+
     public function request(MedicineListing $listing, User $requester, ?string $message = null): Reservation
     {
         return DB::transaction(function () use ($listing, $requester, $message) {
@@ -62,6 +65,11 @@ class ReservationService
                 $listing->transitionTo(ListingStatus::Requested);
             }
 
+            $reservation->setRelation('listing', $listing->load('owner'));
+            $reservation->setRelation('requester', $requester);
+            $this->messaging->openFor($reservation);
+            $this->tell($reservation, 'requested', toDonor: true);
+
             return $reservation;
         });
     }
@@ -80,6 +88,7 @@ class ReservationService
             $reservation->save();
 
             $listing->transitionTo(ListingStatus::Reserved);
+            $this->tell($reservation, 'accepted', toDonor: false);
 
             // Everyone else waiting for this listing is told no.
             $listing->reservations()->where('status', ReservationStatus::Pending->value)->where('id', '!=', $reservation->id)
@@ -103,7 +112,7 @@ class ReservationService
             $this->fail(! $reservation->isDonor($donor), 'Only the donor can decline a request.', 403);
             $this->fail($reservation->status !== ReservationStatus::Pending, 'This request is no longer waiting for an answer.');
 
-            $this->close($reservation, ReservationStatus::Declined);
+            $this->close($reservation, ReservationStatus::Declined, by: $donor->id);
         });
     }
 
@@ -137,6 +146,7 @@ class ReservationService
 
             $listing->transitionTo(ListingStatus::Completed);
             $reservation->request?->moveTo(RequestStatus::Completed);
+            $this->tell($reservation, 'completed', toDonor: $reservation->requester_id === $actor->id);
         });
     }
 
@@ -163,6 +173,13 @@ class ReservationService
         $reservation->cancelled_by = $status === ReservationStatus::Cancelled ? $by : null;
         $reservation->save();
 
+        // Tell the other side. A requester who cancels tells the donor; anything else tells the requester.
+        if ($status === ReservationStatus::Declined) {
+            $this->tell($reservation, 'declined', toDonor: false);
+        } elseif ($status === ReservationStatus::Cancelled) {
+            $this->tell($reservation, 'cancelled', toDonor: $by === $reservation->requester_id);
+        }
+
         $reservation->request?->moveTo(RequestStatus::Active);
 
         if (! $syncListing) {
@@ -181,6 +198,14 @@ class ReservationService
         } elseif ($listing->status === ListingStatus::Requested && ! $stillWaiting) {
             $listing->transitionTo(ListingStatus::Available);
         }
+    }
+
+    private function tell(Reservation $reservation, string $event, bool $toDonor): void
+    {
+        $reservation->loadMissing(['listing.owner', 'listing.medicine', 'requester']);
+        $recipient = $toDonor ? $reservation->listing->owner : $reservation->requester;
+
+        $recipient->notify(new ReservationNotification($reservation, $event, $toDonor));
     }
 
     /** Reload the reservation and lock its listing row for the rest of the transaction. */

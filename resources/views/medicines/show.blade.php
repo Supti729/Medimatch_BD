@@ -104,9 +104,12 @@
                         @elseif ($myReservation)
                             <x-alert :tone="$myReservation->status->value === 'accepted' ? 'success' : 'info'" :title="$myReservation->status->value === 'accepted' ? 'Reserved for you' : 'You requested this medicine'">
                                 {{ $myReservation->status->value === 'accepted'
-                                    ? 'The donor reserved it for you. Arrange the handover through in-app messages (coming soon) and mark it completed once you have it.'
+                                    ? 'The donor reserved it for you. Agree a safe place and time in your messages, and mark it completed once you have it.'
                                     : 'The donor will accept or decline your request. You can find it on your dashboard.' }}
                             </x-alert>
+                            @if ($myReservation->conversation)
+                                <x-button :href="route('messages.show', $myReservation->conversation)" block icon="chat-bubble-left-right">Message the donor</x-button>
+                            @endif
                             <form method="POST" action="{{ route('reservations.cancel', $myReservation) }}" data-loading>
                                 @csrf @method('PATCH')
                                 <x-button type="submit" block variant="secondary">Cancel my request</x-button>

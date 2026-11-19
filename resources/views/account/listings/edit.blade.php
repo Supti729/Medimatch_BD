@@ -64,6 +64,9 @@
                                 @endif
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
+                                @if ($reservation->conversation)
+                                    <x-button :href="route('messages.show', $reservation->conversation)" size="sm" variant="secondary" icon="chat-bubble-left-right">Message</x-button>
+                                @endif
                                 @switch($reservation->status->value)
                                     @case('pending')
                                         <form method="POST" action="{{ route('reservations.accept', $reservation) }}" data-loading>@csrf @method('PATCH')
