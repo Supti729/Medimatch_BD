@@ -35,13 +35,12 @@
             <legend class="text-base font-semibold">Your area</legend>
             <p class="mt-1 text-sm text-ink-muted">Used to show medicines near you. Only the area is shown on your listings, never an address.</p>
             <div class="mt-4 grid gap-5 sm:grid-cols-3">
-                <x-form.location required with-upazila />
+                <x-form.location by="id" required with-upazila />
             </div>
         </fieldset>
 
         <fieldset>
             <legend class="text-base font-semibold">Profile picture <span class="text-sm font-normal text-ink-muted">(optional)</span></legend>
-            @php $errors ??= new \Illuminate\Support\ViewErrorBag; @endphp
             <input type="file" name="avatar" id="avatar" accept="image/jpeg,image/png,image/webp" aria-describedby="avatar-hint" aria-label="Profile picture"
                 class="mt-3 block w-full rounded-control border border-line bg-surface text-sm text-ink-soft file:mr-4 file:min-h-11 file:cursor-pointer file:border-0 file:bg-brand-50 file:px-4 file:text-sm file:font-semibold file:text-brand-800 hover:file:bg-brand-100">
             @error('avatar')

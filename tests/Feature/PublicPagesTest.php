@@ -2,16 +2,21 @@
 
 namespace Tests\Feature;
 
+use Database\Seeders\LocationSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class PublicPagesTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->withoutVite();
+        $this->seed(LocationSeeder::class);
     }
 
     #[DataProvider('pages')]
@@ -38,7 +43,6 @@ class PublicPagesTest extends TestCase
             'register' => ['/register', 'Create your account'],
             'forgot password' => ['/forgot-password', 'Reset your password'],
             'reset password' => ['/reset-password/sample-token', 'Choose a new password'],
-            'verify' => ['/verify', 'Verify your account'],
         ];
     }
 
@@ -69,10 +73,13 @@ class PublicPagesTest extends TestCase
 
     public function test_forms_without_a_backend_say_so_and_cannot_be_submitted(): void
     {
-        foreach (['/login', '/register', '/forgot-password', '/contact', '/verify'] as $url) {
-            $this->get($url)
-                ->assertSee('Not connected yet')
-                ->assertSee('disabled', false);
+        $this->get('/contact')->assertSee('Not connected yet')->assertSee('disabled', false);
+    }
+
+    public function test_sign_in_forms_are_connected(): void
+    {
+        foreach (['/login', '/register', '/forgot-password'] as $url) {
+            $this->get($url)->assertDontSee('Not connected yet');
         }
     }
 
@@ -80,7 +87,7 @@ class PublicPagesTest extends TestCase
     {
         $response = $this->get('/register');
 
-        foreach (['name="name"', 'name="email"', 'name="phone"', 'name="password"', 'name="password_confirmation"', 'name="division"', 'name="district"', 'name="upazila"', 'name="avatar"', 'name="terms"'] as $field) {
+        foreach (['name="name"', 'name="email"', 'name="phone"', 'name="password"', 'name="password_confirmation"', 'name="division_id"', 'name="district_id"', 'name="upazila_id"', 'name="avatar"', 'name="terms"'] as $field) {
             $response->assertSee($field, false);
         }
 

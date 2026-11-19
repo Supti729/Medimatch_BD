@@ -6,6 +6,11 @@ use App\Http\Controllers\Account\ListingController;
 use App\Http\Controllers\Account\MedicineRequestController;
 use App\Http\Controllers\Account\MessageController;
 use App\Http\Controllers\Admin\AdminPageController;
+use App\Http\Controllers\Auth\AccountVerificationController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MedicineController;
 use Illuminate\Support\Facades\Route;
@@ -29,78 +34,100 @@ Route::view('/terms', 'pages.terms')->name('terms');
 
 /*
 |--------------------------------------------------------------------------
-| Sign-in screens (design only)
+| Authentication
 |--------------------------------------------------------------------------
-| These routes only show the forms. The routes that process them
-| (login.store, register.store, password.email, password.update,
-| verification.verify) are added with authentication in backend push B1.
-| Until then each form explains that it is not connected yet.
+| Users log in with an email address OR a Bangladeshi phone number.
 */
-Route::view('/login', 'auth.login')->name('login');
-Route::view('/register', 'auth.register')->name('register');
-Route::view('/forgot-password', 'auth.forgot-password')->name('password.request');
-Route::get('/reset-password/{token}', fn (string $token) => view('auth.reset-password', ['token' => $token]))->name('password.reset');
-Route::view('/verify', 'auth.verify')->name('verification.notice');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
 
-/*
-|--------------------------------------------------------------------------
-| Signed-in user pages (design previews)
-|--------------------------------------------------------------------------
-| These pages show an invented sample account and say so on screen.
-| Nothing can be saved yet. In backend push B1 this whole group is wrapped
-| in ->middleware('auth') and the pages read the logged-in user's data.
-*/
-Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('throttle:6,1')->name('register.store');
 
-Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
-Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create');
-Route::get('/listings/{listing}/edit', [ListingController::class, 'edit'])->whereNumber('listing')->name('listings.edit');
+    Route::get('/forgot-password', [PasswordResetController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'store'])->middleware('throttle:6,1')->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'edit'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'update'])->middleware('throttle:6,1')->name('password.update');
 
-Route::get('/requests', [MedicineRequestController::class, 'index'])->name('requests.index');
-Route::get('/requests/create', [MedicineRequestController::class, 'create'])->name('requests.create');
-Route::get('/requests/{medicineRequest}', [MedicineRequestController::class, 'show'])->whereNumber('medicineRequest')->name('requests.show');
-
-Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
-Route::get('/messages/{conversation}', [MessageController::class, 'show'])->whereNumber('conversation')->name('messages.show');
-
-Route::get('/saved', [AccountPageController::class, 'saved'])->name('saved.index');
-Route::get('/notifications', [AccountPageController::class, 'notifications'])->name('notifications.index');
-Route::get('/history', [AccountPageController::class, 'history'])->name('history.index');
-Route::get('/verification', [AccountPageController::class, 'verification'])->name('verification.index');
-Route::get('/profile', [AccountPageController::class, 'profile'])->name('profile.show');
-Route::get('/profile/edit', [AccountPageController::class, 'editProfile'])->name('profile.edit');
-Route::get('/settings/privacy', [AccountPageController::class, 'privacy'])->name('settings.privacy');
-Route::get('/settings/security', [AccountPageController::class, 'security'])->name('settings.security');
-
-/*
-|--------------------------------------------------------------------------
-| Administration panel (design previews)
-|--------------------------------------------------------------------------
-| These pages show invented sample data and say so on screen. Nothing can be
-| changed yet and there is NO access control. In the backend part this group
-| gets ->middleware(['auth', 'admin']) and policies before any real data is
-| shown (push B5); only admin.login stays public.
-*/
-Route::prefix('admin')->name('admin.')->controller(AdminPageController::class)->group(function () {
-    Route::get('/login', 'login')->name('login');
-
-    Route::get('/', 'dashboard')->name('dashboard');
-    Route::get('/users', 'users')->name('users.index');
-    Route::get('/users/{user}', 'user')->whereNumber('user')->name('users.show');
-    Route::get('/medicines', 'medicines')->name('medicines.index');
-    Route::get('/listings', 'listings')->name('listings.index');
-    Route::get('/listings/{listing}', 'listing')->whereNumber('listing')->name('listings.show');
-    Route::get('/requests', 'requests')->name('requests.index');
-    Route::get('/verifications', 'verifications')->name('verifications.index');
-    Route::get('/verifications/{verification}', 'verification')->whereNumber('verification')->name('verifications.show');
-    Route::get('/reports', 'reports')->name('reports.index');
-    Route::get('/reports/{report}', 'report')->whereNumber('report')->name('reports.show');
-    Route::get('/transactions', 'transactions')->name('transactions.index');
-    Route::get('/partners', 'partners')->name('partners.index');
-    Route::get('/notifications', 'notifications')->name('notifications.index');
-    Route::get('/audit-logs', 'auditLogs')->name('audit-logs.index');
-    Route::get('/settings', 'settings')->name('settings');
+    // Same form as /login, for staff. Role-based redirects happen after login.
+    Route::view('/admin/login', 'admin.login')->name('admin.login');
 });
+
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+    Route::get('/verify', [AccountVerificationController::class, 'notice'])->name('verification.notice');
+    Route::post('/verify', [AccountVerificationController::class, 'verify'])->middleware('throttle:10,1')->name('verification.verify');
+    Route::post('/verify/resend', [AccountVerificationController::class, 'resend'])->middleware('throttle:3,1')->name('verification.send');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Signed-in user pages
+|--------------------------------------------------------------------------
+| Require a verified, active account. The account itself is real; most
+| records shown on these pages are still sample data until pushes B2-B4,
+| and each page says so.
+*/
+Route::middleware(['auth', 'auth.session', 'active', 'verified.account'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
+    Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create');
+    Route::get('/listings/{listing}/edit', [ListingController::class, 'edit'])->whereNumber('listing')->name('listings.edit');
+
+    Route::get('/requests', [MedicineRequestController::class, 'index'])->name('requests.index');
+    Route::get('/requests/create', [MedicineRequestController::class, 'create'])->name('requests.create');
+    Route::get('/requests/{medicineRequest}', [MedicineRequestController::class, 'show'])->whereNumber('medicineRequest')->name('requests.show');
+
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{conversation}', [MessageController::class, 'show'])->whereNumber('conversation')->name('messages.show');
+
+    Route::get('/saved', [AccountPageController::class, 'saved'])->name('saved.index');
+    Route::get('/notifications', [AccountPageController::class, 'notifications'])->name('notifications.index');
+    Route::get('/history', [AccountPageController::class, 'history'])->name('history.index');
+    Route::get('/verification', [AccountPageController::class, 'verification'])->name('verification.index');
+    Route::get('/profile', [AccountPageController::class, 'profile'])->name('profile.show');
+    Route::get('/profile/edit', [AccountPageController::class, 'editProfile'])->name('profile.edit');
+    Route::get('/settings/privacy', [AccountPageController::class, 'privacy'])->name('settings.privacy');
+    Route::get('/settings/security', [AccountPageController::class, 'security'])->name('settings.security');
+    Route::put('/settings/password', [PasswordController::class, 'update'])->name('settings.password.update');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Administration panel
+|--------------------------------------------------------------------------
+| Administrators only, except the verification pages, which authorized
+| reviewers may also open. The pages still show sample data and cannot
+| change anything until push B5.
+*/
+Route::prefix('admin')->name('admin.')->controller(AdminPageController::class)
+    ->middleware(['auth', 'auth.session', 'active', 'verified.account'])
+    ->group(function () {
+        Route::middleware('role:admin,reviewer')->group(function () {
+            Route::get('/verifications', 'verifications')->name('verifications.index');
+            Route::get('/verifications/{verification}', 'verification')->whereNumber('verification')->name('verifications.show');
+        });
+
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/', 'dashboard')->name('dashboard');
+            Route::get('/users', 'users')->name('users.index');
+            Route::get('/users/{user}', 'user')->whereNumber('user')->name('users.show');
+            Route::get('/medicines', 'medicines')->name('medicines.index');
+            Route::get('/listings', 'listings')->name('listings.index');
+            Route::get('/listings/{listing}', 'listing')->whereNumber('listing')->name('listings.show');
+            Route::get('/requests', 'requests')->name('requests.index');
+            Route::get('/reports', 'reports')->name('reports.index');
+            Route::get('/reports/{report}', 'report')->whereNumber('report')->name('reports.show');
+            Route::get('/transactions', 'transactions')->name('transactions.index');
+            Route::get('/partners', 'partners')->name('partners.index');
+            Route::get('/notifications', 'notifications')->name('notifications.index');
+            Route::get('/audit-logs', 'auditLogs')->name('audit-logs.index');
+            Route::get('/settings', 'settings')->name('settings');
+        });
+    });
 
 /*
 |--------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
+use App\Support\AccountSummary;
 use App\Support\SampleAccount;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -61,7 +62,7 @@ class AccountPageController extends Controller
     public function profile(): View
     {
         return view('account.profile.show', [
-            'user' => SampleAccount::user(),
+            'user' => AccountSummary::for(auth()->user()),
             'stats' => SampleAccount::stats(),
             'usingSampleData' => true,
         ]);
@@ -70,7 +71,7 @@ class AccountPageController extends Controller
     public function editProfile(): View
     {
         return view('account.profile.edit', [
-            'user' => SampleAccount::user(),
+            'user' => AccountSummary::for(auth()->user()),
             'usingSampleData' => true,
         ]);
     }
@@ -78,7 +79,7 @@ class AccountPageController extends Controller
     public function privacy(): View
     {
         return view('account.settings.privacy', [
-            'user' => SampleAccount::user(),
+            'user' => AccountSummary::for(auth()->user()),
             'usingSampleData' => true,
         ]);
     }
@@ -86,7 +87,7 @@ class AccountPageController extends Controller
     public function security(): View
     {
         return view('account.settings.security', [
-            'user' => SampleAccount::user(),
+            'user' => AccountSummary::for(auth()->user()),
             'usingSampleData' => true,
         ]);
     }

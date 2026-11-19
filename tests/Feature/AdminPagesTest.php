@@ -2,30 +2,35 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use App\Support\SampleAdmin;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
- * Administration pages (front-end part: design previews on sample data).
+ * Administration pages, signed in as an administrator. Records are sample data until B5.
  */
 class AdminPagesTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->withoutVite();
+        $this->actingAs(User::factory()->admin()->create());
     }
 
     #[DataProvider('pages')]
-    public function test_admin_page_loads_and_is_labelled_as_a_preview(string $url, string $heading): void
+    public function test_admin_page_loads_and_is_labelled_as_sample_data(string $url, string $heading): void
     {
         $this->get($url)
             ->assertOk()
             ->assertSee($heading)
-            ->assertSee('Design preview')
+            ->assertSee('Sample data')
             ->assertSee('noindex', false);
     }
 
@@ -53,6 +58,8 @@ class AdminPagesTest extends TestCase
 
     public function test_admin_login_page_loads(): void
     {
+        auth()->logout();
+
         $this->get('/admin/login')
             ->assertOk()
             ->assertSee('Administrator log in')

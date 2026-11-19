@@ -9,6 +9,24 @@
 
 return [
 
+    /*
+    | Development-mode delivery of verification codes and password reset links.
+    |
+    | No SMS provider is configured, and email goes to the log file in development,
+    | so codes cannot really reach the user. When this is on, the code or link is
+    | shown on screen, clearly labelled as a development code.
+    |
+    | It can ONLY be on in the "local" and "testing" environments. Showing reset
+    | links on screen in production would let anyone take over any account.
+    */
+    'dev_codes_on_screen' => (bool) env('MEDIMATCH_DEV_CODES_ON_SCREEN', false)
+        && in_array(env('APP_ENV'), ['local', 'testing'], true),
+
+    // Verification codes
+    'verification_code_minutes' => 10,
+    'verification_code_attempts' => 5,
+
+
     // key => label shown to users
     'listing_types' => [
         'donation' => 'Donation',

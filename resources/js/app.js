@@ -12,7 +12,7 @@
 |   data-modal-close           closes the dialog it is inside
 |   data-dismiss               removes the closest [data-dismissible] element
 |   <form data-loading>        disables the submit button while the form is sent
-|   data-district-of="id"      district <select> that follows a division <select>
+|   data-depends-on="id"       <select> whose options follow another <select> (division > district > upazila)
 |   data-autosubmit            submits the form when the field changes
 |   data-tip="text"            tooltip on hover and keyboard focus (charts)
 */
@@ -115,26 +115,35 @@ window.addEventListener('pageshow', (event) => {
     });
 });
 
-// ----- Division -> district dropdowns -----
-// <select data-district-of="division"> only offers districts of the chosen division.
-function syncDistricts(districtSelect) {
-    const divisionSelect = document.getElementById(districtSelect.dataset.districtOf);
-    if (!divisionSelect) return;
+// ----- Dependent dropdowns (division -> district -> upazila) -----
+// <select data-depends-on="parentId"> only offers <option data-parent="value"> that match the parent's value.
+// When a parent changes, children that no longer fit are cleared, and the change passes down the chain.
+function syncDependent(child) {
+    const parent = document.getElementById(child.dataset.dependsOn);
+    if (!parent) return;
 
-    const division = divisionSelect.value;
-    districtSelect.querySelectorAll('option[data-division]').forEach((option) => {
-        const match = !division || option.dataset.division === division;
+    const value = parent.value;
+    let cleared = false;
+    child.querySelectorAll('option[data-parent]').forEach((option) => {
+        // With no parent chosen, show everything (filters) unless the child needs a parent (upazila).
+        const match = value ? option.dataset.parent === value : !child.hasAttribute('data-needs-parent');
         option.hidden = !match;
         option.disabled = !match;
-        if (!match && option.selected) districtSelect.value = '';
+        if (!match && option.selected) {
+            child.value = '';
+            cleared = true;
+        }
     });
+
+    return cleared;
 }
 
-document.querySelectorAll('select[data-district-of]').forEach((districtSelect) => {
-    syncDistricts(districtSelect);
-    document
-        .getElementById(districtSelect.dataset.districtOf)
-        ?.addEventListener('change', () => syncDistricts(districtSelect));
+document.querySelectorAll('select[data-depends-on]').forEach((child) => {
+    syncDependent(child);
+    document.getElementById(child.dataset.dependsOn)?.addEventListener('change', () => {
+        syncDependent(child);
+        child.dispatchEvent(new Event('change', { bubbles: true }));
+    });
 });
 
 // ----- Auto-submit -----

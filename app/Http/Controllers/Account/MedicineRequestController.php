@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
+use App\Support\AccountSummary;
 use App\Support\SampleAccount;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -38,7 +39,7 @@ class MedicineRequestController extends Controller
     public function create(Request $request): View
     {
         return view('account.requests.create', [
-            'user' => SampleAccount::user(),
+            'user' => AccountSummary::for(auth()->user()),
             // Lets "Request this medicine" on an empty search carry the search text over.
             'prefill' => is_string($request->query('q')) ? mb_substr($request->query('q'), 0, 80) : '',
             'usingSampleData' => true,

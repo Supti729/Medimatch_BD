@@ -71,11 +71,13 @@
 
                         <div class="border-b border-line px-4 pt-1 pb-3">
                             <p class="truncate text-sm font-semibold">{{ $displayName }}</p>
-                            <p class="text-xs text-ink-muted">Administrator area</p>
+                            <p class="text-xs text-ink-muted">{{ $user ? $user->role->label() : 'Administrator area' }}</p>
                         </div>
                         <div class="px-1.5 pt-1.5">
                             <x-nav.link route="dashboard" variant="sidebar" icon="home">My dashboard</x-nav.link>
-                            <x-nav.link route="admin.settings" variant="sidebar" icon="cog-6-tooth">Admin settings</x-nav.link>
+                            @if (! $user || $user->isAdmin())
+                                <x-nav.link route="admin.settings" variant="sidebar" icon="cog-6-tooth">Admin settings</x-nav.link>
+                            @endif
                         </div>
                         @if ($user && Route::has('logout'))
                             <form method="POST" action="{{ route('logout') }}" class="mt-1.5 border-t border-line pt-1.5">
@@ -90,9 +92,9 @@
 
         <main id="main" class="page-container flex-1 py-6 sm:py-8">
             <x-flash class="mb-6" />
-            @if ($preview && ! $user)
-                <x-alert tone="info" title="Design preview" class="mb-6">
-                    This admin page shows invented sample data. Nothing can be changed, and access control is added in the backend part of the project.
+            @if ($preview)
+                <x-alert tone="info" title="Sample data" class="mb-6">
+                    This admin page shows invented sample data, and nothing can be changed yet. Real moderation tools are connected in push B5.
                 </x-alert>
             @endif
             {{ $slot }}

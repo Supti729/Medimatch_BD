@@ -70,27 +70,27 @@ return [
         ['label' => 'Profile', 'route' => 'profile.show', 'icon' => 'user-circle'],
     ],
 
-    // Sidebar for administrators
+    // Sidebar for administrators. 'roles' = who sees the link (routes are protected separately).
     'admin' => [
         'Overview' => [
-            ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'chart-bar'],
+            ['label' => 'Dashboard', 'route' => 'admin.dashboard', 'icon' => 'chart-bar', 'roles' => ['admin']],
         ],
         'Manage' => [
-            ['label' => 'Users', 'route' => 'admin.users.index', 'icon' => 'users'],
-            ['label' => 'Medicines', 'route' => 'admin.medicines.index', 'icon' => 'beaker'],
-            ['label' => 'Listings', 'route' => 'admin.listings.index', 'icon' => 'gift'],
-            ['label' => 'Requests', 'route' => 'admin.requests.index', 'icon' => 'clipboard-document-list'],
-            ['label' => 'Partners', 'route' => 'admin.partners.index', 'icon' => 'building-office-2'],
+            ['label' => 'Users', 'route' => 'admin.users.index', 'icon' => 'users', 'roles' => ['admin']],
+            ['label' => 'Medicines', 'route' => 'admin.medicines.index', 'icon' => 'beaker', 'roles' => ['admin']],
+            ['label' => 'Listings', 'route' => 'admin.listings.index', 'icon' => 'gift', 'roles' => ['admin']],
+            ['label' => 'Requests', 'route' => 'admin.requests.index', 'icon' => 'clipboard-document-list', 'roles' => ['admin']],
+            ['label' => 'Partners', 'route' => 'admin.partners.index', 'icon' => 'building-office-2', 'roles' => ['admin']],
         ],
         'Trust and safety' => [
-            ['label' => 'Verification', 'route' => 'admin.verifications.index', 'icon' => 'document-check'],
-            ['label' => 'Reports', 'route' => 'admin.reports.index', 'icon' => 'flag'],
-            ['label' => 'Transactions', 'route' => 'admin.transactions.index', 'icon' => 'arrows-right-left'],
-            ['label' => 'Audit logs', 'route' => 'admin.audit-logs.index', 'icon' => 'document-magnifying-glass'],
+            ['label' => 'Verification', 'route' => 'admin.verifications.index', 'icon' => 'document-check', 'roles' => ['admin', 'reviewer']],
+            ['label' => 'Reports', 'route' => 'admin.reports.index', 'icon' => 'flag', 'roles' => ['admin']],
+            ['label' => 'Transactions', 'route' => 'admin.transactions.index', 'icon' => 'arrows-right-left', 'roles' => ['admin']],
+            ['label' => 'Audit logs', 'route' => 'admin.audit-logs.index', 'icon' => 'document-magnifying-glass', 'roles' => ['admin']],
         ],
         'System' => [
-            ['label' => 'Notifications', 'route' => 'admin.notifications.index', 'icon' => 'megaphone'],
-            ['label' => 'Settings', 'route' => 'admin.settings', 'icon' => 'cog-6-tooth'],
+            ['label' => 'Notifications', 'route' => 'admin.notifications.index', 'icon' => 'megaphone', 'roles' => ['admin']],
+            ['label' => 'Settings', 'route' => 'admin.settings', 'icon' => 'cog-6-tooth', 'roles' => ['admin']],
         ],
     ],
 

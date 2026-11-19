@@ -2,37 +2,42 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use App\Support\SampleAccount;
 use App\Support\SampleListings;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
- * Signed-in user pages (front-end part: design previews on a sample account).
+ * Signed-in user pages. The account is real; most records are still sample data until B2-B4.
  */
 class AccountPagesTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->withoutVite();
+        $this->actingAs(User::factory()->create(['name' => 'Rahim Uddin']));
     }
 
     #[DataProvider('pages')]
-    public function test_account_page_loads_and_is_labelled_as_a_preview(string $url, string $heading): void
+    public function test_account_page_loads_and_is_labelled_as_sample_data(string $url, string $heading): void
     {
         $this->get($url)
             ->assertOk()
             ->assertSee($heading)
-            ->assertSee('Design preview')
+            ->assertSee('Sample data')
             ->assertSee('noindex', false);
     }
 
     public static function pages(): array
     {
         return [
-            'dashboard' => ['/dashboard', 'Welcome, Preview User'],
+            'dashboard' => ['/dashboard', 'Welcome, Rahim Uddin'],
             'profile' => ['/profile', 'Public profile'],
             'edit profile' => ['/profile/edit', 'Edit profile'],
             'my listings' => ['/listings', 'My listings'],

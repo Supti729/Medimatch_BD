@@ -12,7 +12,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+            'active' => \App\Http\Middleware\EnsureAccountIsActive::class,
+            'verified.account' => \App\Http\Middleware\EnsureAccountIsVerified::class,
+        ]);
+
+        // Where "auth" sends guests, and where "guest" sends signed-in users
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(fn () => route('dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

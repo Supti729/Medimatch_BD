@@ -7,7 +7,7 @@
         @csrf
         <input type="hidden" name="token" value="{{ $token }}">
 
-        <x-form.input name="login" label="Email or phone number" :value="request('login')" required maxlength="150" autocomplete="username" />
+        <x-form.input name="login" label="Email or phone number" :value="$login" required maxlength="150" autocomplete="username" />
         <x-form.input name="password" label="New password" type="password" required minlength="8" autocomplete="new-password" hint="At least 8 characters." />
         <x-form.input name="password_confirmation" label="Confirm new password" type="password" required minlength="8" autocomplete="new-password" />
 

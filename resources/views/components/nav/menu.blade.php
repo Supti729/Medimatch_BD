@@ -4,6 +4,16 @@
 --}}
 @props(['groups', 'variant' => 'sidebar'])
 
+@php
+    // Items may list the roles allowed to see them: 'roles' => ['admin', 'reviewer'].
+    // Hiding a link is only for tidiness; the routes themselves are protected by middleware.
+    $role = auth()->user()?->role?->value;
+    $groups = collect($groups)
+        ->map(fn ($items) => array_values(array_filter($items, fn ($item) => ! $role || ! isset($item['roles']) || in_array($role, $item['roles'], true))))
+        ->filter()
+        ->all();
+@endphp
+
 <nav {{ $attributes->class(['space-y-6']) }}>
     @foreach ($groups as $heading => $items)
         <div>

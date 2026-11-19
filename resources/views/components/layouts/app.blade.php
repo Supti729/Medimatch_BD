@@ -8,7 +8,7 @@
     // preview = true: the page shows the invented sample account (front-end part).
     // The backend part removes "preview" and passes the real unread count (push B4).
     $user = auth()->user();
-    $sample = $preview && ! $user ? \App\Support\SampleAccount::class : null;
+    $sample = $preview ? \App\Support\SampleAccount::class : null;
 
     $displayName = $user?->name ?? ($sample ? $sample::user()['name'] : 'Guest');
     $initial = mb_strtoupper(mb_substr($displayName, 0, 1));
@@ -98,7 +98,7 @@
                                 @endforeach
                             </ul>
                             @if ($sample)
-                                <p class="border-t border-line px-4 py-2.5 text-xs text-ink-muted">Sample notifications for the design preview.</p>
+                                <p class="border-t border-line px-4 py-2.5 text-xs text-ink-muted">Sample notifications. Real notifications are added in push B4.</p>
                             @endif
                         @else
                             <x-empty-state icon="bell" title="No notifications yet" description="Updates about your listings, requests and messages will appear here." class="py-8" />
@@ -119,14 +119,14 @@
 
                         <div class="border-b border-line px-4 pt-1 pb-3">
                             <p class="truncate text-sm font-semibold">{{ $displayName }}</p>
-                            <p class="text-xs text-ink-muted">{{ $user ? 'Signed in' : ($sample ? 'Sample account (not signed in)' : 'Not signed in') }}</p>
+                            <p class="truncate text-xs text-ink-muted">{{ $user ? ($user->email ?? $user->phone) : 'Not signed in' }}</p>
                         </div>
                         <div class="px-1.5 pt-1.5">
                             <x-nav.link route="profile.show" variant="sidebar" icon="user-circle">Profile</x-nav.link>
                             <x-nav.link route="settings.security" variant="sidebar" icon="cog-6-tooth">Settings</x-nav.link>
-                            @if ($user && $user->can('access-admin') && Route::has('admin.dashboard'))
-                                <x-nav.link route="admin.dashboard" variant="sidebar" icon="shield-check">Admin panel</x-nav.link>
-                            @endif
+                            @can('access-admin')
+                                <x-nav.link :route="$user->isAdmin() ? 'admin.dashboard' : 'admin.verifications.index'" variant="sidebar" icon="shield-check">Admin panel</x-nav.link>
+                            @endcan
                         </div>
                         @if ($user && Route::has('logout'))
                             <form method="POST" action="{{ route('logout') }}" class="mt-1.5 border-t border-line pt-1.5">
@@ -142,9 +142,13 @@
         <main id="main" class="page-container flex-1 py-6 pb-24 sm:py-8 lg:pb-10">
             <x-flash class="mb-6" />
             @if ($sample)
-                <x-alert tone="info" title="Design preview" class="mb-6">
-                    You are not signed in. This page shows an invented sample account, and nothing you do here is saved.
-                    Accounts start working in the backend part of the project.
+                <x-alert tone="info" title="Sample data" class="mb-6">
+                    @if ($user)
+                        Your account is real, but the listings, requests, messages and other records on this page are invented samples.
+                        They are replaced with your own data as the next backend parts are built, and nothing here can be saved yet.
+                    @else
+                        This page shows an invented sample account, and nothing here can be saved.
+                    @endif
                 </x-alert>
             @endif
             {{ $slot }}

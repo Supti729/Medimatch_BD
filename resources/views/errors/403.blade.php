@@ -1,0 +1,1 @@
+<x-errors-page code="403" title="You do not have access to this page" message="Your account does not have permission to open it. If you think this is a mistake, contact the Medimatch BD team." icon="lock-closed" />

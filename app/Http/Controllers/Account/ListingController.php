@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
+use App\Support\AccountSummary;
 use App\Support\SampleAccount;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -37,7 +38,7 @@ class ListingController extends Controller
     public function create(): View
     {
         return view('account.listings.create', [
-            'user' => SampleAccount::user(),
+            'user' => AccountSummary::for(auth()->user()),
             'usingSampleData' => true,
         ]);
     }
