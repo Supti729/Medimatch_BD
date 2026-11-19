@@ -49,14 +49,24 @@ php artisan key:generate
 
 ### Database setup (MySQL)
 
-Create a database and a user that only has access to it. Pick your own password and put the same one in `.env` as `DB_PASSWORD`.
+1. In `.env`, set `DB_PASSWORD` to a password of your choice (any long random string).
+2. From the project folder, create the database and a user that can only access it. The command reads the password from `.env`, so the two always match:
 
 ```bash
+cd MedimatchBD                                   # must run inside the project folder
+PW=$(grep '^DB_PASSWORD=' .env | cut -d= -f2)
 sudo mysql -e "
-  CREATE DATABASE medimatch_bd CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-  CREATE USER 'medimatch'@'localhost' IDENTIFIED BY 'choose-a-password';
+  CREATE DATABASE IF NOT EXISTS medimatch_bd CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  CREATE USER IF NOT EXISTS 'medimatch'@'localhost' IDENTIFIED BY '$PW';
+  ALTER USER 'medimatch'@'localhost' IDENTIFIED BY '$PW';
   GRANT ALL PRIVILEGES ON medimatch_bd.* TO 'medimatch'@'localhost';
   FLUSH PRIVILEGES;"
+```
+
+No output means it worked. Check the login (prints `1`):
+
+```bash
+mysql -u medimatch --password="$PW" -e "select 1" medimatch_bd
 ```
 
 Then create the tables and load the Bangladesh locations and demo accounts:
