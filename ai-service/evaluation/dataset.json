@@ -1,0 +1,924 @@
+{
+ "_about": "Hand-labelled evaluation set for Medimatch BD matching. Each query's intended medicine (generic name, and strength/form when the query states them) was written by hand by the project team. A listing is relevant when it has that generic name and, if given, that strength and form. Listings are written the way donors might type brand names. No real user data.",
+ "corpus": [
+  {
+   "id": 1,
+   "brand_name": "Napa",
+   "generic_name": "Paracetamol",
+   "strength": "500 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 2,
+   "brand_name": "Ace",
+   "generic_name": "Paracetamol",
+   "strength": "500 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 3,
+   "brand_name": "NAPA 500",
+   "generic_name": "Paracetamol",
+   "strength": "500 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 4,
+   "brand_name": "Napa Extend",
+   "generic_name": "Paracetamol",
+   "strength": "665 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 5,
+   "brand_name": "Napa",
+   "generic_name": "Paracetamol",
+   "strength": "120 mg / 5 ml",
+   "dosage_form": "Syrup"
+  },
+  {
+   "id": 6,
+   "brand_name": "Ace",
+   "generic_name": "Paracetamol",
+   "strength": "120 mg / 5 ml",
+   "dosage_form": "Syrup"
+  },
+  {
+   "id": 7,
+   "brand_name": "Ace Plus",
+   "generic_name": "Paracetamol + Caffeine",
+   "strength": "500 mg + 65 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 8,
+   "brand_name": "Napa Extra",
+   "generic_name": "Paracetamol + Caffeine",
+   "strength": "500 mg + 65 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 9,
+   "brand_name": "Seclo",
+   "generic_name": "Omeprazole",
+   "strength": "20 mg",
+   "dosage_form": "Capsule"
+  },
+  {
+   "id": 10,
+   "brand_name": "Losectil",
+   "generic_name": "Omeprazole",
+   "strength": "20 mg",
+   "dosage_form": "Capsule"
+  },
+  {
+   "id": 11,
+   "brand_name": "Seclo 40",
+   "generic_name": "Omeprazole",
+   "strength": "40 mg",
+   "dosage_form": "Capsule"
+  },
+  {
+   "id": 12,
+   "brand_name": "Sergel",
+   "generic_name": "Esomeprazole",
+   "strength": "20 mg",
+   "dosage_form": "Capsule"
+  },
+  {
+   "id": 13,
+   "brand_name": "Maxpro",
+   "generic_name": "Esomeprazole",
+   "strength": "20 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 14,
+   "brand_name": "Fexo",
+   "generic_name": "Fexofenadine",
+   "strength": "120 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 15,
+   "brand_name": "Fexo 120",
+   "generic_name": "Fexofenadine",
+   "strength": "120 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 16,
+   "brand_name": "Alatrol",
+   "generic_name": "Cetirizine",
+   "strength": "10 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 17,
+   "brand_name": "Tofen",
+   "generic_name": "Ketotifen",
+   "strength": "1 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 18,
+   "brand_name": "ORSaline-N",
+   "generic_name": "Oral Rehydration Salts",
+   "strength": "10.25 g",
+   "dosage_form": "Sachet"
+  },
+  {
+   "id": 19,
+   "brand_name": "Orsaline",
+   "generic_name": "Oral Rehydration Salts",
+   "strength": "10.25 g",
+   "dosage_form": "Sachet"
+  },
+  {
+   "id": 20,
+   "brand_name": "Monas",
+   "generic_name": "Montelukast",
+   "strength": "10 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 21,
+   "brand_name": "Amdocal",
+   "generic_name": "Amlodipine",
+   "strength": "5 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 22,
+   "brand_name": "Osartil",
+   "generic_name": "Losartan Potassium",
+   "strength": "50 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 23,
+   "brand_name": "Comet",
+   "generic_name": "Metformin",
+   "strength": "500 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 24,
+   "brand_name": "Comet 500",
+   "generic_name": "Metformin",
+   "strength": "500 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 25,
+   "brand_name": "Azmasol",
+   "generic_name": "Salbutamol",
+   "strength": "100 mcg",
+   "dosage_form": "Inhaler"
+  },
+  {
+   "id": 26,
+   "brand_name": "Moxacil",
+   "generic_name": "Amoxicillin",
+   "strength": "500 mg",
+   "dosage_form": "Capsule"
+  },
+  {
+   "id": 27,
+   "brand_name": "Alatrol 10",
+   "generic_name": "Cetirizine",
+   "strength": "10 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 28,
+   "brand_name": "Monas 10",
+   "generic_name": "Montelukast",
+   "strength": "10 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 29,
+   "brand_name": "Seclo",
+   "generic_name": "Omeprazole",
+   "strength": "20 mg",
+   "dosage_form": "Capsule"
+  },
+  {
+   "id": 30,
+   "brand_name": "Ace",
+   "generic_name": "Paracetamol",
+   "strength": "500 mg",
+   "dosage_form": "Tablet"
+  },
+  {
+   "id": 31,
+   "brand_name": "Napa",
+   "generic_name": "Paracetamol",
+   "strength": "500 mg",
+   "dosage_form": "Tablet"
+  }
+ ],
+ "queries": [
+  {
+   "id": 1,
+   "category": "exact",
+   "query": "Napa 500 mg tablet",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 2,
+   "category": "exact",
+   "query": "Seclo 20 mg capsule",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "20 mg",
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 3,
+   "category": "exact",
+   "query": "Fexo 120 mg tablet",
+   "intent": {
+    "generic_name": "Fexofenadine",
+    "strength": "120 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 4,
+   "category": "exact",
+   "query": "Comet 500 mg tablet",
+   "intent": {
+    "generic_name": "Metformin",
+    "strength": "500 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 5,
+   "category": "exact",
+   "query": "Amdocal 5 mg tablet",
+   "intent": {
+    "generic_name": "Amlodipine",
+    "strength": "5 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 6,
+   "category": "exact",
+   "query": "Osartil 50 mg tablet",
+   "intent": {
+    "generic_name": "Losartan Potassium",
+    "strength": "50 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 7,
+   "category": "exact",
+   "query": "Monas 10 mg tablet",
+   "intent": {
+    "generic_name": "Montelukast",
+    "strength": "10 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 8,
+   "category": "exact",
+   "query": "Alatrol 10 mg tablet",
+   "intent": {
+    "generic_name": "Cetirizine",
+    "strength": "10 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 9,
+   "category": "exact",
+   "query": "Sergel 20 mg capsule",
+   "intent": {
+    "generic_name": "Esomeprazole",
+    "strength": "20 mg",
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 10,
+   "category": "exact",
+   "query": "Moxacil 500 mg capsule",
+   "intent": {
+    "generic_name": "Amoxicillin",
+    "strength": "500 mg",
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 11,
+   "category": "generic",
+   "query": "paracetamol 500 mg tablet",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 12,
+   "category": "generic",
+   "query": "omeprazole 20 mg",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "20 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 13,
+   "category": "generic",
+   "query": "esomeprazole 20",
+   "intent": {
+    "generic_name": "Esomeprazole",
+    "strength": "20 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 14,
+   "category": "generic",
+   "query": "cetirizine 10 mg",
+   "intent": {
+    "generic_name": "Cetirizine",
+    "strength": "10 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 15,
+   "category": "generic",
+   "query": "metformin 500",
+   "intent": {
+    "generic_name": "Metformin",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 16,
+   "category": "generic",
+   "query": "amlodipine 5 mg",
+   "intent": {
+    "generic_name": "Amlodipine",
+    "strength": "5 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 17,
+   "category": "generic",
+   "query": "montelukast 10mg",
+   "intent": {
+    "generic_name": "Montelukast",
+    "strength": "10 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 18,
+   "category": "generic",
+   "query": "fexofenadine 120",
+   "intent": {
+    "generic_name": "Fexofenadine",
+    "strength": "120 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 19,
+   "category": "generic",
+   "query": "losartan potassium 50 mg",
+   "intent": {
+    "generic_name": "Losartan Potassium",
+    "strength": "50 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 20,
+   "category": "generic",
+   "query": "amoxicillin 500 capsule",
+   "intent": {
+    "generic_name": "Amoxicillin",
+    "strength": "500 mg",
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 21,
+   "category": "generic",
+   "query": "salbutamol inhaler",
+   "intent": {
+    "generic_name": "Salbutamol",
+    "strength": null,
+    "dosage_form": "Inhaler"
+   }
+  },
+  {
+   "id": 22,
+   "category": "generic",
+   "query": "ketotifen 1 mg",
+   "intent": {
+    "generic_name": "Ketotifen",
+    "strength": "1 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 23,
+   "category": "generic",
+   "query": "oral rehydration salts",
+   "intent": {
+    "generic_name": "Oral Rehydration Salts",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 24,
+   "category": "brand_only",
+   "query": "napa",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 25,
+   "category": "brand_only",
+   "query": "seclo",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 26,
+   "category": "brand_only",
+   "query": "fexo",
+   "intent": {
+    "generic_name": "Fexofenadine",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 27,
+   "category": "brand_only",
+   "query": "maxpro",
+   "intent": {
+    "generic_name": "Esomeprazole",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 28,
+   "category": "brand_only",
+   "query": "azmasol",
+   "intent": {
+    "generic_name": "Salbutamol",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 29,
+   "category": "brand_only",
+   "query": "tofen",
+   "intent": {
+    "generic_name": "Ketotifen",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 30,
+   "category": "brand_only",
+   "query": "comet",
+   "intent": {
+    "generic_name": "Metformin",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 31,
+   "category": "abbreviation",
+   "query": "napa 500 tab",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 32,
+   "category": "abbreviation",
+   "query": "seclo 20 cap",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "20 mg",
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 33,
+   "category": "abbreviation",
+   "query": "paracetamol syp",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": null,
+    "dosage_form": "Syrup"
+   }
+  },
+  {
+   "id": 34,
+   "category": "abbreviation",
+   "query": "omeprazole 40mg caps",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "40 mg",
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 35,
+   "category": "abbreviation",
+   "query": "ace 500mg tabs",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 36,
+   "category": "abbreviation",
+   "query": "azmasol inh",
+   "intent": {
+    "generic_name": "Salbutamol",
+    "strength": null,
+    "dosage_form": "Inhaler"
+   }
+  },
+  {
+   "id": 37,
+   "category": "misspelling",
+   "query": "paracetemol 500",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 38,
+   "category": "misspelling",
+   "query": "omiprazole 20",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "20 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 39,
+   "category": "misspelling",
+   "query": "metfromin 500",
+   "intent": {
+    "generic_name": "Metformin",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 40,
+   "category": "misspelling",
+   "query": "cetrizine 10",
+   "intent": {
+    "generic_name": "Cetirizine",
+    "strength": "10 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 41,
+   "category": "misspelling",
+   "query": "amlodipin 5",
+   "intent": {
+    "generic_name": "Amlodipine",
+    "strength": "5 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 42,
+   "category": "misspelling",
+   "query": "monteleukast",
+   "intent": {
+    "generic_name": "Montelukast",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 43,
+   "category": "misspelling",
+   "query": "fexofenadin",
+   "intent": {
+    "generic_name": "Fexofenadine",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 44,
+   "category": "misspelling",
+   "query": "amoxicilin 500",
+   "intent": {
+    "generic_name": "Amoxicillin",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 45,
+   "category": "misspelling",
+   "query": "losartan potasium",
+   "intent": {
+    "generic_name": "Losartan Potassium",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 46,
+   "category": "misspelling",
+   "query": "esomeprazol 20",
+   "intent": {
+    "generic_name": "Esomeprazole",
+    "strength": "20 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 47,
+   "category": "bangla",
+   "query": "নাপা ৫০০",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 48,
+   "category": "bangla",
+   "query": "প্যারাসিটামল ৫০০ ট্যাবলেট",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 49,
+   "category": "bangla",
+   "query": "সেকলো ২০",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "20 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 50,
+   "category": "bangla",
+   "query": "মেটফরমিন ৫০০",
+   "intent": {
+    "generic_name": "Metformin",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 51,
+   "category": "bangla",
+   "query": "প্যারাসিটামল সিরাপ",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": null,
+    "dosage_form": "Syrup"
+   }
+  },
+  {
+   "id": 52,
+   "category": "bangla",
+   "query": "ফেক্সো ১২০",
+   "intent": {
+    "generic_name": "Fexofenadine",
+    "strength": "120 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 53,
+   "category": "bangla",
+   "query": "ওরস্যালাইন",
+   "intent": {
+    "generic_name": "Oral Rehydration Salts",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 54,
+   "category": "bangla",
+   "query": "এমলোডিপিন ৫ মিগ্রা",
+   "intent": {
+    "generic_name": "Amlodipine",
+    "strength": "5 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 55,
+   "category": "banglish",
+   "query": "amar napa 500 lagbe",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 56,
+   "category": "banglish",
+   "query": "seclo 20 capsule ache?",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "20 mg",
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 57,
+   "category": "banglish",
+   "query": "keu comet 500 dite parben",
+   "intent": {
+    "generic_name": "Metformin",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 58,
+   "category": "banglish",
+   "query": "alatrol er pata lagbe",
+   "intent": {
+    "generic_name": "Cetirizine",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 59,
+   "category": "banglish",
+   "query": "orsaline dorkar",
+   "intent": {
+    "generic_name": "Oral Rehydration Salts",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 60,
+   "category": "strength",
+   "query": "napa extend 665",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "665 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 61,
+   "category": "strength",
+   "query": "paracetamol 665 mg",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "665 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 62,
+   "category": "strength",
+   "query": "seclo 40",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "40 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 63,
+   "category": "strength",
+   "query": "omeprazole 40mg",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "40 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 64,
+   "category": "form",
+   "query": "napa syrup",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": null,
+    "dosage_form": "Syrup"
+   }
+  },
+  {
+   "id": 65,
+   "category": "form",
+   "query": "esomeprazole tablet",
+   "intent": {
+    "generic_name": "Esomeprazole",
+    "strength": null,
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 66,
+   "category": "form",
+   "query": "esomeprazole capsule",
+   "intent": {
+    "generic_name": "Esomeprazole",
+    "strength": null,
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 67,
+   "category": "combination",
+   "query": "ace plus",
+   "intent": {
+    "generic_name": "Paracetamol + Caffeine",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 68,
+   "category": "combination",
+   "query": "paracetamol caffeine",
+   "intent": {
+    "generic_name": "Paracetamol + Caffeine",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 69,
+   "category": "combination",
+   "query": "napa extra 500 65",
+   "intent": {
+    "generic_name": "Paracetamol + Caffeine",
+    "strength": "500 mg + 65 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 70,
+   "category": "combination",
+   "query": "paracetamol + caffeine tablet",
+   "intent": {
+    "generic_name": "Paracetamol + Caffeine",
+    "strength": null,
+    "dosage_form": "Tablet"
+   }
+  }
+ ]
+}

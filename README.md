@@ -19,7 +19,7 @@ A privacy-focused, location-based web application that helps people in Banglades
 | Frontend | Blade templates, Tailwind CSS v4, Vite |
 | Backend | Laravel 13 (PHP 8.5) |
 | Database | MySQL 8 (in-memory SQLite for automated tests) |
-| AI service | Python, FastAPI, Sentence Transformers *(Part 3)* |
+| AI service | Python 3, FastAPI (`ai-service/`); Sentence Transformers added in A2 |
 
 ## Repository Layout
 
@@ -29,7 +29,7 @@ resources/      Blade views, CSS, JS
 routes/         Web routes
 database/       Migrations, seeders, factories
 tests/          Automated tests
-ai-service/     Python FastAPI matching service (added in Part 3)
+ai-service/     Python FastAPI matching service (see ai-service/README.md)
 ```
 
 ## Getting Started (local development)
@@ -129,6 +129,7 @@ The project is built in three parts, each split into small commits.
 - [x] B3 Medicine requests (create, edit, cancel, automatic expiry), rule-based matching, real browse and search, reservations (request → accept/decline → handover), saved medicines, real dashboard, history and home-page counts
 - [x] B4 Private messaging between donor and requester (opened by a reservation, participants only, read-only after the handover, no phone numbers or emails, 15-second auto-refresh) and in-app notifications for requests, answers, cancellations, completed handovers, new messages and new matches
 - [x] B5 Prescription verification (private storage, reviewers only, every document view logged), reports and moderation, append-only audit log, and a fully working admin panel: listing approval/rejection/blocking, user suspension and roles, medicine catalogue editing, announcements, settings and live charts
+- [x] A1 Python matching service (FastAPI) with text clean-up (brands, misspellings, Bangla, abbreviations), a 70-phrase hand-labelled test set and a measured keyword baseline. See `ai-service/README.md`
 
 Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Browse, search, listings, requests, reservations, saved medicines, history, the dashboard and profiles use real data. Every page now uses real data; the temporary sample-data classes were removed in B5. New listings wait in "Pending review" until moderation is added in B5; for demos, `php artisan migrate --seed` creates approved demo listings from three "Demo donor" accounts.
 
