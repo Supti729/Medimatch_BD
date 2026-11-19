@@ -25,9 +25,13 @@
         'flex flex-col gap-4 p-5 @3xl:flex-row @3xl:items-center' => $isList,
     ])>
         <div @class(['flex items-start gap-4', '@3xl:w-1/3 @3xl:shrink-0' => $isList])>
-            <span class="flex size-12 shrink-0 items-center justify-center rounded-control bg-brand-50 text-brand-700" aria-hidden="true">
-                <x-icon :name="$icon" class="size-6" />
-            </span>
+            @if (! empty($listing['image']))
+                <img src="{{ $listing['image'] }}" alt="" class="size-12 shrink-0 rounded-control border border-line object-cover">
+            @else
+                <span class="flex size-12 shrink-0 items-center justify-center rounded-control bg-brand-50 text-brand-700" aria-hidden="true">
+                    <x-icon :name="$icon" class="size-6" />
+                </span>
+            @endif
             <div class="min-w-0">
                 <h3 class="text-base font-semibold">
                     <a href="{{ route('medicines.show', $listing['id']) }}" class="rounded-control after:absolute after:inset-0 after:rounded-card">

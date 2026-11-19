@@ -2,7 +2,7 @@
     $typeLabel = config('medimatch.listing_types')[$listing['type']] ?? ucfirst($listing['type']);
     $expiry = \Illuminate\Support\Carbon::parse($listing['expiry'].'-01');
     $monthsLeft = (int) floor(now()->startOfMonth()->diffInMonths($expiry));
-    $canRequest = $listing['status'] === 'available';
+    $canRequest = in_array($listing['status'], ['available', 'requested'], true);
     $signInUrl = auth()->check() ? null : route('login');
 @endphp
 
@@ -19,11 +19,19 @@
         </nav>
 
         @if ($usingSampleData)
-            <x-sample-notice class="mt-5">This listing is an invented example for the prototype. It is not a real offer of medicine.</x-sample-notice>
+            <x-sample-notice class="mt-5" />
         @endif
 
         <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_22rem]">
             <div class="space-y-6">
+                @if ($model->images->isNotEmpty())
+                    <ul class="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Photos of the pack">
+                        @foreach ($model->images as $image)
+                            <li><img src="{{ $image->url() }}" alt="Photo {{ $loop->iteration }} of {{ $listing['name'] }}" class="aspect-square w-full rounded-card border border-line object-cover"></li>
+                        @endforeach
+                    </ul>
+                @endif
+
                 <x-card>
                     <div class="flex flex-wrap items-start gap-5">
                         <span class="flex size-16 shrink-0 items-center justify-center rounded-card bg-brand-50 text-brand-700" aria-hidden="true">
@@ -90,19 +98,52 @@
                     <p class="mt-1 pl-7 text-sm text-ink-muted">{{ $listing['division'] }} Division · area only, exact address is never shown</p>
 
                     <div class="mt-5 space-y-2.5">
-                        @if (! $canRequest)
+                        @if ($isOwner)
+                            <x-button :href="route('listings.edit', $listing['id'])" block variant="secondary" icon="pencil-square">This is your listing</x-button>
+                            <p class="text-sm text-ink-muted">Requests from other people appear on your listing page.</p>
+                        @elseif ($myReservation)
+                            <x-alert :tone="$myReservation->status->value === 'accepted' ? 'success' : 'info'" :title="$myReservation->status->value === 'accepted' ? 'Reserved for you' : 'You requested this medicine'">
+                                {{ $myReservation->status->value === 'accepted'
+                                    ? 'The donor reserved it for you. Arrange the handover through in-app messages (coming soon) and mark it completed once you have it.'
+                                    : 'The donor will accept or decline your request. You can find it on your dashboard.' }}
+                            </x-alert>
+                            <form method="POST" action="{{ route('reservations.cancel', $myReservation) }}" data-loading>
+                                @csrf @method('PATCH')
+                                <x-button type="submit" block variant="secondary">Cancel my request</x-button>
+                            </form>
+                        @elseif (! $canRequest)
                             <x-button block disabled>Not available to request</x-button>
                             <p class="text-sm text-ink-muted">This listing is currently {{ str_replace('_', ' ', $listing['status']) }}.</p>
                         @elseif ($signInUrl)
                             <x-button :href="$signInUrl" block icon="lock-closed">Log in to request</x-button>
-                            <p class="text-sm text-ink-muted">You need a free account to request a medicine or message a donor.</p>
+                            <p class="text-sm text-ink-muted">You need a free account to request a medicine.</p>
                         @else
-                            <x-button block disabled>Request this medicine</x-button>
-                            <p class="text-sm text-ink-muted">Requesting is not connected yet. It is added in the backend part of the project.</p>
+                            <form method="POST" action="{{ route('reservations.store', $listing['id']) }}" class="space-y-3" data-loading>
+                                @csrf
+                                <x-form.textarea name="message" label="Note to the donor" optional rows="2" maxlength="300"
+                                    placeholder="For example: I can collect on Friday afternoon."
+                                    hint="Do not include your phone number, address or health details." />
+                                @error('reservation')
+                                    <x-alert tone="danger">{{ $message }}</x-alert>
+                                @enderror
+                                <x-button type="submit" block icon="hand-raised">Request this medicine</x-button>
+                            </form>
+                            @if ($listing['requires_prescription'])
+                                <p class="text-sm text-ink-muted">You need an open request for this medicine first, so your prescription can be checked.
+                                    <a href="{{ route('requests.create') }}" class="font-semibold text-brand-700 hover:underline">Post a request</a></p>
+                            @endif
                         @endif
 
                         <div class="grid grid-cols-2 gap-2.5 pt-1">
-                            <x-button variant="secondary" icon="bookmark" disabled title="Available after the backend is added">Save</x-button>
+                            @auth
+                                <form method="POST" action="{{ $isSaved ? route('saved.destroy', $listing['id']) : route('saved.store', $listing['id']) }}" data-loading>
+                                    @csrf
+                                    @if ($isSaved) @method('DELETE') @endif
+                                    <x-button type="submit" variant="secondary" block :icon="$isSaved ? 'bookmark-slash' : 'bookmark'">{{ $isSaved ? 'Saved' : 'Save' }}</x-button>
+                                </form>
+                            @else
+                                <x-button :href="route('login')" variant="secondary" icon="bookmark">Save</x-button>
+                            @endauth
                             <x-button variant="secondary" icon="flag" data-modal-open="report-listing">Report</x-button>
                         </div>
                     </div>
@@ -110,9 +151,9 @@
 
                 <x-card title="Offered by">
                     <div class="flex items-center gap-3">
-                        <span class="flex size-11 items-center justify-center rounded-full bg-brand-600 text-sm font-semibold text-white" aria-hidden="true">{{ mb_strtoupper(mb_substr($listing['donor']['name'], 0, 1)) }}</span>
+                        <x-avatar :user="$model->owner" size="md" public />
                         <div class="min-w-0">
-                            <p class="truncate text-sm font-semibold">{{ $listing['donor']['name'] }}</p>
+                            <p class="truncate text-sm font-semibold"><a href="{{ route('people.show', $listing['donor']['id']) }}" class="hover:text-brand-700 hover:underline">{{ $listing['donor']['name'] }}</a></p>
                             <p class="text-xs text-ink-muted">Member since {{ $listing['donor']['joined']->format('M Y') }}</p>
                         </div>
                         @if ($listing['donor']['verified'])

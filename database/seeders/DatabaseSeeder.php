@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
         // Demo accounts with a known password: never in production.
         if (! app()->environment('production')) {
             $this->call(DevelopmentUserSeeder::class);
+            $this->call(DemoListingSeeder::class);
         }
     }
 }

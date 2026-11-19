@@ -2,165 +2,154 @@
 
 namespace Tests\Feature;
 
-use App\Support\SampleListings;
+use App\Enums\ListingStatus;
+use App\Models\District;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\CreatesMedicineData;
 use Tests\TestCase;
 
 /**
- * Browsing and searching listings (front-end part: sample data).
+ * Public browsing and search of real listings.
  */
 class MedicineBrowseTest extends TestCase
 {
+    use CreatesMedicineData, RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->withoutVite();
+        $this->seedMedicineData();
     }
 
-    public function test_browse_page_is_labelled_as_sample_data(): void
+    public function test_browse_shows_public_listings_and_no_sample_notice(): void
     {
-        $this->get('/medicines')->assertOk()->assertSee('Sample data');
+        $this->makeListing(brand: 'Napa');
+
+        $this->get('/medicines')->assertOk()->assertSee('Napa')->assertDontSee('Sample data');
     }
 
-    public function test_search_by_brand_name(): void
+    public function test_search_by_brand_generic_alias_and_strength(): void
     {
-        $this->get('/medicines?q=seclo')
-            ->assertSee('Omeprazole')
-            ->assertDontSee('Fexofenadine');
+        $this->makeListing(brand: 'Napa');
+        $this->makeListing(medicine: $this->medicine('Omeprazole', '20 mg', 'Capsule'), brand: 'Seclo');
+
+        $this->get('/medicines?q=seclo')->assertSee('Seclo')->assertDontSee('>Napa <', false);
+        $this->get('/medicines?q=omeprazole')->assertSee('Seclo');
+        $this->get('/medicines?q=paracetamol')->assertSee('Napa')->assertDontSee('Seclo');
+        // "Ace" is a verified alias of the same catalogue medicine as Napa
+        $this->get('/medicines?q=ace')->assertSee('Napa');
+        // Spacing in the strength does not matter
+        $this->get('/medicines?q=napa+500mg')->assertSee('Napa');
+        $this->get('/medicines?q=napa+500+mg')->assertSee('Napa');
     }
 
-    public function test_search_by_generic_name_finds_different_brands(): void
+    public function test_listings_that_are_not_public_are_never_returned(): void
     {
-        $names = SampleListings::search(['q' => 'paracetamol'])->pluck('name');
+        foreach ([ListingStatus::Draft, ListingStatus::PendingReview, ListingStatus::Rejected, ListingStatus::Blocked, ListingStatus::Cancelled, ListingStatus::Completed, ListingStatus::Paused] as $status) {
+            $hidden = $this->makeListing(status: $status, brand: 'Hidden'.ucfirst($status->value));
 
-        $this->assertTrue($names->contains('Napa'));
-        $this->assertTrue($names->contains('Ace'));
-        $this->assertFalse($names->contains('Seclo'));
-    }
-
-    public function test_search_ignores_spacing_in_strength(): void
-    {
-        $this->assertSame(
-            SampleListings::search(['q' => 'napa 500 mg'])->pluck('id')->all(),
-            SampleListings::search(['q' => 'napa 500mg'])->pluck('id')->all(),
-        );
-        $this->assertNotEmpty(SampleListings::search(['q' => 'napa 500mg']));
-    }
-
-    public function test_filters_by_division_district_type_and_form(): void
-    {
-        $this->assertTrue(SampleListings::search(['division' => 'Dhaka'])->every(fn ($l) => $l['division'] === 'Dhaka'));
-        $this->assertTrue(SampleListings::search(['district' => 'Gazipur'])->every(fn ($l) => $l['district'] === 'Gazipur'));
-        $this->assertTrue(SampleListings::search(['type' => 'affordable_access'])->every(fn ($l) => $l['type'] === 'affordable_access'));
-        $this->assertTrue(SampleListings::search(['form' => 'Capsule'])->every(fn ($l) => $l['dosage_form'] === 'Capsule'));
-        $this->assertTrue(SampleListings::search(['available' => true])->every(fn ($l) => $l['status'] === 'available'));
-    }
-
-    public function test_blocked_and_unreviewed_listings_are_never_returned(): void
-    {
-        $hidden = SampleListings::all()->whereNotIn('status', config('medimatch.public_listing_statuses'));
-        $this->assertNotEmpty($hidden, 'The sample data should include hidden listings to test against.');
-
-        // Not in search results, even when searched for by exact name...
-        $this->assertEmpty(SampleListings::search(['q' => 'Napa Extend']));
-        $this->get('/medicines?q=Napa+Extend')->assertSee('No listings match your search');
-
-        // ...and not reachable by direct link.
-        foreach ($hidden as $listing) {
-            $this->get('/medicines/'.$listing['id'])->assertNotFound();
+            $this->get('/medicines?q=hidden')->assertDontSee('Hidden'.ucfirst($status->value));
+            $this->get("/medicines/{$hidden->id}")->assertNotFound();
         }
+
+        $visible = $this->makeListing(status: ListingStatus::Reserved, brand: 'Visible');
+        $this->get("/medicines/{$visible->id}")->assertOk();
     }
 
-    public function test_sorting(): void
+    public function test_filters_by_location_type_form_strength_and_availability(): void
     {
-        $byName = SampleListings::search(['sort' => 'name'])->pluck('name')->all();
-        $sorted = $byName;
-        natcasesort($sorted);
-        $this->assertSame(array_values($sorted), $byName);
+        $this->makeListing(brand: 'Napa', district: 'Dhaka');
+        $this->makeListing(brand: 'Ace', district: 'Sylhet', status: ListingStatus::Requested);
+        $this->makeListing(medicine: $this->medicine('Omeprazole', '20 mg', 'Capsule'), brand: 'Seclo', district: 'Dhaka');
 
-        $expiries = SampleListings::search(['sort' => 'expiry'])->pluck('expiry')->all();
-        $this->assertSame(collect($expiries)->sortDesc()->values()->all(), $expiries);
-    }
-
-    public function test_results_are_paginated_and_keep_the_filters(): void
-    {
-        $this->get('/medicines')
-            ->assertSee('Showing')
-            ->assertSee('page=2', false);
-
-        $this->get('/medicines?type=donation&page=2')
-            ->assertOk()
-            ->assertSee('type=donation', false);
-    }
-
-    public function test_list_view_can_be_selected(): void
-    {
-        $this->get('/medicines?view=list')->assertOk()->assertSee('name="view" value="list"', false);
-    }
-
-    public function test_empty_search_shows_a_helpful_empty_state(): void
-    {
-        $this->get('/medicines?q=zzzznotamedicine')
-            ->assertOk()
-            ->assertSee('No listings match your search')
-            ->assertSee('Request this medicine');
-    }
-
-    public function test_unexpected_query_values_do_not_break_search(): void
-    {
-        $this->get('/medicines?division=Atlantis&sort=drop+table&type[]=x&q[]=y&page=abc&form=<script>')
-            ->assertOk()
-            ->assertSee('16')
-            ->assertDontSee('<script>', false);
-    }
-
-    public function test_search_text_is_escaped_in_the_page(): void
-    {
-        $this->get('/medicines?q='.urlencode('<img src=x onerror=alert(1)>'))
-            ->assertOk()
-            ->assertDontSee('<img src=x onerror=alert(1)>', false);
+        $sylhet = District::where('name', 'Sylhet')->first();
+        $this->get("/medicines?division_id={$sylhet->division_id}")->assertSee('Ace')->assertDontSee('Seclo');
+        $this->get("/medicines?district_id={$sylhet->id}")->assertSee('Ace')->assertDontSee('Seclo');
+        $this->get('/medicines?form=Capsule')->assertSee('Seclo')->assertDontSee('Ace');
+        $this->get('/medicines?strength=20mg')->assertSee('Seclo')->assertDontSee('Ace');
+        $this->get('/medicines?available=1')->assertSee('Napa')->assertDontSee('>Ace <', false);
+        $this->get('/medicines?type=affordable_access')->assertSee('No listings match your search');
     }
 
     public function test_a_district_from_another_division_is_ignored(): void
     {
-        // Sylhet district does not belong to Dhaka division, so only the division filter applies.
-        $this->get('/medicines?division=Dhaka&district=Sylhet')
-            ->assertOk()
-            ->assertDontSee('No listings match your search');
+        $this->makeListing(brand: 'Napa', district: 'Dhaka');
+        $dhaka = District::where('name', 'Dhaka')->first();
+        $sylhet = District::where('name', 'Sylhet')->first();
+
+        $this->get("/medicines?division_id={$dhaka->division_id}&district_id={$sylhet->id}")->assertOk()->assertSee('Napa');
     }
 
-    public function test_details_page_shows_listing_information_and_safety_notes(): void
+    public function test_sorting_and_pagination(): void
     {
-        $this->get('/medicines/10')
+        foreach (range(1, 11) as $i) {
+            $this->makeListing(brand: 'Brand'.str_pad((string) $i, 2, '0', STR_PAD_LEFT));
+        }
+
+        $this->get('/medicines?sort=name')->assertSeeInOrder(['Brand01', 'Brand02', 'Brand03'])->assertSee('page=2', false);
+        $this->get('/medicines?sort=name&page=2')->assertSee('Brand10')->assertSee('Brand11')->assertSee('sort=name', false);
+    }
+
+    public function test_unexpected_query_values_do_not_break_search(): void
+    {
+        $this->makeListing(brand: 'Napa');
+
+        $this->get('/medicines?division_id=abc&district_id[]=1&sort=drop+table&type[]=x&q[]=y&page=abc&form=<script>&strength[]=1')
+            ->assertOk()
+            ->assertSee('Napa')
+            ->assertDontSee('<script>', false);
+    }
+
+    public function test_search_text_is_escaped_and_like_wildcards_are_literal(): void
+    {
+        $this->makeListing(brand: 'Napa');
+
+        $this->get('/medicines?q='.urlencode('<img src=x onerror=alert(1)>'))->assertOk()->assertDontSee('<img src=x onerror=alert(1)>', false);
+        $this->get('/medicines?q=%25')->assertSee('No listings match your search');
+    }
+
+    public function test_empty_search_offers_to_post_a_request_with_the_search_text(): void
+    {
+        $this->get('/medicines?q=zzzz')->assertOk()->assertSee('No listings match your search')->assertSee(route('requests.create', ['q' => 'zzzz']), false);
+    }
+
+    public function test_details_page_shows_the_listing_and_safety_notes_but_no_contact_details(): void
+    {
+        $donor = User::factory()->create(['name' => 'Rahim Uddin', 'phone' => '01755554444']);
+        $listing = $this->makeListing($donor, medicine: $this->medicine('Amlodipine', '5 mg', 'Tablet'), brand: 'Amdocal');
+
+        $this->get("/medicines/{$listing->id}")
             ->assertOk()
             ->assertSee('Amdocal')
             ->assertSee('Amlodipine')
             ->assertSee('A prescription check is needed for this medicine')
-            ->assertSee('Before you request')
             ->assertSee('Log in to request')
-            ->assertSee('Sample data');
+            ->assertSee('Rahim Uddin')
+            ->assertDontSee($donor->email)
+            ->assertDontSee('01755554444');
     }
 
-    public function test_details_page_never_shows_contact_details(): void
+    public function test_reserved_listing_cannot_be_requested(): void
     {
-        $this->get('/medicines/1')
-            ->assertSee('Phone number, email and address are private.')
-            ->assertDontSee('mailto:', false)
-            ->assertDontSee('tel:', false);
-    }
+        $listing = $this->makeListing(status: ListingStatus::Reserved);
 
-    public function test_unavailable_listing_cannot_be_requested(): void
-    {
-        // Listing 6 is reserved in the sample data.
-        $this->get('/medicines/6')
-            ->assertOk()
-            ->assertSee('Not available to request')
-            ->assertDontSee('Log in to request');
+        $this->actingAs(User::factory()->create())->get("/medicines/{$listing->id}")->assertSee('Not available to request');
     }
 
     public function test_unknown_or_non_numeric_listing_returns_not_found(): void
     {
         $this->get('/medicines/99999')->assertNotFound();
         $this->get('/medicines/abc')->assertNotFound();
+    }
+
+    public function test_home_page_shows_real_counts_and_latest_listings(): void
+    {
+        $this->makeListing(brand: 'Napa', district: 'Dhaka');
+        $this->makeListing(brand: 'Ace', district: 'Sylhet');
+        $this->makeListing(status: ListingStatus::Draft, brand: 'Secret');
+
+        $this->get('/')->assertOk()->assertSee('Napa')->assertDontSee('Secret')->assertDontSee('Sample data')->assertDontSee('no figures are shown');
     }
 }

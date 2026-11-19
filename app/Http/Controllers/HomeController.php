@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Support\SampleListings;
+use App\Enums\ReservationStatus;
+use App\Models\MedicineListing;
+use App\Models\MedicineRequest;
+use App\Models\Reservation;
 use Illuminate\View\View;
 
 class HomeController extends Controller
@@ -10,18 +13,21 @@ class HomeController extends Controller
     public function __invoke(): View
     {
         return view('pages.home', [
-            // Community impact numbers must come from the database.
-            // They stay null (shown as "—") until the backend part connects them.
+            // Counted live from the database.
             'stats' => [
-                'listings' => null,
-                'requests' => null,
-                'completed' => null,
-                'districts' => null,
+                'listings' => MedicineListing::publiclyVisible()->count(),
+                'requests' => MedicineRequest::count(),
+                'completed' => Reservation::where('status', ReservationStatus::Completed->value)->count(),
+                'districts' => MedicineListing::publiclyVisible()->distinct()->count('district_id'),
             ],
-
-            // Sample data until the listings table exists (see SampleListings).
-            'latestListings' => SampleListings::search(['available' => true])->take(3),
-            'usingSampleData' => true,
+            'latestListings' => MedicineListing::publiclyVisible()
+                ->where('status', 'available')
+                ->with(MedicineListing::CARD_RELATIONS)
+                ->latest('published_at')
+                ->limit(3)
+                ->get()
+                ->map->toCard(),
+            'usingSampleData' => false,
         ]);
     }
 }

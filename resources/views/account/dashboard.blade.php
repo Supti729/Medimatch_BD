@@ -1,5 +1,5 @@
-<x-layouts.app title="Dashboard" :preview="$usingSampleData">
-    <x-page-header :title="'Welcome, '.$user['name']" description="Here is what is happening with your listings and requests.">
+<x-layouts.app title="Dashboard">
+    <x-page-header :title="'Welcome, '.$user->name" description="Here is what is happening with your listings and requests.">
         <x-button :href="route('medicines.index')" variant="secondary" icon="magnifying-glass">Find medicine</x-button>
     </x-page-header>
 
@@ -7,8 +7,8 @@
     <section class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" aria-label="Your numbers">
         <x-stat-card label="Active listings" :value="$stats['active_listings']" icon="gift" tone="accent" :href="route('listings.index', ['tab' => 'active'])" />
         <x-stat-card label="Active requests" :value="$stats['active_requests']" icon="clipboard-document-list" tone="info" :href="route('requests.index', ['tab' => 'open'])" />
-        <x-stat-card label="Pending verification" :value="$stats['pending_verification']" icon="shield-check" tone="warning" :href="route('verification.index')" />
-        <x-stat-card label="Reserved" :value="$stats['reserved']" icon="clock" tone="info" :href="route('listings.index', ['tab' => 'active'])" />
+        <x-stat-card label="Pending verification" :value="$stats['pending_verification']" icon="shield-check" tone="warning" :href="route('requests.index', ['tab' => 'open'])" />
+        <x-stat-card label="Reserved" :value="$stats['reserved']" icon="clock" tone="info" />
         <x-stat-card label="Completed" :value="$stats['completed']" icon="check-circle" tone="success" :href="route('history.index')" />
     </section>
 
@@ -32,15 +32,15 @@
 
     <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_1fr]">
         {{-- Recommended matches --}}
-        <x-card title="Recommended matches" :description="$matchRequest ? 'For your request: '.$matchRequest['name'].' '.$matchRequest['strength'] : null">
+        <x-card title="Recommended matches" :description="$matchRequest ? 'For your request: '.$matchRequest->medicine->generic_name.' '.$matchRequest->medicine->strength : null">
             @if ($matchRequest)
                 <x-slot:actions>
-                    <x-button :href="route('requests.show', $matchRequest['id'])" size="sm" variant="secondary">View request</x-button>
+                    <x-button :href="route('requests.show', $matchRequest)" size="sm" variant="secondary">View request</x-button>
                 </x-slot:actions>
             @endif
 
             @if ($matches->isEmpty())
-                <x-empty-state icon="sparkles" title="No matches yet" description="When a listing fits one of your requests, it will appear here." class="py-6">
+                <x-empty-state icon="sparkles" title="No matches yet" description="When a listing fits one of your open requests, it will appear here." class="py-6">
                     <x-button :href="route('requests.create')" size="sm">Request medicine</x-button>
                 </x-empty-state>
             @else
@@ -50,23 +50,37 @@
                     @endforeach
                 </div>
                 <p class="mt-4 text-xs text-ink-muted">
-                    Matches agree on medicine, strength and dosage form. They are not medical advice. AI ranking is added in a later part of the project.
+                    Matches are for the same medicine, strength and form. They are not medical advice. AI ranking is added in a later part of the project.
                 </p>
             @endif
         </x-card>
 
-        {{-- Recent activity --}}
-        <x-card title="Recent activity" :padded="false">
+        {{-- Handovers in progress --}}
+        <x-card title="Handovers in progress" :padded="false">
             <x-slot:actions>
-                <x-button :href="route('notifications.index')" size="sm" variant="secondary">View all</x-button>
+                <x-button :href="route('history.index')" size="sm" variant="secondary">History</x-button>
             </x-slot:actions>
 
-            @if ($activity->isEmpty())
-                <x-empty-state icon="bell" title="No activity yet" description="Updates about your listings, requests and messages will appear here." />
+            @if ($handovers->isEmpty())
+                <x-empty-state icon="arrows-right-left" title="Nothing in progress" description="When you request a medicine, or someone requests yours, it appears here." />
             @else
                 <ul class="divide-y divide-line">
-                    @foreach ($activity as $notification)
-                        <li><x-notification-item :notification="$notification" compact /></li>
+                    @foreach ($handovers as $handover)
+                        @php $donor = $handover->listing->user_id === $user->id; @endphp
+                        <li>
+                            <a href="{{ $donor ? route('listings.edit', $handover->listing) : route('medicines.show', $handover->medicine_listing_id) }}" class="flex items-start gap-3 px-5 py-4 hover:bg-brand-50/60 sm:px-6">
+                                <span @class(['flex size-9 shrink-0 items-center justify-center rounded-full', 'bg-accent-50 text-accent-700' => $donor, 'bg-info-50 text-info-700' => ! $donor]) aria-hidden="true">
+                                    <x-icon :name="$donor ? 'gift' : 'hand-raised'" class="size-5" />
+                                </span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block text-sm font-semibold">{{ $handover->listing->brand_name }} {{ $handover->listing->medicine->strength }}</span>
+                                    <span class="block text-sm text-ink-muted">
+                                        {{ $donor ? $handover->requester->name.' asked for your listing' : 'You asked '.$handover->listing->owner->name }}
+                                    </span>
+                                </span>
+                                <x-badge :tone="$handover->status->value === 'accepted' ? 'success' : 'warning'">{{ $donor && $handover->status->value === 'pending' ? 'Needs your answer' : $handover->status->label() }}</x-badge>
+                            </a>
+                        </li>
                     @endforeach
                 </ul>
             @endif

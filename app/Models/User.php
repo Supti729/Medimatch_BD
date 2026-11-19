@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -70,6 +71,22 @@ class User extends Authenticatable
     public function listings(): HasMany
     {
         return $this->hasMany(MedicineListing::class);
+    }
+
+    public function medicineRequests(): HasMany
+    {
+        return $this->hasMany(MedicineRequest::class);
+    }
+
+    /** Reservations this user made as a requester. */
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class, 'requester_id');
+    }
+
+    public function savedListings(): BelongsToMany
+    {
+        return $this->belongsToMany(MedicineListing::class, 'saved_listings')->withTimestamps();
     }
 
     // ----- Helpers -----

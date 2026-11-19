@@ -4,13 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Support\SampleAccount;
-use App\Support\SampleListings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
- * Signed-in user pages. The account is real; most records are still sample data until B2-B4.
+ * Signed-in pages that still show sample data: messages and notifications (B4), verification (B5).
  */
 class AccountPagesTest extends TestCase
 {
@@ -37,125 +36,21 @@ class AccountPagesTest extends TestCase
     public static function pages(): array
     {
         return [
-            'dashboard' => ['/dashboard', 'Welcome, Rahim Uddin'],
-            'my requests' => ['/requests', 'My requests'],
-            'create request' => ['/requests/create', 'Request a medicine'],
-            'request details' => ['/requests/201', 'Potential matches'],
-            'saved' => ['/saved', 'Saved medicines'],
             'messages' => ['/messages', 'Conversations'],
             'conversation' => ['/messages/301', 'Sample donor B'],
             'notifications' => ['/notifications', 'Notifications'],
-            'history' => ['/history', 'Interaction history'],
             'verification' => ['/verification', 'Verification Center'],
         ];
     }
 
     public function test_unknown_sample_records_return_not_found(): void
     {
-        $this->get('/requests/99999')->assertNotFound();
         $this->get('/messages/99999')->assertNotFound();
-        $this->get('/requests/abc')->assertNotFound();
     }
 
     public function test_every_sidebar_link_now_leads_to_a_real_page(): void
     {
-        $this->get('/dashboard')->assertDontSee('This page is not built yet');
-    }
-
-    // ----- Dashboard -----
-
-    public function test_dashboard_numbers_are_counted_from_the_records_not_hardcoded(): void
-    {
-        $listings = SampleAccount::listings();
-        $stats = SampleAccount::stats();
-
-        $this->assertSame($listings->whereIn('status', ['available', 'requested'])->count(), $stats['active_listings']);
-        $this->assertSame($listings->where('status', 'reserved')->count(), $stats['reserved']);
-        $this->assertSame(SampleAccount::history()->where('status', 'completed')->count(), $stats['completed']);
-    }
-
-    public function test_dashboard_has_quick_actions_matches_and_activity(): void
-    {
-        $this->get('/dashboard')
-            ->assertSee('Find medicine')
-            ->assertSee('Donate medicine')
-            ->assertSee('Request medicine')
-            ->assertSee('Recommended matches')
-            ->assertSee('Recent activity')
-            ->assertSee('They are not medical advice');
-    }
-
-    // ----- Listings (real data: see ListingTest) -----
-
-    public function test_listing_form_offers_donation_only_to_individuals_and_requires_safety_confirmations(): void
-    {
-        $this->get('/listings/create')
-            ->assertSee('Partners only')
-            ->assertSee('name="confirm_sealed"', false)
-            ->assertSee('name="confirm_expiry"', false)
-            ->assertSee('name="confirm_storage"', false)
-            ->assertSee('name="confirm_allowed"', false);
-    }
-
-    // ----- Requests and matching -----
-
-    public function test_matches_must_agree_on_medicine_strength_and_form(): void
-    {
-        $request = SampleAccount::findRequest(201); // Paracetamol 500 mg tablet
-        $matches = SampleAccount::matchesFor($request);
-
-        $this->assertNotEmpty($matches);
-
-        foreach ($matches as $listing) {
-            $this->assertSame('Paracetamol', $listing['generic_name']);
-            $this->assertSame('500 mg', $listing['strength']);
-            $this->assertSame('Tablet', $listing['dosage_form']);
-            $this->assertSame('available', $listing['status']);
-        }
-
-        $names = $matches->pluck('name');
-        $this->assertFalse($names->contains('Napa Syrup'), 'A different dosage form must not match.');
-        $this->assertFalse($names->contains('Ace Plus'), 'A combination medicine must not match.');
-        $this->assertFalse($names->contains('Napa Extend'), 'A blocked listing with a different strength must not match.');
-    }
-
-    public function test_matches_in_the_same_district_come_first(): void
-    {
-        $request = SampleAccount::findRequest(201);
-        $first = SampleAccount::matchesFor($request)->first();
-
-        $this->assertSame($request['district'], $first['district']);
-    }
-
-    public function test_matches_never_include_listings_hidden_from_the_public(): void
-    {
-        $publicIds = SampleListings::visible()->pluck('id');
-
-        foreach (SampleAccount::requests() as $request) {
-            foreach (SampleAccount::matchesFor($request) as $listing) {
-                $this->assertTrue($publicIds->contains($listing['id']));
-            }
-        }
-    }
-
-    public function test_closed_request_shows_no_matches(): void
-    {
-        $this->get('/requests/205')
-            ->assertSee('Matching has stopped')
-            ->assertDontSee('Cancel request');
-    }
-
-    public function test_request_needing_a_prescription_points_to_the_verification_center(): void
-    {
-        $this->get('/requests/202')
-            ->assertSee('A prescription check is needed')
-            ->assertSee(route('verification.index'), false);
-    }
-
-    public function test_request_form_can_be_prefilled_from_a_search(): void
-    {
-        $this->get('/requests/create?q=Napa')->assertSee('value="Napa"', false);
-        $this->get('/requests/create?q[]=x')->assertOk();
+        $this->get('/messages')->assertDontSee('This page is not built yet');
     }
 
     // ----- Messages -----
@@ -195,7 +90,7 @@ class AccountPagesTest extends TestCase
     {
         $count = SampleAccount::notifications()->where('read', false)->count();
 
-        $this->get('/dashboard')->assertSee("Notifications, {$count} unread");
+        $this->get('/notifications')->assertSee("Notifications, {$count} unread");
     }
 
     // ----- Profile and privacy -----
@@ -217,18 +112,11 @@ class AccountPagesTest extends TestCase
             ->assertSee('Re-upload required');
     }
 
-    public function test_history_can_be_filtered_by_role(): void
-    {
-        $this->get('/history?role=received')
-            ->assertSee('ORSaline-N')
-            ->assertDontSee('Ace 500 mg');
-    }
-
     // ----- Honesty about what works -----
 
     public function test_forms_without_a_backend_say_so(): void
     {
-        foreach (['/requests/create', '/verification'] as $url) {
+        foreach (['/verification'] as $url) {
             $this->get($url)->assertSee('Not connected yet');
         }
     }

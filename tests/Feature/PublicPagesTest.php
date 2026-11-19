@@ -55,13 +55,6 @@ class PublicPagesTest extends TestCase
             ->assertSee('What the AI does not do');
     }
 
-    public function test_home_page_shows_no_invented_statistics(): void
-    {
-        $this->get('/')
-            ->assertSee('no figures are shown')
-            ->assertSee('Sample data');
-    }
-
     public function test_main_menu_links_are_live_for_pages_that_exist(): void
     {
         $response = $this->get('/');

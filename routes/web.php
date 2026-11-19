@@ -6,6 +6,8 @@ use App\Http\Controllers\Account\ListingController;
 use App\Http\Controllers\Account\MedicineRequestController;
 use App\Http\Controllers\Account\MessageController;
 use App\Http\Controllers\Account\ProfileController;
+use App\Http\Controllers\Account\ReservationController;
+use App\Http\Controllers\Account\SavedListingController;
 use App\Http\Controllers\Admin\AdminPageController;
 use App\Http\Controllers\Auth\AccountVerificationController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -88,12 +90,25 @@ Route::middleware(['auth', 'auth.session', 'active', 'verified.account'])->group
 
     Route::get('/requests', [MedicineRequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/create', [MedicineRequestController::class, 'create'])->name('requests.create');
+    Route::post('/requests', [MedicineRequestController::class, 'store'])->name('requests.store');
     Route::get('/requests/{medicineRequest}', [MedicineRequestController::class, 'show'])->whereNumber('medicineRequest')->name('requests.show');
+    Route::get('/requests/{medicineRequest}/edit', [MedicineRequestController::class, 'edit'])->whereNumber('medicineRequest')->name('requests.edit');
+    Route::put('/requests/{medicineRequest}', [MedicineRequestController::class, 'update'])->whereNumber('medicineRequest')->name('requests.update');
+    Route::patch('/requests/{medicineRequest}/cancel', [MedicineRequestController::class, 'cancel'])->whereNumber('medicineRequest')->name('requests.cancel');
+
+    // Asking for a listing, and the answers (rules in App\Services\ReservationService)
+    Route::post('/medicines/{listing}/reserve', [ReservationController::class, 'store'])->whereNumber('listing')->middleware('throttle:20,1')->name('reservations.store');
+    Route::patch('/reservations/{reservation}/accept', [ReservationController::class, 'accept'])->whereNumber('reservation')->name('reservations.accept');
+    Route::patch('/reservations/{reservation}/decline', [ReservationController::class, 'decline'])->whereNumber('reservation')->name('reservations.decline');
+    Route::patch('/reservations/{reservation}/cancel', [ReservationController::class, 'cancel'])->whereNumber('reservation')->name('reservations.cancel');
+    Route::patch('/reservations/{reservation}/complete', [ReservationController::class, 'complete'])->whereNumber('reservation')->name('reservations.complete');
 
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{conversation}', [MessageController::class, 'show'])->whereNumber('conversation')->name('messages.show');
 
-    Route::get('/saved', [AccountPageController::class, 'saved'])->name('saved.index');
+    Route::get('/saved', [SavedListingController::class, 'index'])->name('saved.index');
+    Route::post('/saved/{listing}', [SavedListingController::class, 'store'])->whereNumber('listing')->name('saved.store');
+    Route::delete('/saved/{listing}', [SavedListingController::class, 'destroy'])->whereNumber('listing')->name('saved.destroy');
     Route::get('/notifications', [AccountPageController::class, 'notifications'])->name('notifications.index');
     Route::get('/history', [AccountPageController::class, 'history'])->name('history.index');
     Route::get('/verification', [AccountPageController::class, 'verification'])->name('verification.index');

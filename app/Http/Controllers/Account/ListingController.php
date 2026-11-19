@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\ListingRequest;
 use App\Models\Medicine;
 use App\Models\MedicineListing;
+use App\Services\ReservationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -88,7 +89,7 @@ class ListingController extends Controller
         Gate::authorize('view', $listing);
 
         return view('account.listings.edit', [
-            'listing' => $listing->load(['medicine', 'images']),
+            'listing' => $listing->load(['medicine', 'images', 'reservations' => fn ($q) => $q->with(['requester', 'request'])->latest()]),
             'catalogue' => $this->catalogue(),
             'location' => $listing->only(['division_id', 'district_id', 'upazila_id']),
             'locked' => ! request()->user()->can('update', $listing),
@@ -134,7 +135,14 @@ class ListingController extends Controller
         }
 
         try {
-            $listing->transitionTo($action->target());
+            DB::transaction(function () use ($listing, $action) {
+                $listing->transitionTo($action->target());
+
+                // Paused, cancelled or hidden: nobody can keep waiting for it.
+                if (in_array($action, [ListingAction::Pause, ListingAction::Cancel, ListingAction::MarkUnavailable], true)) {
+                    app(ReservationService::class)->closeAllFor($listing);
+                }
+            });
         } catch (InvalidStatusTransition) {
             return back()->with('error', 'That change is not allowed for this listing.');
         }

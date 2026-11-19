@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
+use App\Models\Reservation;
 use App\Support\SampleAccount;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,14 +14,6 @@ use Illuminate\View\View;
  */
 class AccountPageController extends Controller
 {
-    public function saved(): View
-    {
-        return view('account.saved', [
-            'listings' => SampleAccount::saved(),
-            'usingSampleData' => true,
-        ]);
-    }
-
     public function notifications(Request $request): View
     {
         $all = SampleAccount::notifications();
@@ -34,17 +27,40 @@ class AccountPageController extends Controller
         ]);
     }
 
+    /**
+     * Finished and closed interactions, as donor or requester.
+     */
     public function history(Request $request): View
     {
-        $all = SampleAccount::history();
+        $user = $request->user();
         $roles = ['donated', 'received', 'requested'];
         $role = in_array($request->query('role'), $roles, true) ? $request->query('role') : '';
 
+        $entries = Reservation::involving($user)
+            ->whereIn('status', ['completed', 'cancelled', 'declined'])
+            ->with(['listing.medicine', 'listing.owner', 'listing.upazila', 'listing.district', 'requester'])
+            ->latest('updated_at')
+            ->get()
+            ->map(function (Reservation $r) use ($user) {
+                $donor = $r->listing->user_id === $user->id;
+
+                return [
+                    'id' => $r->id,
+                    // donated = I gave it; received = I got it; requested = I asked but it did not happen
+                    'role' => $donor ? 'donated' : ($r->status->value === 'completed' ? 'received' : 'requested'),
+                    'medicine' => $r->listing->brand_name.' '.$r->listing->medicine->strength.' · '.$r->listing->quantity.' '.$r->listing->unit,
+                    'with' => $donor ? $r->requester->name : $r->listing->owner->name,
+                    'status' => $r->status->value,
+                    'date' => $r->completed_at ?? $r->updated_at,
+                    'area' => $r->listing->upazila->name.', '.$r->listing->district->name,
+                ];
+            })
+            ->when($role, fn ($c) => $c->where('role', $role)->values());
+
         return view('account.history', [
-            'entries' => $role ? $all->where('role', $role)->values() : $all,
+            'entries' => $entries,
             'role' => $role,
             'roles' => $roles,
-            'usingSampleData' => true,
         ]);
     }
 

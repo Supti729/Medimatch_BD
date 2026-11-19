@@ -1,5 +1,5 @@
-<x-layouts.app title="My requests" :preview="$usingSampleData">
-    <x-page-header title="My requests" description="Medicines you have asked for. We look for matching listings while a request is open.">
+<x-layouts.app title="My requests">
+    <x-page-header title="My requests" description="Medicines you have asked for. Open requests are matched with new listings automatically.">
         <x-button :href="route('requests.create')" icon="plus">New request</x-button>
     </x-page-header>
 
@@ -8,7 +8,7 @@
     @if ($requests->isEmpty())
         <x-card class="mt-6" :padded="false">
             <x-empty-state icon="clipboard-document-list" :title="$tab === 'all' ? 'You have not requested any medicine yet' : 'Nothing in this tab'"
-                description="Post a request and you will be notified when a matching medicine is listed near you.">
+                description="Post a request and matching listings near you will be shown.">
                 <x-button :href="route('requests.create')" icon="plus">New request</x-button>
             </x-empty-state>
         </x-card>
@@ -21,25 +21,25 @@
                     <div class="min-w-0 flex-1">
                         <div class="flex flex-wrap items-center gap-2">
                             <h2 class="text-base font-semibold">
-                                <a href="{{ route('requests.show', $request['id']) }}" class="after:absolute after:inset-0 after:rounded-card">
-                                    {{ $request['name'] }} <span class="font-medium text-ink-soft">{{ $request['strength'] }}</span>
+                                <a href="{{ route('requests.show', $request) }}" class="after:absolute after:inset-0 after:rounded-card">
+                                    {{ $request->medicine->generic_name }} <span class="font-medium text-ink-soft">{{ $request->medicine->strength }}</span>
                                 </a>
                             </h2>
-                            <x-status-badge :status="$request['status']" />
-                            @if ($request['requires_prescription'])
+                            <x-status-badge :status="$request->status" />
+                            @if ($request->medicine->requires_prescription)
                                 <x-badge tone="warning">Prescription check</x-badge>
                             @endif
                         </div>
                         <p class="mt-0.5 text-sm text-ink-muted">
-                            {{ $request['generic_name'] }} · {{ $request['dosage_form'] }} · {{ $request['quantity'] }} {{ $request['unit'] }} ·
-                            {{ $request['area'] }}, {{ $request['district'] }}
+                            {{ $request->medicine->dosage_form }} · {{ $request->quantity }} {{ $request->unit }} · {{ $request->upazila->name }}, {{ $request->district->name }}
                         </p>
                     </div>
 
-                    <p class="text-sm text-ink-muted">Requested {{ $request['created_at']->diffForHumans() }}</p>
+                    <p class="text-sm text-ink-muted">Requested {{ $request->created_at->diffForHumans() }}</p>
                     <x-icon name="chevron-right" class="hidden size-5 text-ink-muted sm:block" />
                 </li>
             @endforeach
         </ul>
+        <div class="mt-6">{{ $requests->links('partials.pagination') }}</div>
     @endif
 </x-layouts.app>

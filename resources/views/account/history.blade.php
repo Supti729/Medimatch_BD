@@ -3,14 +3,14 @@
     $tabs = ['' => 'All'] + collect($roles)->mapWithKeys(fn ($r) => [$r => $roleLabels[$r][0]])->all();
 @endphp
 
-<x-layouts.app title="History" :preview="$usingSampleData">
-    <x-page-header title="Interaction history" description="Your completed and cancelled donations and requests." />
+<x-layouts.app title="History">
+    <x-page-header title="Interaction history" description="Your completed, declined and cancelled handovers, as donor and as requester." />
 
     <x-tabs class="mt-6" route="history.index" param="role" :current="$role" :tabs="$tabs" />
 
     <x-card class="mt-6" :padded="false">
         @if ($entries->isEmpty())
-            <x-empty-state icon="clock" title="Nothing here yet" description="Finished handovers and cancelled requests are kept here." />
+            <x-empty-state icon="clock" title="Nothing here yet" description="Finished, declined and cancelled handovers are kept here." />
         @else
             {{-- Table on larger screens --}}
             <div class="relative hidden overflow-x-auto md:block">

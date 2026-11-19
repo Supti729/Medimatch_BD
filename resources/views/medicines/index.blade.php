@@ -10,15 +10,13 @@
     <div class="border-b border-line bg-surface">
         <div class="page-container py-8">
             <h1 class="text-2xl font-semibold tracking-tight sm:text-3xl">{{ $title }}</h1>
-            <p class="mt-1.5 text-ink-soft">Search eligible medicines offered by donors and partners across Bangladesh.</p>
+            <p class="mt-1.5 text-ink-soft">Search eligible medicines offered by donors across Bangladesh. Every listing was checked by a moderator.</p>
         </div>
     </div>
 
     <div class="page-container py-8">
         @if ($usingSampleData)
-            <x-sample-notice class="mb-6">
-                These listings are invented examples for the prototype, not real offers of medicine. Search, filters and sorting work on them.
-            </x-sample-notice>
+            <x-sample-notice class="mb-6" />
         @endif
 
         <form method="GET" action="{{ route('medicines.index') }}" role="search" class="grid gap-6 lg:grid-cols-[17rem_1fr]">
@@ -47,7 +45,7 @@
                         @endif
                     </div>
 
-                    <x-form.location :division="$filters['division']" :district="$filters['district']" id-prefix="filter-" />
+                    <x-form.location by="id" :division="$filters['division_id']" :district="$filters['district_id']" id-prefix="filter-" />
 
                     <fieldset>
                         <legend class="text-sm font-medium">Listing type</legend>
@@ -122,7 +120,7 @@
                             @if ($hasSearch)
                                 <x-button :href="route('medicines.index')" variant="secondary">Clear search</x-button>
                             @endif
-                            <x-button :href="Route::has('requests.create') ? route('requests.create') : route('register')">Request this medicine</x-button>
+                            <x-button :href="route('requests.create', array_filter(['q' => $filters['q']]))">Request this medicine</x-button>
                         </x-empty-state>
                     </x-card>
                 @else

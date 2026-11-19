@@ -91,7 +91,7 @@ class AccessControlTest extends TestCase
 
     public function test_public_pages_stay_public(): void
     {
-        foreach (['/', '/medicines', '/medicines/1', '/about', '/safety'] as $url) {
+        foreach (['/', '/medicines', '/about', '/safety'] as $url) {
             $this->get($url)->assertOk();
         }
     }

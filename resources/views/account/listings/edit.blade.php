@@ -44,6 +44,55 @@
             </x-card>
         @endif
 
+        {{-- Requests from other people --}}
+        @if ($listing->reservations->isNotEmpty())
+            @php $pending = $listing->reservations->where('status', \App\Enums\ReservationStatus::Pending); @endphp
+            <x-card title="Requests for this listing" :description="$pending->count() ? $pending->count().' waiting for your answer. Accepting one declines the others.' : null" :padded="false" class="mb-6">
+                @error('reservation') <div class="p-5 pb-0"><x-alert tone="danger">{{ $message }}</x-alert></div> @enderror
+                <ul class="divide-y divide-line">
+                    @foreach ($listing->reservations as $reservation)
+                        <li class="flex flex-wrap items-start gap-3 px-5 py-4 sm:px-6">
+                            <x-avatar :user="$reservation->requester" size="sm" public />
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-semibold"><a href="{{ route('people.show', $reservation->requester) }}" class="hover:text-brand-700 hover:underline">{{ $reservation->requester->name }}</a></p>
+                                <p class="text-xs text-ink-muted">{{ $reservation->created_at->diffForHumans() }}{{ $reservation->request ? ' · needs '.$reservation->request->quantity.' '.$reservation->request->unit : '' }}</p>
+                                @if ($reservation->message)
+                                    <p class="mt-2 rounded-control bg-canvas px-3 py-2 text-sm text-ink-soft">“{{ $reservation->message }}”</p>
+                                @endif
+                                @if ($reservation->status->value === 'accepted' && $reservation->request?->status->value === 'verification_pending')
+                                    <p class="mt-2 text-xs text-warning-700">Waiting for the requester's prescription check before the handover.</p>
+                                @endif
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                @switch($reservation->status->value)
+                                    @case('pending')
+                                        <form method="POST" action="{{ route('reservations.accept', $reservation) }}" data-loading>@csrf @method('PATCH')
+                                            <x-button type="submit" size="sm" icon="check">Accept</x-button>
+                                        </form>
+                                        <form method="POST" action="{{ route('reservations.decline', $reservation) }}" data-loading>@csrf @method('PATCH')
+                                            <x-button type="submit" size="sm" variant="secondary">Decline</x-button>
+                                        </form>
+                                        @break
+                                    @case('accepted')
+                                        @if (! $listing->medicine->requires_prescription || $reservation->request?->status->value === 'reserved')
+                                            <form method="POST" action="{{ route('reservations.complete', $reservation) }}" data-loading>@csrf @method('PATCH')
+                                                <x-button type="submit" size="sm" icon="check-circle">Mark handed over</x-button>
+                                            </form>
+                                        @endif
+                                        <form method="POST" action="{{ route('reservations.cancel', $reservation) }}" data-loading>@csrf @method('PATCH')
+                                            <x-button type="submit" size="sm" variant="ghost">Release</x-button>
+                                        </form>
+                                        @break
+                                    @default
+                                        <x-badge>{{ $reservation->status->label() }}</x-badge>
+                                @endswitch
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </x-card>
+        @endif
+
         @if ($locked)
             <x-card title="Details">
                 <x-detail-list :columns="3" :items="[

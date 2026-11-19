@@ -61,6 +61,11 @@ class MedicineListing extends Model
         return $this->hasMany(ListingImage::class)->orderBy('position');
     }
 
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(Reservation::class);
+    }
+
     public function division(): BelongsTo
     {
         return $this->belongsTo(Division::class);
@@ -114,6 +119,46 @@ class MedicineListing extends Model
     }
 
     // ----- Display helpers -----
+
+    /**
+     * The array shape used by <x-medicine-card> and the public details page.
+     * Load medicine.aliases, alias, upazila, district, division and owner first to avoid extra queries.
+     */
+    public function toCard(): array
+    {
+        $owner = $this->owner;
+
+        return [
+            'id' => $this->id,
+            'name' => $this->brand_name,
+            'generic_name' => $this->medicine->generic_name,
+            'strength' => $this->medicine->strength,
+            'dosage_form' => $this->medicine->dosage_form,
+            'quantity' => $this->quantity,
+            'unit' => $this->unit,
+            'expiry' => $this->expiry_date->format('Y-m'),
+            'type' => $this->type,
+            'status' => $this->status->value,
+            'division' => $this->division->name,
+            'district' => $this->district->name,
+            'area' => $this->upazila->name,
+            'posted_at' => $this->published_at ?? $this->created_at,
+            'requires_prescription' => $this->medicine->requires_prescription,
+            'manufacturer' => $this->alias?->manufacturer ?? 'Not recorded',
+            'packaging' => config('medimatch.packaging')[$this->packaging] ?? $this->packaging,
+            'image' => $this->relationLoaded('images') ? $this->images->first()?->url() : null,
+            'donor' => [
+                'id' => $owner->id,
+                'name' => $owner->name,
+                'joined' => $owner->created_at,
+                // Only shown when the donor allows it
+                'verified' => $owner->show_verified_badge && $owner->isVerified(),
+            ],
+        ];
+    }
+
+    /** Relations needed by toCard(). */
+    public const CARD_RELATIONS = ['medicine', 'alias', 'upazila', 'district', 'division', 'owner', 'images'];
 
     public function monthsUntilExpiry(): int
     {

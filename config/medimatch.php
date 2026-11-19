@@ -35,6 +35,9 @@ return [
         'max_photo_kb' => 2048,
     ],
 
+    // Open requests expire after this many days without a handover (see the requests:expire command).
+    'request_expiry_days' => 60,
+
     // Affordable-access listings by verified partners. Off until partner licensing and the legal basis are confirmed.
     'allow_affordable_access' => false,
 

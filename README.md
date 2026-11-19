@@ -90,6 +90,7 @@ The seeder refuses to run in production.
 | `reviewer@medimatch.test` | Authorized reviewer (verification pages only) |
 | `user@medimatch.test` | Regular user |
 | `01700000001` | Regular user who signed up with a phone number |
+| `donora@medimatch.test`, `donorb@…`, `donorc@…` | Demo donors with approved demo listings |
 
 ### Verification codes and password resets in development
 
@@ -125,9 +126,9 @@ The project is built in three parts, each split into small commits.
 **Part 1 (frontend) is complete.** Every page exists and is checked at 390px (phone) and 768px (tablet) with no sideways overflow, and every internal link resolves.
 - [x] B1 MySQL, Bangladesh locations (8 divisions, 64 districts, 495 upazilas), registration and login with email or phone, development-mode verification codes, password reset and change, roles (user, partner, reviewer, admin) and protected routes
 - [x] B2 Profiles (picture, area), privacy settings, public profiles, contact-detail changes with re-verification; medicine catalogue (generic + strength + form, brand names, restricted medicines); real listings with eligibility rules, photos and a controlled status flow
-- [ ] B3 Requests, search, real dashboard numbers, saved medicines, reservations
+- [x] B3 Medicine requests (create, edit, cancel, automatic expiry), rule-based matching, real browse and search, reservations (request → accept/decline → handover), saved medicines, real dashboard, history and home-page counts
 
-Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Listings, profiles and settings use real data. Requests, messages, notifications, history, the dashboard numbers and most admin pages still show labelled sample data until B3–B5. New listings wait in "Pending review" until moderation is added in B5.
+Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Browse, search, listings, requests, reservations, saved medicines, history, the dashboard and profiles use real data. Messages and notifications (B4), the prescription upload and most admin pages (B5) still show labelled sample data. New listings wait in "Pending review" until moderation is added in B5; for demos, `php artisan migrate --seed` creates approved demo listings from three "Demo donor" accounts.
 
 ### Backend building blocks
 
@@ -143,6 +144,9 @@ Signed-in and admin pages require login (admin pages require the administrator r
 | Listing status rules (allowed transitions) | `app/Enums/ListingStatus.php`, `app/Enums/ListingAction.php` |
 | Listing eligibility rules (shelf life, restricted medicines, photo limit) | `app/Http/Requests/Account/ListingRequest.php`, `config/medimatch.php` (`listing_rules`) |
 | Who may edit or change a listing | `app/Policies/MedicineListingPolicy.php` |
+| Matching (same medicine, public, nearest first) | `app/Services/MatchingService.php` |
+| Reservation rules (request, accept, decline, cancel, complete) | `app/Services/ReservationService.php` |
+| Request expiry (daily) | `app/Console/Commands/ExpireRequests.php`, scheduled in `routes/console.php` |
 
 ### Frontend building blocks
 
