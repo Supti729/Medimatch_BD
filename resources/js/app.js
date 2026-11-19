@@ -14,6 +14,7 @@
 |   <form data-loading>        disables the submit button while the form is sent
 |   data-district-of="id"      district <select> that follows a division <select>
 |   data-autosubmit            submits the form when the field changes
+|   data-tip="text"            tooltip on hover and keyboard focus (charts)
 */
 
 // ----- Show / hide -----
@@ -141,3 +142,37 @@ document.querySelectorAll('select[data-district-of]').forEach((districtSelect) =
 document.addEventListener('change', (event) => {
     if (event.target.matches('[data-autosubmit]')) event.target.form?.requestSubmit();
 });
+
+// ----- Tooltips -----
+// Any element with data-tip="text" shows a small tooltip on hover and keyboard focus (used by charts).
+const tooltip = document.createElement('div');
+tooltip.setAttribute('role', 'tooltip');
+tooltip.className =
+    'pointer-events-none fixed z-[90] hidden max-w-60 rounded-control bg-ink px-2.5 py-1.5 text-xs font-medium text-white shadow-raised';
+document.body.append(tooltip);
+
+function showTip(target) {
+    tooltip.textContent = target.dataset.tip;
+    tooltip.classList.remove('hidden');
+
+    const box = target.getBoundingClientRect();
+    const tip = tooltip.getBoundingClientRect();
+    const left = Math.min(Math.max(8, box.left + box.width / 2 - tip.width / 2), window.innerWidth - tip.width - 8);
+    const top = box.top - tip.height - 8 > 0 ? box.top - tip.height - 8 : box.bottom + 8;
+
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+}
+
+const hideTip = () => tooltip.classList.add('hidden');
+
+document.addEventListener('mouseover', (event) => {
+    const target = event.target.closest?.('[data-tip]');
+    target ? showTip(target) : hideTip();
+});
+document.addEventListener('focusin', (event) => {
+    const target = event.target.closest?.('[data-tip]');
+    if (target) showTip(target);
+});
+document.addEventListener('focusout', hideTip);
+window.addEventListener('scroll', hideTip, { passive: true });

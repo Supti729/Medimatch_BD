@@ -5,7 +5,7 @@
 --}}
 @props(['tabs', 'current', 'route', 'param' => 'tab', 'counts' => []])
 
-<nav {{ $attributes->class(['-mb-px flex gap-1 overflow-x-auto border-b border-line']) }} aria-label="Filter">
+<nav {{ $attributes->class(['relative -mb-px flex gap-1 overflow-x-auto border-b border-line']) }} aria-label="Filter">
     @foreach ($tabs as $key => $label)
         @php $active = (string) $current === (string) $key; @endphp
         <a href="{{ route($route, $loop->first ? [] : [$param => $key]) }}" @if ($active) aria-current="page" @endif

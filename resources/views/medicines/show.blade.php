@@ -22,7 +22,7 @@
             <x-sample-notice class="mt-5">This listing is an invented example for the prototype. It is not a real offer of medicine.</x-sample-notice>
         @endif
 
-        <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_22rem]">
             <div class="space-y-6">
                 <x-card>
                     <div class="flex flex-wrap items-start gap-5">

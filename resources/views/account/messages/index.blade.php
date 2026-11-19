@@ -11,7 +11,7 @@
 <x-layouts.app :title="$current ? 'Conversation with '.$current['with'] : 'Messages'" :preview="$usingSampleData">
     <x-page-header title="Messages" description="Private conversations about your listings and requests. Phone numbers and email addresses are never shared." @class(['hidden lg:flex' => $current]) />
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-[22rem_1fr]">
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[22rem_1fr]">
         {{-- Conversation list --}}
         <x-card :padded="false" @class(['min-w-0', 'hidden lg:block' => $current]) as="aside" aria-label="Conversations">
             <div class="flex items-center justify-between border-b border-line px-5 py-4">

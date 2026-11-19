@@ -5,6 +5,7 @@ use App\Http\Controllers\Account\DashboardController;
 use App\Http\Controllers\Account\ListingController;
 use App\Http\Controllers\Account\MedicineRequestController;
 use App\Http\Controllers\Account\MessageController;
+use App\Http\Controllers\Admin\AdminPageController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MedicineController;
 use Illuminate\Support\Facades\Route;
@@ -70,6 +71,36 @@ Route::get('/profile', [AccountPageController::class, 'profile'])->name('profile
 Route::get('/profile/edit', [AccountPageController::class, 'editProfile'])->name('profile.edit');
 Route::get('/settings/privacy', [AccountPageController::class, 'privacy'])->name('settings.privacy');
 Route::get('/settings/security', [AccountPageController::class, 'security'])->name('settings.security');
+
+/*
+|--------------------------------------------------------------------------
+| Administration panel (design previews)
+|--------------------------------------------------------------------------
+| These pages show invented sample data and say so on screen. Nothing can be
+| changed yet and there is NO access control. In the backend part this group
+| gets ->middleware(['auth', 'admin']) and policies before any real data is
+| shown (push B5); only admin.login stays public.
+*/
+Route::prefix('admin')->name('admin.')->controller(AdminPageController::class)->group(function () {
+    Route::get('/login', 'login')->name('login');
+
+    Route::get('/', 'dashboard')->name('dashboard');
+    Route::get('/users', 'users')->name('users.index');
+    Route::get('/users/{user}', 'user')->whereNumber('user')->name('users.show');
+    Route::get('/medicines', 'medicines')->name('medicines.index');
+    Route::get('/listings', 'listings')->name('listings.index');
+    Route::get('/listings/{listing}', 'listing')->whereNumber('listing')->name('listings.show');
+    Route::get('/requests', 'requests')->name('requests.index');
+    Route::get('/verifications', 'verifications')->name('verifications.index');
+    Route::get('/verifications/{verification}', 'verification')->whereNumber('verification')->name('verifications.show');
+    Route::get('/reports', 'reports')->name('reports.index');
+    Route::get('/reports/{report}', 'report')->whereNumber('report')->name('reports.show');
+    Route::get('/transactions', 'transactions')->name('transactions.index');
+    Route::get('/partners', 'partners')->name('partners.index');
+    Route::get('/notifications', 'notifications')->name('notifications.index');
+    Route::get('/audit-logs', 'auditLogs')->name('audit-logs.index');
+    Route::get('/settings', 'settings')->name('settings');
+});
 
 /*
 |--------------------------------------------------------------------------

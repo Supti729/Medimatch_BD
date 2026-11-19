@@ -13,7 +13,7 @@
             <x-empty-state icon="clock" title="Nothing here yet" description="Finished handovers and cancelled requests are kept here." />
         @else
             {{-- Table on larger screens --}}
-            <div class="hidden overflow-x-auto md:block">
+            <div class="relative hidden overflow-x-auto md:block">
                 <table class="w-full text-left text-sm">
                     <thead class="border-b border-line bg-canvas/60 text-xs font-semibold tracking-wide text-ink-muted uppercase">
                         <tr>

@@ -75,7 +75,12 @@ The project is built in three parts, each split into small commits.
 - [x] F1 Layouts (public, auth, user, admin) and shared UI components
 - [x] F2 Public pages (home, browse, details, information, legal) and login/registration screens — browse runs on labelled sample data; forms are not connected until Part 2
 - [x] F3 Signed-in user pages (dashboard, profile, listings, requests, saved, messages, notifications, history, verification, settings) — design previews on a labelled sample account, open at `/dashboard`
-- [ ] F4 Admin pages and responsive pass
+- [x] F4 Admin pages (dashboard with charts, users, medicines, listings, requests, verification, reports, transactions, partners, announcements, audit log, settings) and responsive pass — design previews on labelled sample data, open at `/admin`
+
+**Part 1 (frontend) is complete.** Every page exists and is checked at 390px (phone) and 768px (tablet) with no sideways overflow, and every internal link resolves.
+Pages under `/dashboard` and `/admin` are design previews with **no access control yet**; Part 2 (backend) adds login, roles and real data.
+
+- [ ] B1 Database, authentication (email or phone), roles and route protection
 
 ### Frontend building blocks
 
@@ -86,7 +91,9 @@ The project is built in three parts, each split into small commits.
 | Components (buttons, forms, cards, badges, modal…) | `resources/views/components/` — each file starts with a usage example |
 | Public pages | `resources/views/pages/`, `resources/views/medicines/`, `resources/views/auth/` |
 | Signed-in pages | `resources/views/account/`, controllers in `app/Http/Controllers/Account/` |
-| Sample data (temporary, replaced in Part 2) | `app/Support/SampleListings.php`, `app/Support/SampleAccount.php` |
+| Admin pages | `resources/views/admin/`, controller in `app/Http/Controllers/Admin/` |
+| Charts (plain HTML/CSS, each with a table view) | `resources/views/components/chart/` |
+| Sample data (temporary, replaced in Part 2) | `app/Support/SampleListings.php`, `app/Support/SampleAccount.php`, `app/Support/SampleAdmin.php` |
 | Divisions, districts and option lists | `config/bangladesh.php`, `config/medimatch.php` |
 | Menu links | `config/navigation.php` — a link shows as "Soon" until its route exists |
 | Interface behaviour (menus, dropdowns, modals) | `resources/js/app.js` |

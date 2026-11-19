@@ -71,6 +71,13 @@
     --color-info-600: #1570cd;
     --color-info-700: #175cab;
 
+    /* Chart series colours. Fixed order, checked for colour-blind separation and contrast.
+       Each colour always means the same thing: 1 listings/users, 2 requests, 3 donation, 4 affordable access. */
+    --color-chart-1: #0e9384;
+    --color-chart-2: #1570cd;
+    --color-chart-3: #c94f22;
+    --color-chart-4: #7a4fd0;
+
     /* Corner radius */
     --radius-control: 0.625rem; /* buttons, inputs */
     --radius-card: 1rem; /* cards, panels, modals */

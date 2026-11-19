@@ -30,7 +30,7 @@
         @endforeach
     </section>
 
-    <div class="mt-6 grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_1fr]">
         {{-- Recommended matches --}}
         <x-card title="Recommended matches" :description="$matchRequest ? 'For your request: '.$matchRequest['name'].' '.$matchRequest['strength'] : null">
             @if ($matchRequest)

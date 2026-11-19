@@ -5,7 +5,7 @@
         <x-button :href="route('profile.edit')" icon="pencil-square">Edit profile</x-button>
     </x-page-header>
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-2">
+    <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {{-- Private view --}}
         <x-card title="Your details" description="Only you can see this.">
             <x-slot:actions><x-badge tone="neutral">Private</x-badge></x-slot:actions>

@@ -3,7 +3,7 @@
 <x-layouts.app title="Verification Center" :preview="$usingSampleData">
     <x-page-header title="Verification Center" description="Some medicines need a prescription check before a handover. Upload the document here and follow its review." />
 
-    <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_24rem]">
+    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_24rem]">
         <div class="space-y-6">
             <x-card title="Your submissions" :padded="false">
                 @if ($submissions->isEmpty())

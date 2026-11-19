@@ -8,7 +8,7 @@
             Directorate General of Drug Administration (DGDA) and other applicable Bangladesh law, and these rules would be revised to match.
         </x-alert>
 
-        <div class="mt-10 grid gap-6 lg:grid-cols-2">
+        <div class="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <x-card title="Can be listed">
                 <ul class="space-y-3 text-sm text-ink-soft">
                     @foreach ([

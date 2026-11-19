@@ -44,7 +44,7 @@
         <x-alert tone="info" class="mt-6">This request is {{ str_replace('_', ' ', $request['status']) }} and is no longer being matched.</x-alert>
     @endif
 
-    <div class="mt-6 grid gap-6 xl:grid-cols-[1fr_22rem]">
+    <div class="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1fr_22rem]">
         <div class="space-y-6">
             @if ($request['status'] === 'verification_pending')
                 <x-alert tone="warning" title="A prescription check is needed">

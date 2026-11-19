@@ -9,7 +9,7 @@
 --}}
 @props(['title' => null, 'description' => null, 'padded' => true, 'as' => 'section'])
 
-<{{ $as }} {{ $attributes->class(['rounded-card border border-line bg-surface shadow-card']) }}>
+<{{ $as }} {{ $attributes->class(['min-w-0 rounded-card border border-line bg-surface shadow-card']) }}>
     @if ($title || isset($actions))
         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
             <div class="min-w-0">

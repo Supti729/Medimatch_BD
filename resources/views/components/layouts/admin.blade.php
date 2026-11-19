@@ -4,11 +4,12 @@
 
     This layout only controls appearance. Access is enforced by route middleware and policies.
 --}}
-@props(['title' => null])
+@props(['title' => null, 'preview' => false])
 
 @php
     $user = auth()->user();
-    $displayName = $user?->name ?? 'Guest';
+    // preview = true: the page shows invented sample data and has no access control yet (front-end part).
+    $displayName = $user?->name ?? ($preview ? 'Sample Administrator' : 'Guest');
     $initial = mb_strtoupper(mb_substr($displayName, 0, 1));
 @endphp
 
@@ -53,9 +54,9 @@
                 <p class="truncate text-sm font-semibold lg:text-base">{{ $title ?? 'Administration' }}</p>
 
                 <div class="ml-auto flex items-center gap-2">
-                    <x-button :href="Route::has('home') ? route('home') : url('/')" variant="ghost" size="sm" icon="arrow-top-right-on-square" class="hidden sm:inline-flex">
-                        View site
-                    </x-button>
+                    <span class="hidden sm:block">
+                        <x-button :href="Route::has('home') ? route('home') : url('/')" variant="ghost" size="sm" icon="arrow-top-right-on-square">View site</x-button>
+                    </span>
 
                     <x-dropdown>
                         <x-slot:trigger>
@@ -89,6 +90,11 @@
 
         <main id="main" class="page-container flex-1 py-6 sm:py-8">
             <x-flash class="mb-6" />
+            @if ($preview && ! $user)
+                <x-alert tone="info" title="Design preview" class="mb-6">
+                    This admin page shows invented sample data. Nothing can be changed, and access control is added in the backend part of the project.
+                </x-alert>
+            @endif
             {{ $slot }}
         </main>
     </div>
