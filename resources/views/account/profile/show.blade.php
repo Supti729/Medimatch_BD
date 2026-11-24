@@ -21,7 +21,7 @@
                 'Phone number' => $user->phone ? $user->phone.($user->phone_verified_at ? ' (verified)' : ' (not verified)') : null,
                 'Division' => $user->division?->name,
                 'District' => $user->district?->name,
-                'Upazila' => $user->upazila?->name,
+                'Upazila / Thana' => $user->upazila?->name,
                 'Account type' => $user->role->label(),
             ]" />
 

@@ -1,0 +1,342 @@
+{
+ "_source": "City police-station areas (thanas) that the upazila list does not cover. Names checked against the Dhaka Metropolitan Police (50 thanas) and Chattogram Metropolitan Police (16 thanas) Wikipedia pages, November 2026; Karnaphuli is left out because it is already an upazila. Bangla names were written by the project team and the codes (DMPnn, CMPnn) are project codes, not official BBS geocodes.",
+ "districts": [
+  {
+   "division": "Dhaka",
+   "district": "Dhaka",
+   "thanas": [
+    {
+     "name": "Adabor",
+     "bn_name": "আদাবর",
+     "code": "DMP01"
+    },
+    {
+     "name": "Airport (Biman Bandar)",
+     "bn_name": "বিমানবন্দর",
+     "code": "DMP02"
+    },
+    {
+     "name": "Badda",
+     "bn_name": "বাড্ডা",
+     "code": "DMP03"
+    },
+    {
+     "name": "Banani",
+     "bn_name": "বনানী",
+     "code": "DMP04"
+    },
+    {
+     "name": "Bangshal",
+     "bn_name": "বংশাল",
+     "code": "DMP05"
+    },
+    {
+     "name": "Bhashantek",
+     "bn_name": "ভাষানটেক",
+     "code": "DMP06"
+    },
+    {
+     "name": "Cantonment",
+     "bn_name": "ক্যান্টনমেন্ট",
+     "code": "DMP07"
+    },
+    {
+     "name": "Chawkbazar",
+     "bn_name": "চকবাজার",
+     "code": "DMP08"
+    },
+    {
+     "name": "Dakshinkhan",
+     "bn_name": "দক্ষিণখান",
+     "code": "DMP09"
+    },
+    {
+     "name": "Darus Salam",
+     "bn_name": "দারুস সালাম",
+     "code": "DMP10"
+    },
+    {
+     "name": "Demra",
+     "bn_name": "ডেমরা",
+     "code": "DMP11"
+    },
+    {
+     "name": "Dhanmondi",
+     "bn_name": "ধানমন্ডি",
+     "code": "DMP12"
+    },
+    {
+     "name": "Gendaria",
+     "bn_name": "গেন্ডারিয়া",
+     "code": "DMP13"
+    },
+    {
+     "name": "Gulshan",
+     "bn_name": "গুলশান",
+     "code": "DMP14"
+    },
+    {
+     "name": "Hatirjheel",
+     "bn_name": "হাতিরঝিল",
+     "code": "DMP15"
+    },
+    {
+     "name": "Hazaribagh",
+     "bn_name": "হাজারীবাগ",
+     "code": "DMP16"
+    },
+    {
+     "name": "Jatrabari",
+     "bn_name": "যাত্রাবাড়ী",
+     "code": "DMP17"
+    },
+    {
+     "name": "Kadamtali",
+     "bn_name": "কদমতলী",
+     "code": "DMP18"
+    },
+    {
+     "name": "Kafrul",
+     "bn_name": "কাফরুল",
+     "code": "DMP19"
+    },
+    {
+     "name": "Kalabagan",
+     "bn_name": "কলাবাগান",
+     "code": "DMP20"
+    },
+    {
+     "name": "Kamrangirchar",
+     "bn_name": "কামরাঙ্গীরচর",
+     "code": "DMP21"
+    },
+    {
+     "name": "Khilgaon",
+     "bn_name": "খিলগাঁও",
+     "code": "DMP22"
+    },
+    {
+     "name": "Khilkhet",
+     "bn_name": "খিলক্ষেত",
+     "code": "DMP23"
+    },
+    {
+     "name": "Kotwali",
+     "bn_name": "কোতোয়ালী",
+     "code": "DMP24"
+    },
+    {
+     "name": "Lalbagh",
+     "bn_name": "লালবাগ",
+     "code": "DMP25"
+    },
+    {
+     "name": "Mirpur",
+     "bn_name": "মিরপুর",
+     "code": "DMP26"
+    },
+    {
+     "name": "Mohammadpur",
+     "bn_name": "মোহাম্মদপুর",
+     "code": "DMP27"
+    },
+    {
+     "name": "Motijheel",
+     "bn_name": "মতিঝিল",
+     "code": "DMP28"
+    },
+    {
+     "name": "Mugda",
+     "bn_name": "মুগদা",
+     "code": "DMP29"
+    },
+    {
+     "name": "New Market",
+     "bn_name": "নিউ মার্কেট",
+     "code": "DMP30"
+    },
+    {
+     "name": "Pallabi",
+     "bn_name": "পল্লবী",
+     "code": "DMP31"
+    },
+    {
+     "name": "Paltan",
+     "bn_name": "পল্টন",
+     "code": "DMP32"
+    },
+    {
+     "name": "Ramna",
+     "bn_name": "রমনা",
+     "code": "DMP33"
+    },
+    {
+     "name": "Rampura",
+     "bn_name": "রামপুরা",
+     "code": "DMP34"
+    },
+    {
+     "name": "Rupnagar",
+     "bn_name": "রূপনগর",
+     "code": "DMP35"
+    },
+    {
+     "name": "Sabujbagh",
+     "bn_name": "সবুজবাগ",
+     "code": "DMP36"
+    },
+    {
+     "name": "Shah Ali",
+     "bn_name": "শাহ আলী",
+     "code": "DMP37"
+    },
+    {
+     "name": "Shahbagh",
+     "bn_name": "শাহবাগ",
+     "code": "DMP38"
+    },
+    {
+     "name": "Shahjahanpur",
+     "bn_name": "শাহজাহানপুর",
+     "code": "DMP39"
+    },
+    {
+     "name": "Sher-e-Bangla Nagar",
+     "bn_name": "শেরেবাংলা নগর",
+     "code": "DMP40"
+    },
+    {
+     "name": "Shyampur",
+     "bn_name": "শ্যামপুর",
+     "code": "DMP41"
+    },
+    {
+     "name": "Sutrapur",
+     "bn_name": "সূত্রাপুর",
+     "code": "DMP42"
+    },
+    {
+     "name": "Tejgaon",
+     "bn_name": "তেজগাঁও",
+     "code": "DMP43"
+    },
+    {
+     "name": "Tejgaon Industrial Area",
+     "bn_name": "তেজগাঁও শিল্পাঞ্চল",
+     "code": "DMP44"
+    },
+    {
+     "name": "Turag",
+     "bn_name": "তুরাগ",
+     "code": "DMP45"
+    },
+    {
+     "name": "Uttar Khan",
+     "bn_name": "উত্তরখান",
+     "code": "DMP46"
+    },
+    {
+     "name": "Uttara East",
+     "bn_name": "উত্তরা পূর্ব",
+     "code": "DMP47"
+    },
+    {
+     "name": "Uttara West",
+     "bn_name": "উত্তরা পশ্চিম",
+     "code": "DMP48"
+    },
+    {
+     "name": "Vatara (Bhatara)",
+     "bn_name": "ভাটারা",
+     "code": "DMP49"
+    },
+    {
+     "name": "Wari",
+     "bn_name": "ওয়ারী",
+     "code": "DMP50"
+    }
+   ]
+  },
+  {
+   "division": "Chattogram",
+   "district": "Chattogram",
+   "thanas": [
+    {
+     "name": "Akbar Shah",
+     "bn_name": "আকবর শাহ",
+     "code": "CMP01"
+    },
+    {
+     "name": "Bakalia",
+     "bn_name": "বাকলিয়া",
+     "code": "CMP02"
+    },
+    {
+     "name": "Bandar",
+     "bn_name": "বন্দর",
+     "code": "CMP03"
+    },
+    {
+     "name": "Bayazid Bostami",
+     "bn_name": "বায়েজিদ বোস্তামী",
+     "code": "CMP04"
+    },
+    {
+     "name": "Chandgaon",
+     "bn_name": "চান্দগাঁও",
+     "code": "CMP05"
+    },
+    {
+     "name": "Chawkbazar",
+     "bn_name": "চকবাজার",
+     "code": "CMP06"
+    },
+    {
+     "name": "Double Mooring",
+     "bn_name": "ডবলমুরিং",
+     "code": "CMP07"
+    },
+    {
+     "name": "EPZ",
+     "bn_name": "ইপিজেড",
+     "code": "CMP08"
+    },
+    {
+     "name": "Halishahar",
+     "bn_name": "হালিশহর",
+     "code": "CMP09"
+    },
+    {
+     "name": "Khulshi",
+     "bn_name": "খুলশী",
+     "code": "CMP10"
+    },
+    {
+     "name": "Kotwali",
+     "bn_name": "কোতোয়ালী",
+     "code": "CMP11"
+    },
+    {
+     "name": "Pahartali",
+     "bn_name": "পাহাড়তলী",
+     "code": "CMP12"
+    },
+    {
+     "name": "Panchlaish",
+     "bn_name": "পাঁচলাইশ",
+     "code": "CMP13"
+    },
+    {
+     "name": "Patenga",
+     "bn_name": "পতেঙ্গা",
+     "code": "CMP14"
+    },
+    {
+     "name": "Sadarghat",
+     "bn_name": "সদরঘাট",
+     "code": "CMP15"
+    }
+   ]
+  }
+ ]
+}

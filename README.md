@@ -133,6 +133,7 @@ The project is built in three parts, each split into small commits.
 - [x] A2 Semantic matching: strict identity rules (medicine, strength, form) plus `intfloat/multilingual-e5-small` ranking, compared with MiniLM and keyword search on 70 development and 30 held-out phrases; `POST /match` endpoint with keyword fallback. See `ai-service/README.md`
 - [x] A3 Browse search uses the AI service (with what the search was understood as, and automatic keyword fallback); request form pre-selects the understood medicine; admin dashboard shows the service status; `ai:status` and `app:make-admin` commands; end-to-end tests against the real service; deployment guide in `docs/DEPLOYMENT.md`
 - [x] B6 Security and privacy review: GPS metadata stripped from photos, oversized images refused, private storage has no web route, suspended donors' listings cannot be requested directly, security headers, sandboxed prescription documents, dependency audits. See `docs/SECURITY-REVIEW.md`
+- [x] City thanas: the 50 Dhaka and 15 Chattogram metropolitan thanas added to the area lists, so city users can choose their own area (existing databases get them with `php artisan migrate`)
 
 ### Running everything locally
 
@@ -207,4 +208,4 @@ Use a feature branch per step (e.g. `feat/1.2-design-system`) and merge into `ma
 
 Academic project. All rights reserved by the project team unless stated otherwise.
 
-Location data in `database/data/bangladesh-locations.json` is derived from [nuhil/bangladesh-geocode](https://github.com/nuhil/bangladesh-geocode) (MIT License, Copyright (c) 2014 Nuhil Mehdy).
+Location data in `database/data/bangladesh-locations.json` is derived from [nuhil/bangladesh-geocode](https://github.com/nuhil/bangladesh-geocode) (MIT License, Copyright (c) 2014 Nuhil Mehdy). The Dhaka and Chattogram city thanas in `database/data/city-thanas.json` were added by the project team: names checked against the Dhaka and Chattogram Metropolitan Police thana lists on Wikipedia; their codes (DMPnn, CMPnn) are project codes, not official BBS geocodes.

@@ -55,7 +55,7 @@ class RegisterRequest extends FormRequest
             'phone.unique' => 'An account with this phone number already exists.',
             'phone.regex' => 'Enter a valid Bangladeshi mobile number, for example 01712345678.',
             'district_id.exists' => 'Choose a district in the selected division.',
-            'upazila_id.exists' => 'Choose an upazila in the selected district.',
+            'upazila_id.exists' => 'Choose an upazila or thana in the selected district.',
             'terms.accepted' => 'You need to agree to the terms and privacy policy.',
         ];
     }

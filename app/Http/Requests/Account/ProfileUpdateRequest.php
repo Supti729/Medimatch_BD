@@ -41,7 +41,7 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'district_id.exists' => 'Choose a district in the selected division.',
-            'upazila_id.exists' => 'Choose an upazila in the selected district.',
+            'upazila_id.exists' => 'Choose an upazila or thana in the selected district.',
         ];
     }
 }

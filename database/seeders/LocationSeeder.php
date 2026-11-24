@@ -8,12 +8,15 @@ use Illuminate\Support\Facades\DB;
 /**
  * Loads Bangladesh divisions, districts and upazilas from database/data/bangladesh-locations.json.
  * Safe to run more than once: it skips loading if divisions already exist.
+ * The Dhaka and Chattogram city thanas come from a separate file (see CityThanaSeeder).
  */
 class LocationSeeder extends Seeder
 {
     public function run(): void
     {
         if (DB::table('divisions')->exists()) {
+            $this->call(CityThanaSeeder::class);
+
             return;
         }
 
@@ -44,5 +47,7 @@ class LocationSeeder extends Seeder
                 }
             }
         });
+
+        $this->call(CityThanaSeeder::class);
     }
 }

@@ -107,7 +107,7 @@ class ListingRequest extends FormRequest
             'expiry.date_format' => 'Enter the expiry month and year.',
             'batch_number.regex' => 'The batch number can only contain letters, numbers, dashes and slashes.',
             'district_id.exists' => 'Choose a district in the selected division.',
-            'upazila_id.exists' => 'Choose an upazila in the selected district.',
+            'upazila_id.exists' => 'Choose an upazila or thana in the selected district.',
             'confirm_sealed.accepted' => 'Confirm that the medicine is unopened and in its original packaging.',
             'confirm_expiry.accepted' => 'Confirm that the expiry date is correct.',
             'confirm_storage.accepted' => 'Confirm that the medicine has been stored correctly.',

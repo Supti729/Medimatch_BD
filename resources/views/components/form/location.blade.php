@@ -60,7 +60,7 @@
 
 @if ($withUpazila)
     @if ($byId)
-        <x-form.select :name="$upazilaField" :id="$upazilaId" label="Upazila" :placeholder="'Select upazila'" :required="$required" data-needs-parent data-depends-on="{{ $districtId }}">
+        <x-form.select :name="$upazilaField" :id="$upazilaId" label="Upazila / Thana" :placeholder="'Select upazila or thana'" :required="$required" data-needs-parent data-depends-on="{{ $districtId }}">
             @foreach ($upazilaOptions as $option)
                 <option value="{{ $option['value'] }}" data-parent="{{ $option['parent'] }}" @selected($currentUpazila === (string) $option['value'])>{{ $option['label'] }}</option>
             @endforeach
