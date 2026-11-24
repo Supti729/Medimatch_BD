@@ -9,6 +9,7 @@ use App\Models\Medicine;
 use App\Models\MedicineAlias;
 use App\Models\MedicineRequest;
 use App\Services\MatchingService;
+use App\Services\MatchingServiceClient;
 use App\Services\ReservationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,12 +46,13 @@ class MedicineRequestController extends Controller
         ]);
     }
 
-    public function create(Request $request): View
+    public function create(Request $request, MatchingServiceClient $matching): View
     {
         // "Request this medicine" from an empty search carries the search text: pre-select a catalogue match.
         $search = is_string($request->query('q')) ? trim(mb_substr($request->query('q'), 0, 80)) : '';
         $preselect = $search === '' ? null : (
-            MedicineAlias::where('brand_name', 'like', $search.'%')->value('medicine_id')
+            $this->catalogueMatch($matching->normalize($search))
+            ?? MedicineAlias::where('brand_name', 'like', $search.'%')->value('medicine_id')
             ?? Medicine::where('generic_name', 'like', $search.'%')->value('id')
         );
 
@@ -121,6 +123,31 @@ class MedicineRequestController extends Controller
         });
 
         return redirect()->route('requests.show', $medicineRequest)->with('success', 'Your request was cancelled.');
+    }
+
+    /**
+     * The one listable catalogue medicine that fits how the AI service understood a phrase
+     * (generic name, and strength or form if stated). Null when it is ambiguous or unknown,
+     * so the user chooses themselves.
+     */
+    private function catalogueMatch(?array $understood): ?int
+    {
+        if (! $understood || empty($understood['generics'])) {
+            return null;
+        }
+
+        $fits = Medicine::where('eligibility', 'allowed')
+            ->whereIn(\DB::raw('lower(generic_name)'), $understood['generics'])
+            ->get()
+            ->filter(function (Medicine $m) use ($understood) {
+                preg_match_all('/\d+(?:\.\d+)?/', $m->strength, $numbers);
+                $hasStrengths = collect($understood['strengths'] ?? [])->every(fn ($n) => in_array((float) $n, array_map('floatval', $numbers[0]), true));
+                $sameForm = empty($understood['form']) || mb_strtolower($m->dosage_form) === $understood['form'];
+
+                return $hasStrengths && $sameForm;
+            });
+
+        return $fits->count() === 1 ? $fits->first()->id : null;
     }
 
     private function catalogue()

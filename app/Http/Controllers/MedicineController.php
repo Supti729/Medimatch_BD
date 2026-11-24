@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Enums\ListingStatus;
 use App\Models\Division;
 use App\Models\MedicineListing;
+use App\Services\MatchingServiceClient;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -20,11 +22,14 @@ class MedicineController extends Controller
 {
     private const PER_PAGE = 9;
 
-    public function index(Request $request): View
+    public function index(Request $request, MatchingServiceClient $matching): View
     {
         $filters = $this->cleanFilters($request);
 
-        $listings = $this->search($filters)
+        // With a search phrase, ask the AI matching service first; keyword search is the fallback.
+        $smart = $filters['q'] !== '' ? $this->smartSearch($filters, $matching) : null;
+
+        $listings = $smart['listings'] ?? $this->search($filters)
             ->with(MedicineListing::CARD_RELATIONS)
             ->paginate(self::PER_PAGE)
             ->withQueryString()
@@ -32,6 +37,9 @@ class MedicineController extends Controller
 
         return view('medicines.index', [
             'listings' => $listings,
+            'searchMode' => $smart ? 'smart' : ($filters['q'] !== '' ? 'keyword' : 'browse'),
+            'understood' => $smart['understood'] ?? null,
+            'smartUnavailable' => $filters['q'] !== '' && ! $smart && config('services.matching.enabled'),
             'filters' => $filters,
             'view' => $request->query('view') === 'list' ? 'list' : 'grid',
             'activeFilterCount' => count(array_filter(array_diff_key($filters, ['q' => 1, 'sort' => 1]))),
@@ -62,6 +70,50 @@ class MedicineController extends Controller
             'myReservation' => $user ? $found->reservations()->active()->where('requester_id', $user->id)->first() : null,
             'isSaved' => $user ? $user->savedListings()->whereKey($found->id)->exists() : false,
         ]);
+    }
+
+    /**
+     * Search by meaning with the AI matching service.
+     *
+     * The candidates are the visible listings that match the chosen filters (location, type, form,
+     * strength, availability), newest first, up to the service's limit of 200. The service removes
+     * listings of a different medicine, strength or form and orders the rest. Returns null when the
+     * service cannot be used, so the caller falls back to keyword search.
+     */
+    private function smartSearch(array $filters, MatchingServiceClient $matching): ?array
+    {
+        $pool = $this->search(array_merge($filters, ['q' => '', 'sort' => 'newest']))
+            ->with(MedicineListing::CARD_RELATIONS)
+            ->limit(config('services.matching.max_candidates'))
+            ->get();
+
+        $result = $matching->match($filters['q'], $pool);
+        if ($result === null) {
+            return null;
+        }
+
+        $byId = $pool->keyBy('id');
+        $ordered = collect($result['ids'])->map(fn (int $id) => $byId[$id]);
+
+        $ordered = match ($filters['sort']) {
+            'newest' => $ordered->sortByDesc(fn ($l) => $l->published_at)->values(),
+            'expiry' => $ordered->sortByDesc(fn ($l) => $l->expiry_date)->values(),
+            'name' => $ordered->sortBy(fn ($l) => mb_strtolower($l->brand_name))->values(),
+            default => $ordered, // "best": the service's order
+        };
+
+        $page = LengthAwarePaginator::resolveCurrentPage();
+
+        return [
+            'listings' => new LengthAwarePaginator(
+                $ordered->forPage($page, self::PER_PAGE)->map->toCard()->values(),
+                $ordered->count(),
+                self::PER_PAGE,
+                $page,
+                ['path' => request()->url(), 'query' => request()->query()],
+            ),
+            'understood' => $result['understood'],
+        ];
     }
 
     /**
@@ -127,7 +179,8 @@ class MedicineController extends Controller
             'form' => $oneOf('form', config('medimatch.dosage_forms')),
             'strength' => $text('strength', 30),
             'available' => $request->boolean('available'),
-            'sort' => $oneOf('sort', array_keys(config('medimatch.sort_options'))) ?: 'newest',
+            // "Best match" is the default when there is a search phrase
+            'sort' => $oneOf('sort', array_keys(config('medimatch.sort_options'))) ?: ($text('q') !== '' ? 'best' : 'newest'),
         ];
     }
 }

@@ -131,7 +131,19 @@ The project is built in three parts, each split into small commits.
 - [x] B5 Prescription verification (private storage, reviewers only, every document view logged), reports and moderation, append-only audit log, and a fully working admin panel: listing approval/rejection/blocking, user suspension and roles, medicine catalogue editing, announcements, settings and live charts
 - [x] A1 Python matching service (FastAPI) with text clean-up (brands, misspellings, Bangla, abbreviations), a 70-phrase hand-labelled test set and a measured keyword baseline. See `ai-service/README.md`
 - [x] A2 Semantic matching: strict identity rules (medicine, strength, form) plus `intfloat/multilingual-e5-small` ranking, compared with MiniLM and keyword search on 70 development and 30 held-out phrases; `POST /match` endpoint with keyword fallback. See `ai-service/README.md`
-- [ ] A3 Laravel integration, matches in the UI, end-to-end tests, deployment notes
+- [x] A3 Browse search uses the AI service (with what the search was understood as, and automatic keyword fallback); request form pre-selects the understood medicine; admin dashboard shows the service status; `ai:status` and `app:make-admin` commands; end-to-end tests against the real service; deployment guide in `docs/DEPLOYMENT.md`
+
+### Running everything locally
+
+```bash
+composer run dev                                                     # Laravel + Vite (terminal 1)
+cd ai-service && .venv/bin/uvicorn app.main:app --port 8001          # AI service (terminal 2)
+php artisan ai:status                                                # check they can talk to each other
+```
+
+Without the AI service the site still works; searches use keyword matching.
+
+End-to-end tests against the running AI service: `MATCHING_E2E=1 MATCHING_E2E_KEY=<key> php artisan test --group=e2e`.
 
 Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Browse, search, listings, requests, reservations, saved medicines, history, the dashboard and profiles use real data. Every page now uses real data; the temporary sample-data classes were removed in B5. New listings wait in "Pending review" until moderation is added in B5; for demos, `php artisan migrate --seed` creates approved demo listings from three "Demo donor" accounts.
 
@@ -154,6 +166,8 @@ Signed-in and admin pages require login (admin pages require the administrator r
 | Request expiry (daily) | `app/Console/Commands/ExpireRequests.php`, scheduled in `routes/console.php` |
 | Messaging rules (who can write, what is blocked) | `app/Services/MessagingService.php`, `app/Support/ContactDetails.php` |
 | Notifications (database only, no email or SMS) | `app/Notifications/`, sent from `ReservationService`, `MessagingService` and `app/Listeners/NotifyMatchingRequesters.php` |
+| Laravel → AI service client (timeouts, fallback, never trusts added ids) | `app/Services/MatchingServiceClient.php`, `config/services.php` |
+| Deployment (Nginx, HTTPS, systemd, cron, backups) | `docs/DEPLOYMENT.md`, `docs/deploy/` |
 | Prescription checks (private files, reviewer decisions) | `app/Services/VerificationService.php` |
 | Moderation (listings, users, reports) | `app/Services/ModerationService.php`, `app/Http/Controllers/Admin/` |
 | Audit log (append-only) | `app/Models/AuditLog.php` (`AuditLog::record(...)`) |

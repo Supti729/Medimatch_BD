@@ -12,12 +12,14 @@ use App\Models\Report;
 use App\Models\Reservation;
 use App\Models\User;
 use App\Models\VerificationSubmission;
+use App\Services\MatchingServiceClient;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(MatchingServiceClient $matching): View
     {
         $months = collect(range(5, 0))->mapWithKeys(fn (int $back) => [
             now()->startOfMonth()->subMonths($back)->format('Y-m') => now()->startOfMonth()->subMonths($back)->format('M'),
@@ -61,6 +63,7 @@ class DashboardController extends Controller
             'pendingVerifications' => VerificationSubmission::with('request.medicine')->whereIn('status', ['submitted', 'under_review'])->oldest()->limit(5)->get(),
             'openReports' => Report::whereIn('status', ['open', 'escalated'])->latest()->limit(5)->get(),
             'recentAudit' => AuditLog::with('actor')->latest('id')->limit(5)->get(),
+            'matchingHealth' => Cache::remember('admin:matching-health', 30, fn () => $matching->health()),
         ]);
     }
 }

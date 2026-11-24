@@ -89,7 +89,7 @@
                         <div class="relative">
                             <select name="sort" id="sort" data-autosubmit
                                 class="min-h-10 appearance-none rounded-control border border-line bg-surface py-2 pr-9 pl-3 text-sm focus:border-brand-600 focus:outline-2 focus:outline-offset-0 focus:outline-brand-600/30">
-                                @foreach (config('medimatch.sort_options') as $value => $label)
+                                @foreach (collect(config('medimatch.sort_options'))->except($filters['q'] === '' ? ['best'] : []) as $value => $label)
                                     <option value="{{ $value }}" @selected($filters['sort'] === $value)>{{ $label }}</option>
                                 @endforeach
                             </select>
@@ -107,6 +107,30 @@
                         </div>
                     </div>
                 </div>
+
+                @if ($searchMode === 'smart' && $understood)
+                    @php
+                        $parts = array_filter([
+                            $understood['generics'] ? collect($understood['generics'])->map(fn ($g) => ucwords($g))->implode(' or ') : null,
+                            $understood['strengths'] ? collect($understood['strengths'])->map(fn ($n) => rtrim(rtrim(number_format($n, 2, '.', ''), '0'), '.'))->implode(' + ') : null,
+                            $understood['form'] ? ucfirst($understood['form']) : null,
+                        ]);
+                    @endphp
+                    <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-control border border-brand-200 bg-brand-50 px-4 py-2.5 text-sm text-ink-soft">
+                        <x-icon name="sparkles" class="size-4 text-brand-700" />
+                        @if ($parts)
+                            <span>Searched for <strong class="font-semibold text-ink">{{ implode(' · ', $parts) }}</strong>@if ($understood['brands']) <span class="text-ink-muted">(brand {{ collect($understood['brands'])->map(fn ($b) => ucwords($b))->implode(', ') }})</span>@endif</span>
+                        @else
+                            <span>Results are ordered by how closely they match your words.</span>
+                        @endif
+                        @foreach ($understood['corrections'] ?? [] as $typed => $fixed)
+                            <span class="text-ink-muted">· “{{ $typed }}” read as “{{ $fixed }}”</span>
+                        @endforeach
+                        <span class="text-xs text-ink-muted sm:ml-auto">Only exact medicine, strength and form matches are shown.</span>
+                    </div>
+                @elseif ($smartUnavailable)
+                    <p class="mt-4 flex items-center gap-2 text-sm text-ink-muted"><x-icon name="information-circle" class="size-4" /> Smart matching is unavailable right now, so results use simple keyword search.</p>
+                @endif
 
                 {{-- Results --}}
                 @if ($listings->isEmpty())

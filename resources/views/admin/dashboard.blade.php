@@ -10,9 +10,23 @@
         <x-stat-card label="Open reports" :value="$stats['open_reports']" hint="Including escalated" icon="flag" tone="danger" :href="route('admin.reports.index')" />
         <x-stat-card label="Completed handovers" :value="$stats['completed']" icon="check-circle" tone="success" :href="route('admin.transactions.index', ['status' => 'completed'])" />
     </section>
-    <p class="mt-3 text-sm text-ink-muted">
-        Partner accounts: <a href="{{ route('admin.partners.index') }}" class="font-semibold text-brand-700 hover:underline">{{ $stats['partners'] }}</a>
-    </p>
+    <div class="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ink-muted">
+        <p>Partner accounts: <a href="{{ route('admin.partners.index') }}" class="font-semibold text-brand-700 hover:underline">{{ $stats['partners'] }}</a></p>
+        <p class="flex items-center gap-2">
+            AI matching service:
+            @switch($matchingHealth['status'])
+                @case('online')
+                    <x-badge tone="success" dot>Online</x-badge>
+                    <span class="text-xs">model {{ $matchingHealth['semantic_model'] ?? '?' }}{{ ($matchingHealth['model_loaded'] ?? false) ? '' : ', loading' }}</span>
+                    @break
+                @case('disabled')
+                    <x-badge dot>Switched off</x-badge> <span class="text-xs">searches use keywords</span>
+                    @break
+                @default
+                    <x-badge tone="warning" dot>Not reachable</x-badge> <span class="text-xs">searches fall back to keywords; run <code>php artisan ai:status</code></span>
+            @endswitch
+        </p>
+    </div>
 
     {{-- Work queues --}}
     <section class="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-3" aria-label="Waiting for action">

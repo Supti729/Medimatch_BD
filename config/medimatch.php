@@ -62,6 +62,7 @@ return [
     'public_listing_statuses' => ['available', 'requested', 'reserved'],
 
     'sort_options' => [
+        'best' => 'Best match',
         'newest' => 'Newest first',
         'expiry' => 'Longest shelf life',
         'name' => 'Name (A to Z)',

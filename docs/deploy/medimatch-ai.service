@@ -1,0 +1,29 @@
+# systemd unit for the AI matching service (example).
+#   sudo cp docs/deploy/medimatch-ai.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now medimatch-ai
+#   journalctl -u medimatch-ai -f            (logs)
+
+[Unit]
+Description=Medimatch BD AI matching service
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/medimatch/ai-service
+# Settings (MEDIMATCH_AI_API_KEY ...) come from ai-service/.env
+Environment=HF_HUB_OFFLINE=1
+# Listen on the local machine only. Never 0.0.0.0.
+ExecStart=/var/www/medimatch/ai-service/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8001 --workers 1
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/www/medimatch/ai-service/models_cache
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
