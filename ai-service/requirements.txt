@@ -7,3 +7,6 @@ pydantic-settings==2.16.3
 # Semantic ranking. Install the CPU-only build of PyTorch FIRST (much smaller than the GPU build):
 #   .venv/bin/pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu
 sentence-transformers==6.3.0
+
+# Security: pulled in alongside PyTorch; older versions have published advisories (checked with pip-audit)
+setuptools>=84.1.0

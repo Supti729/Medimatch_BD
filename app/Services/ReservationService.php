@@ -37,6 +37,8 @@ class ReservationService
 
             $this->fail($listing->user_id === $requester->id, 'You cannot request your own listing.');
             $this->fail(! in_array($listing->status, [ListingStatus::Available, ListingStatus::Requested], true), 'This listing can no longer be requested.');
+            // Same visibility rules as search (e.g. the donor's account must be active), even when the id is posted directly.
+            $this->fail(! MedicineListing::publiclyVisible()->whereKey($listing->id)->exists(), 'This listing can no longer be requested.');
             $this->fail(
                 $listing->reservations()->active()->where('requester_id', $requester->id)->exists(),
                 'You have already requested this listing.',

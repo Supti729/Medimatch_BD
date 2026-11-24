@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified.account' => \App\Http\Middleware\EnsureAccountIsVerified::class,
         ]);
 
+        // Security headers on every web page
+        $middleware->web(append: [\App\Http\Middleware\SecurityHeaders::class]);
+
         // Where "auth" sends guests, and where "guest" sends signed-in users
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('dashboard'));

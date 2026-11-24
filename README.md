@@ -132,6 +132,7 @@ The project is built in three parts, each split into small commits.
 - [x] A1 Python matching service (FastAPI) with text clean-up (brands, misspellings, Bangla, abbreviations), a 70-phrase hand-labelled test set and a measured keyword baseline. See `ai-service/README.md`
 - [x] A2 Semantic matching: strict identity rules (medicine, strength, form) plus `intfloat/multilingual-e5-small` ranking, compared with MiniLM and keyword search on 70 development and 30 held-out phrases; `POST /match` endpoint with keyword fallback. See `ai-service/README.md`
 - [x] A3 Browse search uses the AI service (with what the search was understood as, and automatic keyword fallback); request form pre-selects the understood medicine; admin dashboard shows the service status; `ai:status` and `app:make-admin` commands; end-to-end tests against the real service; deployment guide in `docs/DEPLOYMENT.md`
+- [x] B6 Security and privacy review: GPS metadata stripped from photos, oversized images refused, private storage has no web route, suspended donors' listings cannot be requested directly, security headers, sandboxed prescription documents, dependency audits. See `docs/SECURITY-REVIEW.md`
 
 ### Running everything locally
 

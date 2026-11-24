@@ -13,6 +13,7 @@ Group=www-data
 WorkingDirectory=/var/www/medimatch/ai-service
 # Settings (MEDIMATCH_AI_API_KEY ...) come from ai-service/.env
 Environment=HF_HUB_OFFLINE=1
+Environment=MEDIMATCH_AI_DOCS_ENABLED=false
 # Listen on the local machine only. Never 0.0.0.0.
 ExecStart=/var/www/medimatch/ai-service/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8001 --workers 1
 Restart=on-failure

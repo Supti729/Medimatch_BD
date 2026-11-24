@@ -216,4 +216,14 @@ class ReservationTest extends TestCase
         $this->actingAs($this->requester)->get('/history?role=received')->assertSee('Napa');
         $this->actingAs(User::factory()->create())->get('/history')->assertDontSee('Napa 500 mg');
     }
+
+    public function test_a_suspended_donors_listing_cannot_be_requested_even_by_posting_its_id(): void
+    {
+        $listing = $this->makeListing($this->donor);
+        $this->donor->status = \App\Enums\AccountStatus::Suspended;
+        $this->donor->save();
+
+        $this->reserve($listing)->assertSessionHasErrors('reservation');
+        $this->assertSame(0, Reservation::count());
+    }
 }

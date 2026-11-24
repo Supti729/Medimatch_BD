@@ -51,7 +51,7 @@ class ListingRequest extends FormRequest
             'district_id' => ['required', 'integer', Rule::exists('districts', 'id')->where('division_id', $this->integer('division_id'))],
             'upazila_id' => ['required', 'integer', Rule::exists('upazilas', 'id')->where('district_id', $this->integer('district_id'))],
             'images' => ['nullable', 'array', 'max:'.$rules['max_photos']],
-            'images.*' => [File::image()->types(['jpg', 'jpeg', 'png', 'webp'])->max($rules['max_photo_kb'])],
+            'images.*' => [File::image()->types(['jpg', 'jpeg', 'png', 'webp'])->max($rules['max_photo_kb'])->dimensions(Rule::dimensions()->maxWidth(8000)->maxHeight(8000))],
             'remove_images' => ['nullable', 'array'],
             'remove_images.*' => ['integer'],
             'confirm_sealed' => ['accepted'],

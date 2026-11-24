@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     models_dir: Path = BASE_DIR / "models_cache"
     semantic_model: str = "e5"          # chosen in the A2 evaluation (see README)
     preload_model: bool = True          # load the model when the service starts
+    docs_enabled: bool = True           # interactive API docs at /docs; switch off on servers
 
     # Limits that protect the service from oversized requests
     max_candidates: int = 200

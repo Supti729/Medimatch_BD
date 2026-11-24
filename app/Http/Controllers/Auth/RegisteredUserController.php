@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\Division;
 use App\Models\User;
 use App\Services\VerificationCodeService;
+use App\Support\ImageSanitizer;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -39,7 +40,7 @@ class RegisteredUserController extends Controller
 
         if ($request->hasFile('avatar')) {
             // Stored with a random file name; shown on profiles from push B2.
-            $user->avatar_path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar_path = ImageSanitizer::store($request->file('avatar'), 'avatars'); // strips GPS/EXIF metadata
             $user->save();
         }
 

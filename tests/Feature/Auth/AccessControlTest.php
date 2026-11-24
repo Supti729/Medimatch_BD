@@ -124,4 +124,12 @@ class AccessControlTest extends TestCase
         $this->actingAs(User::factory()->create())->get('/admin')->assertForbidden()->assertSee('You do not have access to this page');
         $this->get('/medicines/99999')->assertNotFound()->assertSee('Page not found');
     }
+
+    public function test_content_creation_is_rate_limited(): void
+    {
+        foreach (['listings.store', 'listings.update', 'requests.store', 'profile.update', 'reports.store', 'messages.store', 'reservations.store', 'verification.store'] as $name) {
+            $middleware = \Illuminate\Support\Facades\Route::getRoutes()->getByName($name)->gatherMiddleware();
+            $this->assertNotEmpty(array_filter($middleware, fn ($m) => is_string($m) && str_starts_with($m, 'throttle:')), "{$name} should be rate-limited");
+        }
+    }
 }

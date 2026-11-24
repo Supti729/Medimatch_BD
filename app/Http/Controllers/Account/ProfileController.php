@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Account\ContactDetailsRequest;
 use App\Http\Requests\Account\ProfileUpdateRequest;
 use App\Services\VerificationCodeService;
+use App\Support\ImageSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -42,7 +43,7 @@ class ProfileController extends Controller
         $oldAvatar = $user->avatar_path;
 
         if ($request->hasFile('avatar')) {
-            $user->avatar_path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar_path = ImageSanitizer::store($request->file('avatar'), 'avatars'); // strips GPS/EXIF metadata
         } elseif ($request->boolean('remove_avatar')) {
             $user->avatar_path = null;
         }

@@ -88,4 +88,15 @@ class ReportTest extends TestCase
     {
         $this->actingAs($this->reporter)->get('/admin/reports')->assertForbidden();
     }
+
+    public function test_report_text_is_escaped_for_moderators(): void
+    {
+        $listing = $this->makeListing();
+        $this->actingAs($this->reporter)->post('/reports', ['target_type' => 'listing', 'target_id' => $listing->id, 'reason' => 'other', 'details' => '<script>alert(1)</script>']);
+
+        $this->actingAs(User::factory()->admin()->create())->get('/admin/reports/'.Report::first()->id)
+            ->assertOk()
+            ->assertDontSee('<script>alert(1)</script>', false)
+            ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false);
+    }
 }

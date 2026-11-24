@@ -41,7 +41,7 @@ class RegisterRequest extends FormRequest
             'division_id' => ['required', 'integer', Rule::exists('divisions', 'id')],
             'district_id' => ['required', 'integer', Rule::exists('districts', 'id')->where('division_id', $this->integer('division_id'))],
             'upazila_id' => ['required', 'integer', Rule::exists('upazilas', 'id')->where('district_id', $this->integer('district_id'))],
-            'avatar' => ['nullable', File::image()->types(['jpg', 'jpeg', 'png', 'webp'])->max(2 * 1024)],
+            'avatar' => ['nullable', File::image()->types(['jpg', 'jpeg', 'png', 'webp'])->max(2 * 1024)->dimensions(Rule::dimensions()->maxWidth(8000)->maxHeight(8000))],
             'terms' => ['accepted'],
         ];
     }

@@ -64,3 +64,19 @@ def test_normalize_endpoint():
     assert body["generics"] == ["paracetamol"]
     assert body["form"] == "syrup"
     assert body["corrections"] == {"paracetemol": "paracetamol"}
+
+
+def test_api_docs_can_be_switched_off(monkeypatch):
+    import importlib
+
+    import app.main as main_module
+
+    monkeypatch.setenv("MEDIMATCH_AI_DOCS_ENABLED", "false")
+    monkeypatch.setattr(main_module.settings, "docs_enabled", False)
+    reloaded = importlib.reload(main_module)
+    try:
+        assert TestClient(reloaded.app).get("/docs").status_code == 404
+        assert TestClient(reloaded.app).get("/openapi.json").status_code == 404
+    finally:
+        monkeypatch.setattr(main_module.settings, "docs_enabled", True)
+        importlib.reload(main_module)

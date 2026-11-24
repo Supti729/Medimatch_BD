@@ -93,15 +93,15 @@ Route::middleware(['auth', 'auth.session', 'active', 'verified.account'])->group
 
     Route::get('/listings', [ListingController::class, 'index'])->name('listings.index');
     Route::get('/listings/create', [ListingController::class, 'create'])->name('listings.create');
-    Route::post('/listings', [ListingController::class, 'store'])->name('listings.store');
+    Route::post('/listings', [ListingController::class, 'store'])->middleware('throttle:20,1')->name('listings.store');
     Route::get('/listings/{listing}/edit', [ListingController::class, 'edit'])->whereNumber('listing')->name('listings.edit');
-    Route::put('/listings/{listing}', [ListingController::class, 'update'])->whereNumber('listing')->name('listings.update');
+    Route::put('/listings/{listing}', [ListingController::class, 'update'])->whereNumber('listing')->middleware('throttle:20,1')->name('listings.update');
     Route::patch('/listings/{listing}/status', [ListingController::class, 'changeStatus'])->whereNumber('listing')->name('listings.status');
     Route::delete('/listings/{listing}', [ListingController::class, 'destroy'])->whereNumber('listing')->name('listings.destroy');
 
     Route::get('/requests', [MedicineRequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/create', [MedicineRequestController::class, 'create'])->name('requests.create');
-    Route::post('/requests', [MedicineRequestController::class, 'store'])->name('requests.store');
+    Route::post('/requests', [MedicineRequestController::class, 'store'])->middleware('throttle:20,1')->name('requests.store');
     Route::get('/requests/{medicineRequest}', [MedicineRequestController::class, 'show'])->whereNumber('medicineRequest')->name('requests.show');
     Route::get('/requests/{medicineRequest}/edit', [MedicineRequestController::class, 'edit'])->whereNumber('medicineRequest')->name('requests.edit');
     Route::put('/requests/{medicineRequest}', [MedicineRequestController::class, 'update'])->whereNumber('medicineRequest')->name('requests.update');
@@ -131,7 +131,7 @@ Route::middleware(['auth', 'auth.session', 'active', 'verified.account'])->group
     Route::post('/reports', [UserReportController::class, 'store'])->middleware('throttle:10,1')->name('reports.store');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile', [ProfileController::class, 'update'])->middleware('throttle:10,1')->name('profile.update');
     Route::get('/settings/privacy', [ProfileController::class, 'privacy'])->name('settings.privacy');
     Route::put('/settings/privacy', [ProfileController::class, 'updatePrivacy'])->name('settings.privacy.update');
     Route::get('/settings/security', [ProfileController::class, 'security'])->name('settings.security');

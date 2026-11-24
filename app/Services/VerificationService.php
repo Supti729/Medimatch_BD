@@ -127,6 +127,8 @@ class VerificationService
             'Content-Disposition' => 'inline',
             'Cache-Control' => 'no-store, private',
             'X-Content-Type-Options' => 'nosniff',
+            // The document cannot run scripts, open forms or load anything, even if it is a crafted PDF.
+            'Content-Security-Policy' => "sandbox; default-src 'none'; img-src 'self'; style-src 'unsafe-inline'",
         ]);
     }
 

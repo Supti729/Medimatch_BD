@@ -10,6 +10,7 @@ use App\Http\Requests\Account\ListingRequest;
 use App\Models\Medicine;
 use App\Models\MedicineListing;
 use App\Services\ReservationService;
+use App\Support\ImageSanitizer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -199,7 +200,7 @@ class ListingController extends Controller
 
         foreach ($files as $file) {
             $listing->images()->create([
-                'path' => $file->store("listings/{$listing->id}", 'public'),
+                'path' => ImageSanitizer::store($file, "listings/{$listing->id}"), // strips GPS/EXIF metadata
                 'position' => ++$position,
             ]);
         }
