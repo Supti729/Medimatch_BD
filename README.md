@@ -19,7 +19,7 @@ A privacy-focused, location-based web application that helps people in Banglades
 | Frontend | Blade templates, Tailwind CSS v4, Vite |
 | Backend | Laravel 13 (PHP 8.5) |
 | Database | MySQL 8 (in-memory SQLite for automated tests) |
-| AI service | Python 3, FastAPI (`ai-service/`); Sentence Transformers added in A2 |
+| AI service | Python 3, FastAPI, Sentence Transformers with `intfloat/multilingual-e5-small` (`ai-service/`) |
 
 ## Repository Layout
 
@@ -130,6 +130,8 @@ The project is built in three parts, each split into small commits.
 - [x] B4 Private messaging between donor and requester (opened by a reservation, participants only, read-only after the handover, no phone numbers or emails, 15-second auto-refresh) and in-app notifications for requests, answers, cancellations, completed handovers, new messages and new matches
 - [x] B5 Prescription verification (private storage, reviewers only, every document view logged), reports and moderation, append-only audit log, and a fully working admin panel: listing approval/rejection/blocking, user suspension and roles, medicine catalogue editing, announcements, settings and live charts
 - [x] A1 Python matching service (FastAPI) with text clean-up (brands, misspellings, Bangla, abbreviations), a 70-phrase hand-labelled test set and a measured keyword baseline. See `ai-service/README.md`
+- [x] A2 Semantic matching: strict identity rules (medicine, strength, form) plus `intfloat/multilingual-e5-small` ranking, compared with MiniLM and keyword search on 70 development and 30 held-out phrases; `POST /match` endpoint with keyword fallback. See `ai-service/README.md`
+- [ ] A3 Laravel integration, matches in the UI, end-to-end tests, deployment notes
 
 Signed-in and admin pages require login (admin pages require the administrator role; reviewers may open the verification pages). Browse, search, listings, requests, reservations, saved medicines, history, the dashboard and profiles use real data. Every page now uses real data; the temporary sample-data classes were removed in B5. New listings wait in "Pending review" until moderation is added in B5; for demos, `php artisan migrate --seed` creates approved demo listings from three "Demo donor" accounts.
 

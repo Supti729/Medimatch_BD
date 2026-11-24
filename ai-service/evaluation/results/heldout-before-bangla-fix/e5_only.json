@@ -1,0 +1,660 @@
+{
+ "method": "e5_only",
+ "set": "heldout",
+ "k": 5,
+ "overall": {
+  "queries": 30,
+  "precision_at_5": 0.42,
+  "best_possible_precision_at_5": 0.4467,
+  "recall_at_5": 0.9561,
+  "mrr": 0.9833,
+  "no_relevant_result": 0
+ },
+ "milliseconds_per_query": 125.1,
+ "by_category": {
+  "misspelling": {
+   "queries": 5,
+   "precision_at_5": 0.6,
+   "best_possible_precision_at_5": 0.6,
+   "recall_at_5": 0.9667,
+   "mrr": 1.0,
+   "no_relevant_result": 0
+  },
+  "salt_name": {
+   "queries": 7,
+   "precision_at_5": 0.3143,
+   "best_possible_precision_at_5": 0.3143,
+   "recall_at_5": 1.0,
+   "mrr": 1.0,
+   "no_relevant_result": 0
+  },
+  "label_text": {
+   "queries": 2,
+   "precision_at_5": 0.8,
+   "best_possible_precision_at_5": 0.8,
+   "recall_at_5": 1.0,
+   "mrr": 1.0,
+   "no_relevant_result": 0
+  },
+  "unlisted_brand": {
+   "queries": 2,
+   "precision_at_5": 0.3,
+   "best_possible_precision_at_5": 0.3,
+   "recall_at_5": 1.0,
+   "mrr": 1.0,
+   "no_relevant_result": 0
+  },
+  "form_word": {
+   "queries": 2,
+   "precision_at_5": 0.3,
+   "best_possible_precision_at_5": 0.3,
+   "recall_at_5": 1.0,
+   "mrr": 1.0,
+   "no_relevant_result": 0
+  },
+  "quantity_mixed": {
+   "queries": 4,
+   "precision_at_5": 0.6,
+   "best_possible_precision_at_5": 0.7,
+   "recall_at_5": 0.9,
+   "mrr": 1.0,
+   "no_relevant_result": 0
+  },
+  "bangla_unseen": {
+   "queries": 5,
+   "precision_at_5": 0.32,
+   "best_possible_precision_at_5": 0.4,
+   "recall_at_5": 0.85,
+   "mrr": 0.9,
+   "no_relevant_result": 0
+  },
+  "other": {
+   "queries": 3,
+   "precision_at_5": 0.2,
+   "best_possible_precision_at_5": 0.2,
+   "recall_at_5": 1.0,
+   "mrr": 1.0,
+   "no_relevant_result": 0
+  }
+ },
+ "queries": [
+  {
+   "id": 101,
+   "category": "misspelling",
+   "query": "nappa 500",
+   "relevant": [
+    1,
+    2,
+    3,
+    30,
+    31
+   ],
+   "top5": [
+    3,
+    1,
+    31,
+    2,
+    30
+   ],
+   "p_at_5": 1.0,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 102,
+   "category": "misspelling",
+   "query": "sekclo 20",
+   "relevant": [
+    9,
+    10,
+    29
+   ],
+   "top5": [
+    9,
+    29,
+    12,
+    10,
+    13
+   ],
+   "p_at_5": 0.6,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 103,
+   "category": "misspelling",
+   "query": "parasitamol tablet",
+   "relevant": [
+    1,
+    2,
+    3,
+    4,
+    30,
+    31
+   ],
+   "top5": [
+    1,
+    31,
+    2,
+    30,
+    3
+   ],
+   "p_at_5": 1.0,
+   "r_at_5": 0.8333333333333334,
+   "rr": 1.0
+  },
+  {
+   "id": 104,
+   "category": "misspelling",
+   "query": "amoxycillin 500",
+   "relevant": [
+    26
+   ],
+   "top5": [
+    26,
+    2,
+    30,
+    1,
+    31
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 105,
+   "category": "misspelling",
+   "query": "esomeprazol magnesium 20 cap",
+   "relevant": [
+    12
+   ],
+   "top5": [
+    12,
+    13,
+    29,
+    9,
+    10
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 106,
+   "category": "salt_name",
+   "query": "metformin hydrochloride 500",
+   "relevant": [
+    23,
+    24
+   ],
+   "top5": [
+    23,
+    24,
+    1,
+    31,
+    3
+   ],
+   "p_at_5": 0.4,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 107,
+   "category": "salt_name",
+   "query": "amlodipine besylate 5mg",
+   "relevant": [
+    21
+   ],
+   "top5": [
+    21,
+    1,
+    31,
+    23,
+    30
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 108,
+   "category": "salt_name",
+   "query": "cetirizine hydrochloride 10",
+   "relevant": [
+    16,
+    27
+   ],
+   "top5": [
+    27,
+    16,
+    20,
+    18,
+    28
+   ],
+   "p_at_5": 0.4,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 109,
+   "category": "salt_name",
+   "query": "fexofenadine hcl 120",
+   "relevant": [
+    14,
+    15
+   ],
+   "top5": [
+    15,
+    14,
+    6,
+    5,
+    13
+   ],
+   "p_at_5": 0.4,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 110,
+   "category": "salt_name",
+   "query": "montelukast sodium 10 mg",
+   "relevant": [
+    20,
+    28
+   ],
+   "top5": [
+    20,
+    28,
+    16,
+    27,
+    23
+   ],
+   "p_at_5": 0.4,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 111,
+   "category": "salt_name",
+   "query": "ketotifen fumarate 1mg",
+   "relevant": [
+    17
+   ],
+   "top5": [
+    17,
+    23,
+    16,
+    24,
+    27
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 112,
+   "category": "salt_name",
+   "query": "losartan 50",
+   "relevant": [
+    22
+   ],
+   "top5": [
+    22,
+    10,
+    16,
+    23,
+    27
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 113,
+   "category": "label_text",
+   "query": "Paracetamol BP 500mg",
+   "relevant": [
+    1,
+    2,
+    3,
+    30,
+    31
+   ],
+   "top5": [
+    2,
+    30,
+    1,
+    31,
+    3
+   ],
+   "p_at_5": 1.0,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 114,
+   "category": "label_text",
+   "query": "omeprazole delayed release capsule 20",
+   "relevant": [
+    9,
+    10,
+    29
+   ],
+   "top5": [
+    10,
+    9,
+    29,
+    13,
+    12
+   ],
+   "p_at_5": 0.6,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 115,
+   "category": "unlisted_brand",
+   "query": "ventolin inhaler",
+   "relevant": [
+    25
+   ],
+   "top5": [
+    25,
+    23,
+    17,
+    24,
+    26
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 116,
+   "category": "unlisted_brand",
+   "query": "ors packet",
+   "relevant": [
+    18,
+    19
+   ],
+   "top5": [
+    19,
+    18,
+    22,
+    10,
+    29
+   ],
+   "p_at_5": 0.4,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 117,
+   "category": "form_word",
+   "query": "salbutamol puffer",
+   "relevant": [
+    25
+   ],
+   "top5": [
+    25,
+    21,
+    12,
+    2,
+    30
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 118,
+   "category": "form_word",
+   "query": "orsaline n sachet",
+   "relevant": [
+    18,
+    19
+   ],
+   "top5": [
+    19,
+    18,
+    29,
+    9,
+    11
+   ],
+   "p_at_5": 0.4,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 119,
+   "category": "quantity_mixed",
+   "query": "Paracetamol 500mg tablets x 10",
+   "relevant": [
+    1,
+    2,
+    3,
+    30,
+    31
+   ],
+   "top5": [
+    1,
+    31,
+    2,
+    30,
+    3
+   ],
+   "p_at_5": 1.0,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 120,
+   "category": "quantity_mixed",
+   "query": "comet 500mg 2 strips",
+   "relevant": [
+    23,
+    24
+   ],
+   "top5": [
+    23,
+    24,
+    31,
+    1,
+    2
+   ],
+   "p_at_5": 0.4,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 121,
+   "category": "quantity_mixed",
+   "query": "napa 500 er 1 pata lagbe",
+   "relevant": [
+    1,
+    2,
+    3,
+    30,
+    31
+   ],
+   "top5": [
+    31,
+    1,
+    3,
+    23,
+    5
+   ],
+   "p_at_5": 0.6,
+   "r_at_5": 0.6,
+   "rr": 1.0
+  },
+  {
+   "id": 122,
+   "category": "quantity_mixed",
+   "query": "fexo 120 lagbe 10 ta",
+   "relevant": [
+    14,
+    15
+   ],
+   "top5": [
+    14,
+    15,
+    16,
+    10,
+    12
+   ],
+   "p_at_5": 0.4,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 123,
+   "category": "bangla_unseen",
+   "query": "আমলোডিপিন ৫",
+   "relevant": [
+    21
+   ],
+   "top5": [
+    21,
+    23,
+    1,
+    31,
+    2
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 124,
+   "category": "bangla_unseen",
+   "query": "মেটফর্মিন ৫০০",
+   "relevant": [
+    23,
+    24
+   ],
+   "top5": [
+    23,
+    24,
+    2,
+    30,
+    1
+   ],
+   "p_at_5": 0.4,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 125,
+   "category": "bangla_unseen",
+   "query": "নাপা এক্সটেন্ড",
+   "relevant": [
+    4
+   ],
+   "top5": [
+    4,
+    3,
+    1,
+    31,
+    5
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 126,
+   "category": "bangla_unseen",
+   "query": "সেকলো ক্যাপসুল",
+   "relevant": [
+    9,
+    10,
+    11,
+    29
+   ],
+   "top5": [
+    9,
+    29,
+    10,
+    12,
+    26
+   ],
+   "p_at_5": 0.6,
+   "r_at_5": 0.75,
+   "rr": 1.0
+  },
+  {
+   "id": 127,
+   "category": "bangla_unseen",
+   "query": "নাপা সিরাপ",
+   "relevant": [
+    5,
+    6
+   ],
+   "top5": [
+    3,
+    5,
+    31,
+    1,
+    4
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 0.5,
+   "rr": 0.5
+  },
+  {
+   "id": 128,
+   "category": "other",
+   "query": "Napa Extend 665mg",
+   "relevant": [
+    4
+   ],
+   "top5": [
+    4,
+    8,
+    1,
+    31,
+    5
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 129,
+   "category": "other",
+   "query": "maxpro 20 tab",
+   "relevant": [
+    13
+   ],
+   "top5": [
+    13,
+    9,
+    29,
+    12,
+    10
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  },
+  {
+   "id": 130,
+   "category": "other",
+   "query": "azmasol inhaler 100 mcg",
+   "relevant": [
+    25
+   ],
+   "top5": [
+    25,
+    26,
+    13,
+    12,
+    16
+   ],
+   "p_at_5": 0.2,
+   "r_at_5": 1.0,
+   "rr": 1.0
+  }
+ ]
+}

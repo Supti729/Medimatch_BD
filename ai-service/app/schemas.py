@@ -31,6 +31,21 @@ class RankRequest(BaseModel):
         return value.strip()
 
 
+class MatchRequest(BaseModel):
+    """POST /match: the endpoint Laravel uses. Strict identity rules are always applied."""
+
+    query: str = Field(min_length=1, max_length=settings.max_query_length)
+    candidates: list[Candidate] = Field(max_length=settings.max_candidates)
+    limit: int = Field(default=10, ge=1, le=50)
+
+    @field_validator("query")
+    @classmethod
+    def not_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("The query cannot be empty.")
+        return value.strip()
+
+
 class RankedItem(BaseModel):
     id: int
     score: float
@@ -48,6 +63,14 @@ class ParsedQueryOut(BaseModel):
 class RankResponse(BaseModel):
     method: str
     query: ParsedQueryOut
+    results: list[RankedItem]
+
+
+class MatchResponse(BaseModel):
+    method: str                 # "semantic:e5", or "keyword" when the model was not used
+    degraded: bool              # True if the model failed and keyword ranking was used instead
+    query: ParsedQueryOut
+    excluded: dict[str, int]    # listings removed by the identity rules, by reason
     results: list[RankedItem]
 
 

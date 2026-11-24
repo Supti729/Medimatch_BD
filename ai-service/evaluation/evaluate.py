@@ -1,39 +1,62 @@
 """
-Evaluate ranking methods on the hand-labelled dataset.
+Evaluate ranking methods on the hand-labelled phrases.
 
     cd ai-service
-    .venv/bin/python -m evaluation.evaluate                # all methods
-    .venv/bin/python -m evaluation.evaluate keyword_raw    # one method
+    .venv/bin/python -m evaluation.evaluate                      # all methods, development set (dataset.json)
+    .venv/bin/python -m evaluation.evaluate --set heldout        # held-out set (heldout.json)
+    .venv/bin/python -m evaluation.evaluate keyword e5_rules     # chosen methods
 
-Writes evaluation/results/<method>.json and prints a Markdown table.
-Every query is ranked against the whole corpus, as if all listings were candidates.
+Writes evaluation/results/<set>/<method>.json and prints Markdown tables.
+Every query is ranked against the whole corpus, as if all 31 listings were candidates.
 """
 
 import json
 import sys
+import time
 from collections import defaultdict
 from pathlib import Path
 from statistics import mean
 
+from app.matching import semantic_query_text
 from app.metrics import precision_at_k, recall_at_k, reciprocal_rank
-from app.ranking import keyword
+from app.ranking import keyword, semantic
+from app.rules import apply
 from app.schemas import Candidate
+from app.text import parse
 
 HERE = Path(__file__).resolve().parent
 DATASET = HERE / "dataset.json"
 RESULTS = HERE / "results"
 K = 5
 
+def with_rules(ranker):
+    """Apply the strict identity rules first, then rank what is left."""
+    def run(query, corpus):
+        parsed = parse(query)
+        return ranker(query, parsed, apply(parsed, corpus).allowed)
+    return run
+
+
 METHODS = {
+    # A1 baselines, no rules
     "keyword_raw": lambda q, c: keyword.rank(q, c, normalized=False),
     "keyword": lambda q, c: keyword.rank(q, c, normalized=True),
+    # Embedding model alone, on the text exactly as typed, no rules
+    "e5_only": lambda q, c: semantic.rank(q, c, "e5"),
+    "minilm_only": lambda q, c: semantic.rank(q, c, "minilm"),
+    # Rules first, then ranking (the A2 pipeline)
+    "keyword_rules": with_rules(lambda q, p, allowed: keyword.rank(q, allowed, normalized=True)),
+    "e5_rules": with_rules(lambda q, p, allowed: semantic.rank(semantic_query_text(p), allowed, "e5")),
+    "minilm_rules": with_rules(lambda q, p, allowed: semantic.rank(semantic_query_text(p), allowed, "minilm")),
 }
 
+SETS = {"dev": HERE / "dataset.json", "heldout": HERE / "heldout.json"}
 
-def load():
-    data = json.loads(DATASET.read_text(encoding="utf-8"))
-    corpus = [Candidate(**item) for item in data["corpus"]]
-    return data, corpus
+
+def load(which: str = "dev"):
+    corpus = [Candidate(**item) for item in json.loads(DATASET.read_text(encoding="utf-8"))["corpus"]]
+    queries = json.loads(SETS[which].read_text(encoding="utf-8"))["queries"]
+    return queries, corpus
 
 
 def relevant_ids(intent: dict, corpus: list[Candidate]) -> set[int]:
@@ -45,14 +68,17 @@ def relevant_ids(intent: dict, corpus: list[Candidate]) -> set[int]:
     }
 
 
-def evaluate(method: str) -> dict:
-    data, corpus = load()
+def evaluate(method: str, which: str = "dev") -> dict:
+    queries, corpus = load(which)
     rank = METHODS[method]
-    rows = []
-    for q in data["queries"]:
+    rank("warm up", corpus)  # load the model before timing
+    rows, timings = [], []
+    for q in queries:
         relevant = relevant_ids(q["intent"], corpus)
         assert relevant, f"Query {q['id']} has no relevant listing: check the dataset."
+        started = time.perf_counter()
         ranked = [item_id for item_id, _ in rank(q["query"], corpus)]
+        timings.append((time.perf_counter() - started) * 1000)
         rows.append({
             "id": q["id"], "category": q["category"], "query": q["query"],
             "relevant": sorted(relevant), "top5": ranked[:K],
@@ -74,15 +100,16 @@ def evaluate(method: str) -> dict:
     for r in rows:
         by_category[r["category"]].append(r)
 
-    return {"method": method, "k": K, "overall": summary(rows),
+    return {"method": method, "set": which, "k": K, "overall": summary(rows),
+            "milliseconds_per_query": round(mean(timings), 1),
             "by_category": {c: summary(items) for c, items in by_category.items()}, "queries": rows}
 
 
 def markdown(results: list[dict]) -> str:
-    lines = ["| Method | Queries | Precision@5 (best possible) | Recall@5 | MRR | Queries with no relevant result |", "|---|---|---|---|---|---|"]
+    lines = ["| Method | Queries | Precision@5 (best possible) | Recall@5 | MRR | No relevant result | ms / query |", "|---|---|---|---|---|---|---|"]
     for r in results:
         o = r["overall"]
-        lines.append(f"| {r['method']} | {o['queries']} | {o['precision_at_5']:.3f} ({o['best_possible_precision_at_5']:.3f}) | {o['recall_at_5']:.3f} | {o['mrr']:.3f} | {o['no_relevant_result']} |")
+        lines.append(f"| {r['method']} | {o['queries']} | {o['precision_at_5']:.3f} ({o['best_possible_precision_at_5']:.3f}) | {o['recall_at_5']:.3f} | {o['mrr']:.3f} | {o['no_relevant_result']} | {r['milliseconds_per_query']} |")
     categories = list(results[0]["by_category"])
     lines += ["", "MRR by category:", "", "| Category | Queries | " + " | ".join(r["method"] for r in results) + " |", "|---|---|" + "---|" * len(results)]
     for c in categories:
@@ -91,11 +118,19 @@ def markdown(results: list[dict]) -> str:
 
 
 if __name__ == "__main__":
-    chosen = sys.argv[1:] or list(METHODS)
-    RESULTS.mkdir(exist_ok=True)
+    args = sys.argv[1:]
+    which = "dev"
+    if "--set" in args:
+        which = args[args.index("--set") + 1]
+        args = [a for a in args if a not in ("--set", which)]
+    chosen = args or list(METHODS)
+
+    out = RESULTS / which
+    out.mkdir(parents=True, exist_ok=True)
     all_results = []
     for method in chosen:
-        result = evaluate(method)
-        (RESULTS / f"{method}.json").write_text(json.dumps(result, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+        result = evaluate(method, which)
+        (out / f"{method}.json").write_text(json.dumps(result, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
         all_results.append(result)
+    print(f"Set: {which}\n")
     print(markdown(all_results))

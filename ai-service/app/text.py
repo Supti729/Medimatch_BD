@@ -78,7 +78,9 @@ def basic_clean(text: str) -> str:
     for bangla, english in sorted(bangla_terms().items(), key=lambda kv: -len(kv[0])):
         text = text.replace(bangla, f" {english} ")
     text = re.sub(r"(\d)\s*\+\s*(\d)", r"\1 \2", text)          # "500+65" -> "500 65"
-    text = re.sub(r"[^\w\s.%/µ]", " ", text)                     # keep letters, digits, ., %, /
+    # Keep letters, digits, ., %, / and the whole Bangla Unicode block (\u0980-\u09FF). Bangla vowel signs are
+    # combining marks, not "word" characters, so without the block they would be stripped and words cut apart.
+    text = re.sub(r"[^\w\s.%/µ\u0980-\u09FF]", " ", text)
     text = text.replace("/", " ")
     return re.sub(r"\s+", " ", text).strip()
 
@@ -120,6 +122,8 @@ def parse(text: str, catalogue: Catalogue | None = None) -> ParsedQuery:
     # A longer brand ("napa extend") hides the shorter one it contains ("napa")
     brands = [b for b in brands if not any(b != longer and set(name_words(b)) < set(name_words(longer)) for longer in brands)]
     generics = {g for g in catalogue.generic_names if name_words(g) and set(name_words(g)) <= present}
+    # A combination named in full ("paracetamol caffeine") hides its single ingredient ("paracetamol")
+    generics = {g for g in generics if not any(g != longer and set(name_words(g)) < set(name_words(longer)) for longer in generics)}
     for brand in brands:
         generics.update(catalogue.brand_to_generics[brand])
 

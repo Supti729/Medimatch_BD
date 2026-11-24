@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     catalogue_path: Path = BASE_DIR / "data" / "catalogue.json"
     bangla_terms_path: Path = BASE_DIR / "data" / "bangla_terms.json"
 
+    # Embedding models are downloaded here (ignored by git). See app/ranking/semantic.py for the choices.
+    models_dir: Path = BASE_DIR / "models_cache"
+    semantic_model: str = "e5"          # chosen in the A2 evaluation (see README)
+    preload_model: bool = True          # load the model when the service starts
+
     # Limits that protect the service from oversized requests
     max_candidates: int = 200
     max_query_length: int = 200

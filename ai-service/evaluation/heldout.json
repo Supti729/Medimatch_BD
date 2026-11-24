@@ -1,0 +1,305 @@
+{
+ "_about": "HELD-OUT test phrases, written on 2026-11-25 BEFORE the A2 matching rules were written, with phrasings the A1 clean-up was not built for (salt names, unlisted brands, unseen Bangla spellings, quantities mixed in). The rules were not tuned after seeing these results. Same author as dataset.json, so a teammate should add more. Ranked against the corpus in dataset.json.",
+ "queries": [
+  {
+   "id": 101,
+   "category": "misspelling",
+   "query": "nappa 500",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 102,
+   "category": "misspelling",
+   "query": "sekclo 20",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "20 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 103,
+   "category": "misspelling",
+   "query": "parasitamol tablet",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": null,
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 104,
+   "category": "misspelling",
+   "query": "amoxycillin 500",
+   "intent": {
+    "generic_name": "Amoxicillin",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 105,
+   "category": "misspelling",
+   "query": "esomeprazol magnesium 20 cap",
+   "intent": {
+    "generic_name": "Esomeprazole",
+    "strength": "20 mg",
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 106,
+   "category": "salt_name",
+   "query": "metformin hydrochloride 500",
+   "intent": {
+    "generic_name": "Metformin",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 107,
+   "category": "salt_name",
+   "query": "amlodipine besylate 5mg",
+   "intent": {
+    "generic_name": "Amlodipine",
+    "strength": "5 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 108,
+   "category": "salt_name",
+   "query": "cetirizine hydrochloride 10",
+   "intent": {
+    "generic_name": "Cetirizine",
+    "strength": "10 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 109,
+   "category": "salt_name",
+   "query": "fexofenadine hcl 120",
+   "intent": {
+    "generic_name": "Fexofenadine",
+    "strength": "120 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 110,
+   "category": "salt_name",
+   "query": "montelukast sodium 10 mg",
+   "intent": {
+    "generic_name": "Montelukast",
+    "strength": "10 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 111,
+   "category": "salt_name",
+   "query": "ketotifen fumarate 1mg",
+   "intent": {
+    "generic_name": "Ketotifen",
+    "strength": "1 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 112,
+   "category": "salt_name",
+   "query": "losartan 50",
+   "intent": {
+    "generic_name": "Losartan Potassium",
+    "strength": "50 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 113,
+   "category": "label_text",
+   "query": "Paracetamol BP 500mg",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 114,
+   "category": "label_text",
+   "query": "omeprazole delayed release capsule 20",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": "20 mg",
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 115,
+   "category": "unlisted_brand",
+   "query": "ventolin inhaler",
+   "intent": {
+    "generic_name": "Salbutamol",
+    "strength": null,
+    "dosage_form": "Inhaler"
+   }
+  },
+  {
+   "id": 116,
+   "category": "unlisted_brand",
+   "query": "ors packet",
+   "intent": {
+    "generic_name": "Oral Rehydration Salts",
+    "strength": null,
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 117,
+   "category": "form_word",
+   "query": "salbutamol puffer",
+   "intent": {
+    "generic_name": "Salbutamol",
+    "strength": null,
+    "dosage_form": "Inhaler"
+   }
+  },
+  {
+   "id": 118,
+   "category": "form_word",
+   "query": "orsaline n sachet",
+   "intent": {
+    "generic_name": "Oral Rehydration Salts",
+    "strength": null,
+    "dosage_form": "Sachet"
+   }
+  },
+  {
+   "id": 119,
+   "category": "quantity_mixed",
+   "query": "Paracetamol 500mg tablets x 10",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 120,
+   "category": "quantity_mixed",
+   "query": "comet 500mg 2 strips",
+   "intent": {
+    "generic_name": "Metformin",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 121,
+   "category": "quantity_mixed",
+   "query": "napa 500 er 1 pata lagbe",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 122,
+   "category": "quantity_mixed",
+   "query": "fexo 120 lagbe 10 ta",
+   "intent": {
+    "generic_name": "Fexofenadine",
+    "strength": "120 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 123,
+   "category": "bangla_unseen",
+   "query": "আমলোডিপিন ৫",
+   "intent": {
+    "generic_name": "Amlodipine",
+    "strength": "5 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 124,
+   "category": "bangla_unseen",
+   "query": "মেটফর্মিন ৫০০",
+   "intent": {
+    "generic_name": "Metformin",
+    "strength": "500 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 125,
+   "category": "bangla_unseen",
+   "query": "নাপা এক্সটেন্ড",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "665 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 126,
+   "category": "bangla_unseen",
+   "query": "সেকলো ক্যাপসুল",
+   "intent": {
+    "generic_name": "Omeprazole",
+    "strength": null,
+    "dosage_form": "Capsule"
+   }
+  },
+  {
+   "id": 127,
+   "category": "bangla_unseen",
+   "query": "নাপা সিরাপ",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": null,
+    "dosage_form": "Syrup"
+   }
+  },
+  {
+   "id": 128,
+   "category": "other",
+   "query": "Napa Extend 665mg",
+   "intent": {
+    "generic_name": "Paracetamol",
+    "strength": "665 mg",
+    "dosage_form": null
+   }
+  },
+  {
+   "id": 129,
+   "category": "other",
+   "query": "maxpro 20 tab",
+   "intent": {
+    "generic_name": "Esomeprazole",
+    "strength": "20 mg",
+    "dosage_form": "Tablet"
+   }
+  },
+  {
+   "id": 130,
+   "category": "other",
+   "query": "azmasol inhaler 100 mcg",
+   "intent": {
+    "generic_name": "Salbutamol",
+    "strength": "100 mcg",
+    "dosage_form": "Inhaler"
+   }
+  }
+ ]
+}
