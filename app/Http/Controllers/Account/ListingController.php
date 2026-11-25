@@ -191,6 +191,7 @@ class ListingController extends Controller
             'division_id' => $data['division_id'],
             'district_id' => $data['district_id'],
             'upazila_id' => $data['upazila_id'],
+            'pickup_address' => $data['pickup_address'],
         ];
     }
 

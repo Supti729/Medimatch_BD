@@ -21,8 +21,11 @@ class MedicineListing extends Model
 {
     protected $fillable = [
         'medicine_id', 'medicine_alias_id', 'brand_name', 'quantity', 'unit', 'expiry_date',
-        'batch_number', 'packaging', 'type', 'division_id', 'district_id', 'upazila_id',
+        'batch_number', 'packaging', 'type', 'division_id', 'district_id', 'upazila_id', 'pickup_address',
     ];
+
+    // The exact address is private: shown only to the owner and to a requester whose reservation was accepted.
+    protected $hidden = ['pickup_address'];
 
     protected $attributes = [
         'status' => 'draft',
@@ -37,6 +40,7 @@ class MedicineListing extends Model
             'submitted_at' => 'datetime',
             'published_at' => 'datetime',
             'quantity' => 'integer',
+            'pickup_address' => 'encrypted', // stored encrypted in the database
         ];
     }
 

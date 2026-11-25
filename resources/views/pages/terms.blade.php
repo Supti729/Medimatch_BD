@@ -25,7 +25,7 @@
                 <li>List only medicines that meet the <a href="{{ route('safety') }}">safety guidelines</a>.</li>
                 <li>Describe the medicine truthfully, including its expiry date and packaging condition.</li>
                 <li>Individuals may only donate. Asking for money for a donation is not allowed.</li>
-                <li>“Affordable access” listings are limited to authorized partner organizations.</li>
+                <li>“Affordable access” listings offer medicines at a low price. You are responsible for following the law: selling medicines may need a drug licence in Bangladesh.</li>
             </ul>
 
             <h2>5. Request rules</h2>

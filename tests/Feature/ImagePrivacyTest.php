@@ -44,6 +44,7 @@ class ImagePrivacyTest extends TestCase
         return array_merge([
             'medicine_id' => $this->medicine()->id, 'brand_name' => 'Napa', 'quantity' => 10, 'unit' => 'tablets',
             'expiry' => now()->addYear()->format('Y-m'), 'packaging' => 'sealed_box', 'type' => 'donation',
+            'pickup_address' => 'House 12, Road 5, Bank Town, Savar',
             'confirm_sealed' => '1', 'confirm_expiry' => '1', 'confirm_storage' => '1', 'confirm_allowed' => '1', 'action' => 'draft',
         ], $this->area(), $extra);
     }

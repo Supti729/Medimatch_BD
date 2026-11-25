@@ -1,6 +1,6 @@
 # Medimatch BD
 
-A privacy-focused, location-based web application that helps people in Bangladesh find eligible medicines and connect with donors or authorized affordable-access programs, with AI-assisted matching between requests and listings.
+A privacy-focused, location-based web application that helps people in Bangladesh find eligible medicines and connect with donors or low-cost (affordable-access) offers, with AI-assisted matching between requests and listings.
 
 > **Academic prototype.** Medimatch BD is a Software Engineering Capstone Project. It is **not** an authorized medicine distribution service. Medicine donation, redistribution, verification and delivery in a real deployment must follow applicable Bangladesh regulations.
 

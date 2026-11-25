@@ -106,6 +106,7 @@
                     'Batch number' => $listing->batch_number,
                     'Packaging' => $packaging,
                     'Area' => $listing->upazila->name.', '.$listing->district->name,
+                    'Pick-up address (private)' => $listing->pickup_address,
                     'Created' => $listing->created_at->format('j M Y'),
                     'Published' => $listing->published_at?->format('j M Y'),
                 ]" />

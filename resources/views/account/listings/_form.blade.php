@@ -18,7 +18,14 @@
     @if ($editing) @method('PUT') @endif
 
     @if ($errors->any())
-        <x-alert tone="danger" title="Please check the form">Some details need your attention. They are marked below.</x-alert>
+        <x-alert tone="danger" title="Please check the form">
+            Some details need your attention. They are also marked below.
+            <ul class="mt-2 list-disc space-y-1 pl-5">
+                @foreach ($errors->unique() as $message)
+                    <li>{{ $message }}</li>
+                @endforeach
+            </ul>
+        </x-alert>
     @endif
 
     <x-card title="Medicine" description="Choose the medicine from the catalogue, then copy the brand name and other details from the pack.">
@@ -58,14 +65,22 @@
 
     <x-card title="Listing type">
         <div class="space-y-3">
-            <label class="flex items-start gap-3 rounded-control border border-brand-300 bg-brand-50 p-4">
-                <input type="radio" name="type" value="donation" @checked(old('type', $listing?->type ?? 'donation') === 'donation') class="mt-0.5 size-4 accent-brand-600">
+            @php $currentType = old('type', $listing?->type ?? 'donation'); @endphp
+            <label class="flex cursor-pointer items-start gap-3 rounded-control border border-line p-4 has-checked:border-brand-300 has-checked:bg-brand-50">
+                <input type="radio" name="type" value="donation" @checked($currentType === 'donation') class="mt-0.5 size-4 accent-brand-600">
                 <span class="text-sm"><span class="block font-semibold">Donation</span><span class="text-ink-soft">Free of charge. You must not ask for money.</span></span>
             </label>
-            <label class="flex items-start gap-3 rounded-control border border-line bg-canvas p-4 opacity-70">
-                <input type="radio" name="type" value="affordable_access" disabled class="mt-0.5 size-4">
-                <span class="text-sm"><span class="block font-semibold">Affordable access <x-badge class="ml-1">Partners only</x-badge></span><span class="text-ink-soft">Only for authorized partner organizations, where the law allows it. Not available in the prototype.</span></span>
-            </label>
+            @if (config('medimatch.allow_affordable_access'))
+                <label class="flex cursor-pointer items-start gap-3 rounded-control border border-line p-4 has-checked:border-brand-300 has-checked:bg-brand-50">
+                    <input type="radio" name="type" value="affordable_access" @checked($currentType === 'affordable_access') class="mt-0.5 size-4 accent-brand-600">
+                    <span class="text-sm"><span class="block font-semibold">Affordable access</span><span class="text-ink-soft">Offered at a low price, agreed with the requester. Only where the law allows it: selling medicines may need a drug licence in Bangladesh.</span></span>
+                </label>
+            @else
+                <div class="flex items-start gap-3 rounded-control border border-line bg-canvas p-4 opacity-70">
+                    <input type="radio" disabled class="mt-0.5 size-4" aria-label="Affordable access (switched off)">
+                    <span class="text-sm"><span class="block font-semibold">Affordable access</span><span class="text-ink-soft">Switched off by the administrators at the moment.</span></span>
+                </div>
+            @endif
         </div>
         <x-form.field name="type" id="type" />
     </x-card>
@@ -101,9 +116,14 @@
         </div>
     </x-card>
 
-    <x-card title="Pick-up area" description="Only the upazila and district are shown publicly, never an address.">
+    <x-card title="Pick-up area" description="Only the upazila and district are shown publicly. The exact address is shown only to the person whose request you accept.">
         <div class="grid gap-5 sm:grid-cols-3">
             <x-form.location by="id" required with-upazila :division="$location['division_id'] ?? null" :district="$location['district_id'] ?? null" :upazila="$location['upazila_id'] ?? null" />
+        </div>
+        <div class="mt-5">
+            <x-form.textarea name="pickup_address" label="Exact pick-up address" rows="2" required maxlength="300"
+                :value="$listing?->pickup_address"
+                hint="House, road, area and a landmark. Kept private and stored encrypted." />
         </div>
     </x-card>
 

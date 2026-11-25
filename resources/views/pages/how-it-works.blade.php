@@ -82,7 +82,7 @@
             <div class="mt-6 divide-y divide-line rounded-card border border-line bg-surface shadow-card">
                 @foreach ([
                     ['Does it cost anything?', 'No. Finding, requesting and donating medicines is free for individuals.'],
-                    ['Can I sell medicines here?', 'No. Individuals can only donate. “Affordable access” listings are reserved for authorized partner organizations and only where the law allows it.'],
+                    ['Can I sell medicines here?', 'You can list a medicine as “Affordable access” and agree a low price with the requester, but only where the law allows it: selling medicines may need a drug licence in Bangladesh. Donations are always free.'],
                     ['Who can see my phone number or address?', 'Nobody. Listings show only your area (upazila and district), and contact happens through in-app messages.'],
                     ['Which medicines can be listed?', 'Only unopened, unexpired medicines in original packaging. Controlled drugs, medicines needing refrigeration and opened packs cannot be listed. See the safety guidelines.'],
                     ['Is this a real service?', 'Not yet. This is an academic prototype. A real service would need approval under Bangladesh medicine regulations.'],

@@ -100,6 +100,19 @@ document.addEventListener('submit', (event) => {
     const form = event.target;
     if (!(form instanceof HTMLFormElement) || !form.hasAttribute('data-loading')) return;
 
+    // A disabled button is left out of the submitted data, so copy the clicked button's
+    // name and value (e.g. action=submit) into a hidden field before disabling it.
+    form.querySelector('input[data-submitter-copy]')?.remove();
+    const submitter = event.submitter;
+    if (submitter?.name) {
+        const copy = document.createElement('input');
+        copy.type = 'hidden';
+        copy.name = submitter.name;
+        copy.value = submitter.value;
+        copy.dataset.submitterCopy = '';
+        form.append(copy);
+    }
+
     form.querySelectorAll('button[type="submit"], button:not([type])').forEach((button) => {
         button.disabled = true;
         button.setAttribute('aria-busy', 'true');

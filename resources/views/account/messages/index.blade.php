@@ -90,6 +90,11 @@
                     <span class="hidden shrink-0 sm:block"><x-badge :tone="$current->reservation->status->value === 'accepted' ? 'success' : ($open ? 'warning' : 'neutral')">{{ $current->reservation->status->label() }}</x-badge></span>
                     <x-button variant="ghost" size="sm" icon="flag" data-modal-open="report-conversation" title="Report this conversation"><span class="sr-only sm:not-sr-only">Report</span></x-button>
                 </div>
+                @if ($current->reservation->status->value === 'accepted' && $current->requester_id === $me->id)
+                    <div class="border-b border-line px-4 pb-4 sm:px-5">
+                        @include('account.partials.pickup-address', ['listing' => $listing])
+                    </div>
+                @endif
 
                 <ol id="message-list" class="max-h-[32rem] flex-1 space-y-3 overflow-y-auto bg-canvas/50 p-4 sm:p-5" aria-label="Messages" aria-live="polite"
                     data-poll-url="{{ route('messages.poll', $current) }}" data-last-id="{{ $lastId }}" data-other-name="{{ $other->name }}">

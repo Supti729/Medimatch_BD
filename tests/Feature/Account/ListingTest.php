@@ -54,6 +54,7 @@ class ListingTest extends TestCase
             'division_id' => $district->division_id,
             'district_id' => $district->id,
             'upazila_id' => $district->upazilas()->where('name', 'Savar')->value('id'),
+            'pickup_address' => 'House 12, Road 5, Bank Town, Savar',
             'confirm_sealed' => '1',
             'confirm_expiry' => '1',
             'confirm_storage' => '1',
@@ -165,10 +166,49 @@ class ListingTest extends TestCase
         $this->post('/listings', $this->form(['expiry' => now()->addMonths(4)->format('Y-m')]))->assertSessionHasNoErrors();
     }
 
-    public function test_individuals_cannot_create_affordable_access_listings(): void
+    public function test_any_user_can_create_an_affordable_access_listing(): void
     {
-        $this->actingAs($this->owner)->post('/listings', $this->form(['type' => 'affordable_access']))->assertSessionHasErrors('type');
+        $this->actingAs($this->owner)->post('/listings', $this->form(['type' => 'affordable_access']))->assertSessionHasNoErrors();
+        $this->assertSame('affordable_access', MedicineListing::sole()->type);
+    }
+
+    public function test_affordable_access_is_refused_when_an_administrator_switches_it_off(): void
+    {
+        config(['medimatch.allow_affordable_access' => false]);
+
+        $this->actingAs($this->owner)->get('/listings/create')->assertSee('Switched off by the administrators');
+        $this->post('/listings', $this->form(['type' => 'affordable_access']))->assertSessionHasErrors('type');
         $this->assertSame(0, MedicineListing::count());
+    }
+
+    // ----- Pick-up address -----
+
+    public function test_the_pickup_address_is_required_and_stored_encrypted(): void
+    {
+        $this->actingAs($this->owner);
+        $this->post('/listings', $this->form(['pickup_address' => '']))->assertSessionHasErrors('pickup_address');
+        $this->post('/listings', $this->form(['pickup_address' => 'Savar']))->assertSessionHasErrors('pickup_address');
+
+        $this->post('/listings', $this->form())->assertSessionHasNoErrors();
+        $listing = MedicineListing::sole();
+        $this->assertSame('House 12, Road 5, Bank Town, Savar', $listing->pickup_address);
+
+        $raw = \Illuminate\Support\Facades\DB::table('medicine_listings')->value('pickup_address');
+        $this->assertStringNotContainsString('Bank Town', $raw);
+        $this->assertArrayNotHasKey('pickup_address', $listing->toArray());
+
+        $this->get(route('listings.edit', $listing))->assertSee('House 12, Road 5, Bank Town, Savar');
+    }
+
+    // ----- Form errors -----
+
+    public function test_the_error_banner_lists_every_problem(): void
+    {
+        $this->actingAs($this->owner)->get('/listings/create');
+
+        $this->followRedirects($this->from('/listings/create')->post('/listings', $this->form(['action' => null])))
+            ->assertSee('Please check the form')
+            ->assertSee('The action field is required.');
     }
 
     // ----- Photos -----

@@ -13,8 +13,8 @@
                     <x-form.input name="max_photos" label="Photos per listing" type="number" min="1" max="10" :value="$settings['max_photos']" required />
                 </div>
                 <div class="mt-5">
-                    <x-form.checkbox name="allow_affordable_access" label="Allow affordable-access listings by partner organizations" :checked="$settings['allow_affordable_access']"
-                        hint="Keep this off until partner licensing and the legal basis are confirmed." />
+                    <x-form.checkbox name="allow_affordable_access" label="Allow affordable-access (low-cost) listings" :checked="$settings['allow_affordable_access']"
+                        hint="When on, every user can choose affordable access when listing. Selling medicines may need a drug licence in Bangladesh." />
                 </div>
             </x-card>
 
@@ -37,7 +37,7 @@
                     @foreach ([
                         ['Administrator', 'Manages users, listings, reports, the catalogue, partners and settings.'],
                         ['Authorized reviewer', 'Reviews prescription documents. Cannot change settings.'],
-                        ['Partner', 'A verified organization. May offer affordable-access listings when allowed.'],
+                        ['Partner', 'A verified organization. Can list donations and affordable-access offers like any user.'],
                         ['User', 'Requests and donates medicines.'],
                     ] as [$role, $text])
                         <li class="flex flex-wrap gap-x-3"><span class="w-40 font-semibold">{{ $role }}</span><span class="flex-1 text-ink-soft">{{ $text }}</span></li>

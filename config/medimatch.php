@@ -38,8 +38,8 @@ return [
     // Open requests expire after this many days without a handover (see the requests:expire command).
     'request_expiry_days' => 60,
 
-    // Affordable-access listings by verified partners. Off until partner licensing and the legal basis are confirmed.
-    'allow_affordable_access' => false,
+    // Affordable-access (low-cost) listings, open to every user. Administrators can switch them off in Settings.
+    'allow_affordable_access' => true,
 
     // Units offered on the listing form
     'units' => ['tablets', 'capsules', 'bottles', 'sachets', 'strips', 'tubes', 'inhalers', 'drops bottles'],

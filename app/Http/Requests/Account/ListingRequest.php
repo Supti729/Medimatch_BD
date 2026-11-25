@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Account;
 
-use App\Enums\Role;
 use App\Models\Medicine;
 use App\Models\MedicineListing;
 use Illuminate\Foundation\Http\FormRequest;
@@ -29,6 +28,7 @@ class ListingRequest extends FormRequest
     {
         $this->merge([
             'brand_name' => is_string($this->input('brand_name')) ? preg_replace('/\s+/', ' ', trim($this->input('brand_name'))) : $this->input('brand_name'),
+            'pickup_address' => is_string($this->input('pickup_address')) ? trim(preg_replace('/[ \t]+/', ' ', $this->input('pickup_address'))) : $this->input('pickup_address'),
             'batch_number' => is_string($this->input('batch_number')) && trim($this->input('batch_number')) !== '' ? strtoupper(trim($this->input('batch_number'))) : null,
             'type' => $this->input('type', 'donation'),
         ]);
@@ -50,6 +50,7 @@ class ListingRequest extends FormRequest
             'division_id' => ['required', 'integer', Rule::exists('divisions', 'id')],
             'district_id' => ['required', 'integer', Rule::exists('districts', 'id')->where('division_id', $this->integer('division_id'))],
             'upazila_id' => ['required', 'integer', Rule::exists('upazilas', 'id')->where('district_id', $this->integer('district_id'))],
+            'pickup_address' => ['required', 'string', 'min:10', 'max:300'],
             'images' => ['nullable', 'array', 'max:'.$rules['max_photos']],
             'images.*' => [File::image()->types(['jpg', 'jpeg', 'png', 'webp'])->max($rules['max_photo_kb'])->dimensions(Rule::dimensions()->maxWidth(8000)->maxHeight(8000))],
             'remove_images' => ['nullable', 'array'],
@@ -82,10 +83,9 @@ class ListingRequest extends FormRequest
                 $validator->errors()->add('expiry', "The medicine must have at least {$months} months left before it expires.");
             }
 
-            // 3. Individuals may only donate. Affordable access is for verified partners, when switched on.
-            if ($this->input('type') === 'affordable_access'
-                && ! ($this->user()->role === Role::Partner && config('medimatch.allow_affordable_access'))) {
-                $validator->errors()->add('type', 'Only authorized partner organizations can create affordable-access listings.');
+            // 3. Affordable access is open to everyone unless an administrator has switched it off.
+            if ($this->input('type') === 'affordable_access' && ! config('medimatch.allow_affordable_access')) {
+                $validator->errors()->add('type', 'Affordable-access listings are switched off at the moment. Choose donation instead.');
             }
 
             // 4. Photo limit counts the photos already on the listing that are being kept.
@@ -108,6 +108,8 @@ class ListingRequest extends FormRequest
             'batch_number.regex' => 'The batch number can only contain letters, numbers, dashes and slashes.',
             'district_id.exists' => 'Choose a district in the selected division.',
             'upazila_id.exists' => 'Choose an upazila or thana in the selected district.',
+            'pickup_address.required' => 'Enter the pick-up address. Only the person whose request you accept will see it.',
+            'pickup_address.min' => 'Write the full pick-up address (house, road, area).',
             'confirm_sealed.accepted' => 'Confirm that the medicine is unopened and in its original packaging.',
             'confirm_expiry.accepted' => 'Confirm that the expiry date is correct.',
             'confirm_storage.accepted' => 'Confirm that the medicine has been stored correctly.',
@@ -123,6 +125,7 @@ class ListingRequest extends FormRequest
             'division_id' => 'division',
             'district_id' => 'district',
             'upazila_id' => 'upazila',
+            'pickup_address' => 'pick-up address',
             'images.*' => 'photo',
         ];
     }

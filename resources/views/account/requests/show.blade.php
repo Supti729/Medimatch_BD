@@ -91,6 +91,9 @@
                             </form>
                         </div>
                     </div>
+                    @if ($activeReservation->status->value === 'accepted')
+                        @include('account.partials.pickup-address', ['listing' => $activeReservation->listing])
+                    @endif
                 </x-card>
             @endif
 

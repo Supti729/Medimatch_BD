@@ -15,7 +15,14 @@
     @if ($editing) @method('PUT') @endif
 
     @if ($errors->any())
-        <x-alert tone="danger" title="Please check the form">Some details need your attention. They are marked below.</x-alert>
+        <x-alert tone="danger" title="Please check the form">
+            Some details need your attention. They are also marked below.
+            <ul class="mt-2 list-disc space-y-1 pl-5">
+                @foreach ($errors->unique() as $message)
+                    <li>{{ $message }}</li>
+                @endforeach
+            </ul>
+        </x-alert>
     @endif
 
     <x-card title="Medicine" description="Choose the exact medicine. Matches must have the same generic name, strength and form.">
@@ -52,7 +59,7 @@
         <fieldset>
             <legend class="text-sm font-medium">Type of assistance</legend>
             <div class="mt-3 grid gap-3 sm:grid-cols-3">
-                @foreach (['either' => ['Either', 'Show me all options.'], 'donation' => ['Donation only', 'Free medicines from donors.'], 'affordable_access' => ['Affordable access', 'From authorized partners.']] as $key => [$label, $text])
+                @foreach (['either' => ['Either', 'Show me all options.'], 'donation' => ['Donation only', 'Free medicines from donors.'], 'affordable_access' => ['Affordable access', 'Low-cost offers from other users.']] as $key => [$label, $text])
                     <label class="flex items-start gap-3 rounded-control border border-line p-4 has-checked:border-brand-300 has-checked:bg-brand-50">
                         <input type="radio" name="preference" value="{{ $key }}" @checked(old('preference', $medicineRequest?->preference ?? 'either') === $key) class="mt-0.5 size-4 accent-brand-600">
                         <span class="text-sm"><span class="block font-semibold">{{ $label }}</span><span class="text-ink-soft">{{ $text }}</span></span>

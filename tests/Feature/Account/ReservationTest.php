@@ -47,6 +47,29 @@ class ReservationTest extends TestCase
         $this->assertSame(ListingStatus::Requested, $listing->fresh()->status);
     }
 
+    public function test_the_pickup_address_is_shown_only_after_the_donor_accepts(): void
+    {
+        $address = 'House 7, Road 3, Dhanmondi';
+        $listing = $this->makeListing($this->donor, extra: ['pickup_address' => $address]);
+        $myRequest = $this->makeRequest($this->requester);
+
+        // Never on the public listing page
+        $this->get("/medicines/{$listing->id}")->assertOk()->assertDontSee($address);
+
+        $this->reserve($listing);
+        $reservation = Reservation::first();
+        $this->actingAs($this->requester)->get("/requests/{$myRequest->id}")->assertDontSee($address);
+        $this->get("/messages/{$reservation->conversation->id}")->assertDontSee($address);
+
+        $this->actingAs($this->donor)->patch("/reservations/{$reservation->id}/accept");
+
+        $this->actingAs($this->requester)->get("/requests/{$myRequest->id}")->assertSee($address);
+        $this->get("/messages/{$reservation->conversation->id}")->assertSee($address);
+
+        // A stranger still cannot see it
+        $this->actingAs(User::factory()->create())->get("/medicines/{$listing->id}")->assertDontSee($address);
+    }
+
     public function test_cannot_request_own_listing_twice_or_one_that_is_not_available(): void
     {
         $own = $this->makeListing($this->donor);
