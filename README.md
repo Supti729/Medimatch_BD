@@ -98,6 +98,10 @@ No SMS provider is configured, and email is written to `storage/logs/laravel.log
 With `MEDIMATCH_DEV_CODES_ON_SCREEN=true` in `.env`, verification codes and reset links are shown on screen,
 clearly labelled as development codes. This setting is ignored outside the `local` and `testing` environments.
 
+### Sharing a live demo
+
+To show your running copy to someone else over a temporary public https link (free, no account), see `docs/DEMO-TUNNEL.md`.
+
 ### Tests
 
 ```bash

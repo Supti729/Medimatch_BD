@@ -18,6 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified.account' => \App\Http\Middleware\EnsureAccountIsVerified::class,
         ]);
 
+        // Trust X-Forwarded-* headers only from a proxy on this same machine (for example a Cloudflare
+        // Tunnel for demos), so links use https there. Headers sent by anyone else are still ignored,
+        // so visitors cannot fake their IP address to get around rate limits.
+        $middleware->trustProxies(at: ['127.0.0.1', '::1']);
+
         // Security headers on every web page
         $middleware->web(append: [\App\Http\Middleware\SecurityHeaders::class]);
 
